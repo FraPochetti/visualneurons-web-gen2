@@ -1,52 +1,69 @@
-import { useState, useEffect } from "react";
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "@/amplify/data/resource";
-import { useAuthenticator } from "@aws-amplify/ui-react";
+import { useState } from "react";
+import { uploadData, list, getUrl } from "aws-amplify/storage";
+import { getCurrentUser } from "aws-amplify/auth";
 
-const client = generateClient<Schema>();
+export default function PhotoUpload() {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
 
-export default function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
-  const { signOut } = useAuthenticator();
+  // Handle file selection
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files?.length) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
 
-  function listTodos() {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }
+  // Upload selected file
+  const handleUpload = async () => {
+    if (!selectedFile) return;
 
-  useEffect(() => {
-    listTodos();
-  }, []);
+    try {
+      const user = await getCurrentUser();
+      const userId = user.userId;
+      const path = `photos/${userId}/${selectedFile.name}`;
 
-  function createTodo() {
-    client.models.Todo.create({
-      content: window.prompt("Todo content"),
-    });
-  }
+      await uploadData({
+        path,
+        data: selectedFile,
+      });
+      alert("Upload successful!");
+      fetchUploadedPhotos(); // Refresh the list
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
+  };
 
-
-  function deleteTodo(id: string) {
-    client.models.Todo.delete({ id })
-  }
+  // Fetch uploaded photos
+  const fetchUploadedPhotos = async () => {
+    try {
+      const { items } = await list({ path: "photos/" });
+      const urls = await Promise.all(
+        items.map(async (item) => {
+          const { url } = await getUrl({ path: item.path });
+          return url.toString();
+        })
+      );
+      setUploadedPhotos(urls);
+    } catch (error) {
+      console.error("Error listing photos:", error);
+    }
+  };
 
   return (
     <main>
-      <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
-      <ul>
-        {todos.map((todo) => (
-          <li onClick={() => deleteTodo(todo.id)} key={todo.id}>{todo.content}</li>
-        ))}
-      </ul>
+      <h1>Upload a Photo</h1>
+
+      <input type="file" accept="image/*" onChange={handleFileChange} />
+      <button onClick={handleUpload} disabled={!selectedFile}>
+        Upload Photo
+      </button>
+
+      <h2>Uploaded Photos</h2>
       <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/gen2/start/quickstart/nextjs-pages-router/">
-          Review next steps of this tutorial.
-        </a>
+        {uploadedPhotos.map((photoUrl, index) => (
+          <img key={index} src={photoUrl} alt="Uploaded" width={200} />
+        ))}
       </div>
-      <button onClick={signOut}>Sign out</button>
     </main>
   );
 }
