@@ -18,16 +18,20 @@ export default function PhotoUpload() {
     if (!selectedFile) return;
 
     try {
+      // Get the user's identity ID
       const user = await getCurrentUser();
-      const userId = user.userId;
-      const path = `photos/${userId}/${selectedFile.name}`;
+      console.log("User object:", user); // Debugging
+      console.log("User identityId:", user.userId); // Debugging
+
+      const path = `photos/${user.userId}/${selectedFile.name}`;
+      console.log("Uploading to:", path); // Debugging
 
       await uploadData({
         path,
         data: selectedFile,
       });
-      alert("Upload successful!");
-      fetchUploadedPhotos(); // Refresh the list
+      //alert("Upload successful!");
+      //fetchUploadedPhotos(); // Refresh the list
     } catch (error) {
       console.error("Upload failed:", error);
     }
