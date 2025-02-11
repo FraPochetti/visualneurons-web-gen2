@@ -143,7 +143,6 @@ export default function PhotoUpload() {
   );
 }
 
-// Styles Object
 const styles: { [key: string]: CSSProperties } = {
   container: {
     display: "flex",
