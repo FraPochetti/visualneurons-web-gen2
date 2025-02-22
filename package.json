@@ -15,6 +15,7 @@
     "next": "^14.2.23",
     "react": "^18",
     "react-dom": "^18",
+    "replicate": "^1.0.1",
     "ts-algebra": "^2.0.0"
   },
   "devDependencies": {
@@ -26,7 +27,7 @@
     "aws-cdk": "^2.178.1",
     "aws-cdk-lib": "^2.178.1",
     "constructs": "^10.4.2",
-    "esbuild": "^0.20.2",
+    "esbuild": "^0.25.0",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
     "tsx": "^4.7.2",
