@@ -1,21 +1,24 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+import { replicate } from '../functions/replicate/resource'; // import your replicate function
 
 const schema = a.schema({
-  // Define a new model for storing image records
+  // New custom mutation to invoke the replicate Lambda
+  generateImage: a.mutation()
+    .arguments({
+      input: a.json(), // input parameters for image generation; adjust type as needed
+    })
+    .returns(a.json()) // returns the JSON output from Replicate
+    .authorization(allow => [allow.publicApiKey()]) // adjust auth as needed
+    .handler(a.handler.function(replicate)),
+
+  // Existing models (e.g. ImageRecord) remain here
   ImageRecord: a.model({
-    // Automatically added identifier can be used, or you can customize it.
-    // Owner field to enforce per-user access.
     owner: a.string().required(),
-    // S3 key for the original image. This is required.
     originalImagePath: a.string().required(),
-    // An array to store S3 keys of the edited versions.
     editedImagePaths: a.string().array(),
-    // Optional field to capture transformation details (as JSON).
     transformationHistory: a.json(),
-    // Optionally, a field to distinguish between user-uploaded and AI-generated images.
-    source: a.enum(['uploaded', 'generated']),
+    source: a.enum(["uploaded", "generated"]),
   })
-    // Use owner-based authorization so only the record owner can modify it.
     .authorization(allow => [allow.owner()]),
 }).authorization(allow => [allow.publicApiKey()]);
 
