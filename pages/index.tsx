@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { uploadData, list, getUrl } from "aws-amplify/storage";
 import { fetchAuthSession, getCurrentUser, signOut, fetchUserAttributes } from "aws-amplify/auth";
 import { CSSProperties } from "react";
+import Link from "next/link";
 
 export default function PhotoUpload() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -105,6 +106,14 @@ export default function PhotoUpload() {
         )}
       </header>
       <div style={styles.fileInputWrapper}>
+
+        {/* Add a link to /images */}
+        <nav style={{ marginTop: "20px" }}>
+          <Link href="/images">
+            Go to My Images
+          </Link>
+        </nav>
+
         {/* File Input */}
         <label style={styles.fileInputLabel}>
           Choose File
