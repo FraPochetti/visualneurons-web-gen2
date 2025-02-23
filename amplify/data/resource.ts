@@ -8,7 +8,6 @@ const schema = a.schema({
       input: a.json(), // input parameters for image generation; adjust type as needed
     })
     .returns(a.json()) // returns the JSON output from Replicate
-    .authorization(allow => [allow.publicApiKey()]) // adjust auth as needed
     .handler(a.handler.function(replicate)),
 
   // Existing models (e.g. ImageRecord) remain here
@@ -19,8 +18,7 @@ const schema = a.schema({
     transformationHistory: a.json(),
     source: a.enum(["uploaded", "generated"]),
   })
-    .authorization(allow => [allow.owner()]),
-}).authorization(allow => [allow.publicApiKey()]);
+}).authorization(allow => [allow.authenticated()]);
 
 export type Schema = ClientSchema<typeof schema>;
 
