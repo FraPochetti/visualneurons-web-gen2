@@ -6,5 +6,5 @@ export const replicate = defineFunction({
     environment: {
         REPLICATE_API_TOKEN: secret("REPLICATE_API_TOKEN")
     },
-    // You can adjust properties such as timeoutSeconds if needed.
+    timeoutSeconds: 30,
 });

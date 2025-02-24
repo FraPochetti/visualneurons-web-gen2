@@ -1,34 +1,27 @@
 // amplify/functions/replicate/handler.ts
-import { Handler } from "aws-lambda";
+import { Schema } from "../../data/resource";
 import Replicate from "replicate";
 
-export const handler: Handler = async (event) => {
-    // Expect the request body to be JSON with an "input" field.
-    const { input } = JSON.parse(event.body || '{}');
+export const handler: Schema["generateImage"]["functionHandler"] = async (event) => {
+    const { prompt, prompt_upsampling } = event.arguments;
 
-    if (!input) {
-        return {
-            statusCode: 400,
-            body: JSON.stringify({ error: "Missing input for image generation" }),
-        };
+    if (!prompt) {
+        throw new Error("Missing prompt for image generation");
     }
 
-    // For this example, we use the fixed model "black-forest-labs/flux-1.1-pro".
-    const model = "black-forest-labs/flux-1.1-pro";
-    // Initialize Replicate with the API token stored in your environment.
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
+    const model = "black-forest-labs/flux-1.1-pro";
 
     try {
-        const output = await replicate.run(model, { input });
-        return {
-            statusCode: 200,
-            body: JSON.stringify(output),
-        };
+        const output = await replicate.run(model, {
+            input: {
+                prompt,
+                prompt_upsampling: prompt_upsampling ?? true
+            }
+        });
+        return output;
     } catch (error) {
         console.error("Replicate API call failed:", error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: "Replicate API call failed", details: error }),
-        };
+        throw error;
     }
 };

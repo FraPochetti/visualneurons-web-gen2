@@ -5,7 +5,8 @@ const schema = a.schema({
   // New custom mutation to invoke the replicate Lambda
   generateImage: a.mutation()
     .arguments({
-      input: a.json(), // input parameters for image generation; adjust type as needed
+      prompt: a.string().required(),
+      prompt_upsampling: a.boolean(),
     })
     .returns(a.json()) // returns the JSON output from Replicate
     .handler(a.handler.function(replicate)),

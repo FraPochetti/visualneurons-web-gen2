@@ -21,10 +21,20 @@ export default function GenerateImagePage() {
             console.log("Parsed input:", parsedInput);
             console.log("About to call generateImage...");
             const response = await client.mutations.generateImage({
-                input: parsedInput
+                prompt: parsedInput.prompt,
+                prompt_upsampling: parsedInput.prompt_upsampling,
             });
-            console.log("Mutation response:", response);
-            setResult(response.data);
+            // Replicate typically returns an array of URLs for images
+            // For most image models, the first item is the generated image
+            console.log("API response:", response.data);
+
+            // If response.data is an array of URLs
+            if (Array.isArray(response.data) && response.data.length > 0) {
+                setResult(response.data[0]);
+            } else {
+                // If it's a direct URL or other format
+                setResult(response.data);
+            }
         } catch (err: any) {
             console.error(err);
             setError(err.message || "An error occurred");
@@ -53,8 +63,16 @@ export default function GenerateImagePage() {
             )}
             {result && (
                 <div style={{ marginTop: "1rem" }}>
-                    <h2>Response:</h2>
-                    <pre>{JSON.stringify(result, null, 2)}</pre>
+                    <h2>Generated Image:</h2>
+                    {typeof result === 'string' && result.startsWith('http') ? (
+                        <img
+                            src={result}
+                            alt="Generated"
+                            style={{ maxWidth: '100%', maxHeight: '500px' }}
+                        />
+                    ) : (
+                        <pre>{JSON.stringify(result, null, 2)}</pre>
+                    )}
                 </div>
             )}
         </div>
