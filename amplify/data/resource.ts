@@ -13,6 +13,8 @@ const schema = a.schema({
   // Existing models (e.g. ImageRecord) remain here
   ImageRecord: a.model({
     owner: a.string().required(),
+    originalImagePath: a.string().required(),
+    editedImagePaths: a.string().array(),
     transformationHistory: a.json(),
     source: a.enum(["uploaded", "generated"]),
   })
