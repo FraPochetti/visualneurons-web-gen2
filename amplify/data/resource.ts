@@ -8,8 +8,9 @@ const schema = a.schema({
       prompt: a.string().required(),
       prompt_upsampling: a.boolean(),
     })
-    .returns(a.json()) // returns the JSON output from Replicate
+    .returns(a.string()) // expecting a string URI
     .handler(a.handler.function(replicate)),
+
 
   // Existing models (e.g. ImageRecord) remain here
   ImageRecord: a.model({

@@ -19,6 +19,7 @@ export const handler: Schema["generateImage"]["functionHandler"] = async (event)
                 prompt_upsampling: prompt_upsampling ?? true
             }
         });
+        console.log("Replicate raw output:", output);
         return output;
     } catch (error) {
         console.error("Replicate API call failed:", error);
