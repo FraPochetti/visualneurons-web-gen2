@@ -19,9 +19,11 @@ export default function GenerateImagePage() {
             // Parse the JSON input provided by the user
             const parsedInput = JSON.parse(inputValue);
             console.log("Parsed input:", parsedInput);
+            console.log("About to call generateImage...");
             const response = await client.mutations.generateImage({
-                input: parsedInput,
+                input: parsedInput
             });
+            console.log("Mutation response:", response);
             setResult(response.data);
         } catch (err: any) {
             console.error(err);
