@@ -11,7 +11,6 @@ const schema = a.schema({
     .returns(a.string()) // expecting a string URI
     .handler(a.handler.function(replicate)),
 
-
   // Existing models (e.g. ImageRecord) remain here
   ImageRecord: a.model({
     owner: a.string().required(),

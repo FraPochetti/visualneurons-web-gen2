@@ -20,21 +20,14 @@ export default function GenerateImagePage() {
             const parsedInput = JSON.parse(inputValue);
             console.log("Parsed input:", parsedInput);
             console.log("About to call generateImage...");
-            const response = await client.mutations.generateImage({
+            const output = await client.mutations.generateImage({
                 prompt: parsedInput.prompt,
                 prompt_upsampling: parsedInput.prompt_upsampling,
             });
             // Replicate typically returns an array of URLs for images
             // For most image models, the first item is the generated image
-            console.log("API response:", response.data);
-
-            // If response.data is an array of URLs
-            if (Array.isArray(response.data) && response.data.length > 0) {
-                setResult(response.data[0]);
-            } else {
-                // If it's a direct URL or other format
-                setResult(response.data);
-            }
+            console.log("API response:", output);
+            setResult(output);
         } catch (err: any) {
             console.error(err);
             setError(err.message || "An error occurred");

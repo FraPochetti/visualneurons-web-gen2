@@ -13,14 +13,27 @@ export const handler: Schema["generateImage"]["functionHandler"] = async (event)
     const model = "black-forest-labs/flux-1.1-pro";
 
     try {
+        console.log("Calling Replicate with:", { prompt, prompt_upsampling });
         const output = await replicate.run(model, {
             input: {
                 prompt,
-                prompt_upsampling: prompt_upsampling ?? true
-            }
+                prompt_upsampling: prompt_upsampling ?? true,
+            },
         });
-        console.log("Replicate raw output:", output);
-        return output;
+
+        // Log the raw output to understand its structure
+        console.log("Raw output type:", typeof output);
+        console.log("Raw output value:", JSON.stringify(output, null, 2));
+
+        // Handle different possible output formats
+        if (typeof output === 'string') {
+            return output;
+        } else if (Array.isArray(output) && output.length > 0) {
+            return output[0];
+        } else {
+            // If we can't determine a proper format, return a detailed error
+            throw new Error(`Unexpected output format: ${JSON.stringify(output)}`);
+        }
     } catch (error) {
         console.error("Replicate API call failed:", error);
         throw error;
