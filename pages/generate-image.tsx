@@ -58,7 +58,6 @@ export default function GenerateImagePage() {
             {result && (
                 <div style={{ marginTop: "1rem" }}>
                     <h2>Generated Image:</h2>
-                    {/* Extract image URL from the data response */}
                     {typeof result.data === 'string' && result.data.startsWith('http') ? (
                         <img
                             src={result.data}
