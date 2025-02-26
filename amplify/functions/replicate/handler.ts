@@ -17,6 +17,16 @@ export const handler: Schema["generateImage"]["functionHandler"] = async (event)
     const model = "black-forest-labs/flux-1.1-pro";
 
     try {
+        // Try to fetch user info from Replicate - this will fail if token is invalid
+        const page = await replicate.predictions.list();
+        console.log("Successfully authenticated with Replicate");
+        console.log(page.results)
+    } catch (error) {
+        console.error("Failed to authenticate with Replicate:", error);
+        throw new Error("Authentication failed - check your API token");
+    }
+
+    try {
         console.log("Calling Replicate with:", { prompt, prompt_upsampling });
         const output = await replicate.run(model, {
             input: {
