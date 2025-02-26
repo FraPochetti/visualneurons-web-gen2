@@ -54,7 +54,6 @@ export default function GenerateImagePage() {
                     Error: {error}
                 </div>
             )}
-            // Update the result handling in generate-image.tsx
             {result && (
                 <div style={{ marginTop: "1rem" }}>
                     <h2>Generated Image:</h2>
