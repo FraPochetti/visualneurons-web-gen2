@@ -3,12 +3,10 @@ import { Schema } from "../../data/resource";
 import Replicate from "replicate";
 
 export const handler: Schema["generateImage"]["functionHandler"] = async (event) => {
-    // Just log whether the token exists (but not its value)
     console.log("REPLICATE_API_TOKEN exists:", !!process.env.REPLICATE_API_TOKEN);
     console.log("REPLICATE_API_TOKEN length:", process.env.REPLICATE_API_TOKEN?.length);
 
     const { prompt, prompt_upsampling } = event.arguments;
-
     if (!prompt) {
         throw new Error("Missing prompt for image generation");
     }
@@ -17,36 +15,49 @@ export const handler: Schema["generateImage"]["functionHandler"] = async (event)
     const model = "black-forest-labs/flux-1.1-pro";
 
     try {
-        // Try to fetch user info from Replicate - this will fail if token is invalid
-        const page = await replicate.predictions.list();
-        console.log("Successfully authenticated with Replicate");
-        console.log(page.results)
-    } catch (error) {
-        console.error("Failed to authenticate with Replicate:", error);
-        throw new Error("Authentication failed - check your API token");
-    }
-
-    try {
-        console.log("Calling Replicate with:", { prompt, prompt_upsampling });
-        const output = await replicate.run(model, {
+        // Create the prediction
+        const prediction = await replicate.predictions.create({
+            model: model,
             input: {
                 prompt,
                 prompt_upsampling: prompt_upsampling ?? true,
-            },
+            }
         });
 
-        // Log the raw output to understand its structure
-        console.log("Raw output type:", typeof output);
-        console.log("Raw output value:", JSON.stringify(output, null, 2));
+        console.log("Prediction created:", prediction.id);
 
-        // Handle different possible output formats
-        if (typeof output === 'string') {
-            return output;
-        } else if (Array.isArray(output) && output.length > 0) {
-            return output[0];
+        // Poll for the result
+        let completed = null;
+        for (let i = 0; i < 15; i++) { // Increased timeout attempts to 15
+            const latest = await replicate.predictions.get(prediction.id);
+            console.log("Polling prediction:", latest.status);
+
+            if (latest.status !== "starting" && latest.status !== "processing") {
+                completed = latest;
+                break;
+            }
+            // Wait for 2 seconds before polling again
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+
+        if (!completed) {
+            throw new Error("Prediction timed out");
+        }
+
+        if (completed.status === "failed") {
+            throw new Error(`Prediction failed: ${completed.error}`);
+        }
+
+        console.log("Prediction completed:", completed.status);
+        console.log("Output:", completed.output);
+
+        // Handle output based on its type
+        if (typeof completed.output === 'string') {
+            return completed.output;
+        } else if (Array.isArray(completed.output) && completed.output.length > 0) {
+            return completed.output[0];
         } else {
-            // If we can't determine a proper format, return a detailed error
-            throw new Error(`Unexpected output format: ${JSON.stringify(output)}`);
+            throw new Error(`Unexpected output format: ${JSON.stringify(completed.output)}`);
         }
     } catch (error) {
         console.error("Replicate API call failed:", error);
