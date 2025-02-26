@@ -54,12 +54,14 @@ export default function GenerateImagePage() {
                     Error: {error}
                 </div>
             )}
+            // Update the result handling in generate-image.tsx
             {result && (
                 <div style={{ marginTop: "1rem" }}>
                     <h2>Generated Image:</h2>
-                    {typeof result === 'string' && result.startsWith('http') ? (
+                    {/* Extract image URL from the data response */}
+                    {typeof result.data === 'string' && result.data.startsWith('http') ? (
                         <img
-                            src={result}
+                            src={result.data}
                             alt="Generated"
                             style={{ maxWidth: '100%', maxHeight: '500px' }}
                         />
