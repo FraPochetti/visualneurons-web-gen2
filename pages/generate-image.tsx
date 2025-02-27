@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
+import Link from "next/link";
 
 // Create the API client for your schema
 const client = generateClient<Schema>();
@@ -41,6 +42,11 @@ export default function GenerateImagePage() {
             margin: "0 auto",
             width: "100%"
         }}>
+            <nav style={{ marginBottom: "20px" }}>
+                <Link href="/dashboard">
+                    ← Back to Dashboard
+                </Link>
+            </nav>
             <h1>Generate Image via Replicate</h1>
             <form onSubmit={handleSubmit}>
                 <textarea
