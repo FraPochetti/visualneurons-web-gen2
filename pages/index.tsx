@@ -93,61 +93,68 @@ export default function PhotoUpload() {
 
   return (
     <main style={styles.container}>
-      {/* Header with user info */}
-      <header style={styles.header}>
-        <h1 style={styles.title}>Upload a Photo</h1>
-        {userEmail && (
-          <div style={styles.userSection}>
-            <span style={styles.userText}>Hi, {userEmail}</span>
-            <button onClick={handleLogout} style={styles.logoutButton}>
-              🚪 Logout
-            </button>
-          </div>
-        )}
-      </header>
-      <div style={styles.fileInputWrapper}>
+      <div style={{
+        padding: "1rem",
+        maxWidth: "900px",
+        margin: "0 auto",
+        width: "100%"
+      }}>
+        {/* Header with user info */}
+        <header style={styles.header}>
+          <h1 style={styles.title}>Upload a Photo</h1>
+          {userEmail && (
+            <div style={styles.userSection}>
+              <span style={styles.userText}>Hi, {userEmail}</span>
+              <button onClick={handleLogout} style={styles.logoutButton}>
+                🚪 Logout
+              </button>
+            </div>
+          )}
+        </header>
+        <div style={styles.fileInputWrapper}>
 
-        {/* Add a link to /images */}
-        <nav style={{ marginTop: "20px" }}>
-          <Link href="/images">
-            Go to My Images
-          </Link>
-        </nav>
+          {/* Add a link to /images */}
+          <nav style={{ marginTop: "20px" }}>
+            <Link href="/images">
+              Go to My Images
+            </Link>
+          </nav>
 
-        {/* File Input */}
-        <label style={styles.fileInputLabel}>
-          Choose File
-          <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: "none" }} />
-        </label>
-        <span style={styles.fileName}>{fileName || "No file chosen"}</span>
+          {/* File Input */}
+          <label style={styles.fileInputLabel}>
+            Choose File
+            <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: "none" }} />
+          </label>
+          <span style={styles.fileName}>{fileName || "No file chosen"}</span>
 
-        {previewUrl && (
-          <div style={styles.previewContainer}>
-            <h3>Preview</h3>
-            <img src={previewUrl} alt="Preview" style={styles.previewImage} />
-          </div>
-        )}
+          {previewUrl && (
+            <div style={styles.previewContainer}>
+              <h3>Preview</h3>
+              <img src={previewUrl} alt="Preview" style={styles.previewImage} />
+            </div>
+          )}
 
-        <button onClick={handleUpload} disabled={!selectedFile} style={styles.uploadButton}>
-          Upload Photo
-        </button>
-      </div>
-      <h2>Uploaded Photos</h2>
-      <div style={styles.gridContainer}>
-        {uploadedPhotos.map((photoUrl, index) => (
-          <img key={index} src={photoUrl} alt="Uploaded" style={styles.gridImage} />
-        ))}
-      </div>
+          <button onClick={handleUpload} disabled={!selectedFile} className="button">
+            Upload Photo
+          </button>
+        </div>
+        <h2>Uploaded Photos</h2>
+        <div style={styles.gridContainer}>
+          {uploadedPhotos.map((photoUrl, index) => (
+            <img key={index} src={photoUrl} alt="Uploaded" style={styles.gridImage} />
+          ))}
+        </div>
 
-      <style>
-        {`
+        <style>
+          {`
           @media (max-width: 600px) {
             div[style*="grid-template-columns"] {
               grid-template-columns: repeat(1, 1fr) !important;
             }
           }
         `}
-      </style>
+        </style>
+      </div>
     </main>
   );
 }
@@ -211,16 +218,6 @@ const styles: { [key: string]: CSSProperties } = {
     objectFit: "cover" as "cover", // Fix TypeScript error here
     borderRadius: "10px",
     boxShadow: "0 4px 6px rgba(0,0,0,0.2)",
-  },
-  uploadButton: {
-    padding: "10px 20px",
-    backgroundColor: "#000",
-    color: "#fff",
-    borderRadius: "5px",
-    cursor: "pointer",
-    fontWeight: "bold",
-    border: "none",
-    marginTop: "10px",
   },
   gridContainer: {
     display: "grid",

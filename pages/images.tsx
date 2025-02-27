@@ -55,47 +55,51 @@ export default function ImageManagementPage() {
     return (
         <main style={{ padding: "20px" }}>
             {/* Navigation header with a back link */}
-            <nav style={{ marginBottom: "20px" }}>
-                <Link href="/">
-                    ← Back to Home
-                </Link>
-            </nav>
-            <h1>My Photos</h1>
-            {loading && <p>Loading...</p>}
-            {!loading && photos.length === 0 && <p>No photos yet!</p>}
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                    gap: "20px",
-                }}
-            >
-                {photos.map((photo) => (
-                    <div key={photo.path} style={{ textAlign: "center" }}>
-                        <img
-                            src={photo.url}
-                            alt={photo.path}
-                            style={{
-                                width: "200px",
-                                height: "200px",
-                                objectFit: "cover",
-                                borderRadius: "8px",
-                            }}
-                        />
-                        <div style={{ marginTop: "10px" }}>
-                            <button
-                                onClick={() => handleDelete(photo.path)}
+            <div style={{
+                padding: "1rem",
+                maxWidth: "900px",
+                margin: "0 auto",
+                width: "100%"
+            }}>
+                <nav style={{ marginBottom: "20px" }}>
+                    <Link href="/">
+                        ← Back to Home
+                    </Link>
+                </nav>
+                <h1>My Photos</h1>
+                {loading && <p>Loading...</p>}
+                {!loading && photos.length === 0 && <p>No photos yet!</p>}
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                        gap: "20px",
+                    }}
+                >
+                    {photos.map((photo) => (
+                        <div key={photo.path} style={{ textAlign: "center" }}>
+                            <img
+                                src={photo.url}
+                                alt={photo.path}
                                 style={{
-                                    padding: "5px 10px",
-                                    cursor: "pointer",
+                                    width: "200px",
+                                    height: "200px",
+                                    objectFit: "cover",
+                                    borderRadius: "8px",
                                 }}
-                            >
-                                Delete
-                            </button>
+                            />
+                            <div style={{ marginTop: "10px" }}>
+                                <button
+                                    onClick={() => handleDelete(photo.path)}
+                                    className="button"
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
-        </main>
+        </main >
     );
 }

@@ -35,7 +35,12 @@ export default function GenerateImagePage() {
     };
 
     return (
-        <div style={{ padding: "2rem" }}>
+        <div style={{
+            padding: "1rem",
+            maxWidth: "900px",
+            margin: "0 auto",
+            width: "100%"
+        }}>
             <h1>Generate Image via Replicate</h1>
             <form onSubmit={handleSubmit}>
                 <textarea
@@ -43,11 +48,16 @@ export default function GenerateImagePage() {
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder='Enter JSON input, e.g. {"prompt": "a beautiful sunrise over mountains"}'
                     rows={6}
-                    cols={60}
-                    style={{ marginBottom: "1rem" }}
+                    style={{
+                        width: "100%",
+                        maxWidth: "600px",
+                        padding: "0.5rem",
+                        borderRadius: "4px",
+                        border: "1px solid #ccc"
+                    }}
                 />
                 <br />
-                <button type="submit">Generate Image</button>
+                <button type="submit" className="button">Generate Image</button>
             </form>
             {error && (
                 <div style={{ color: "red", marginTop: "1rem" }}>
