@@ -3,6 +3,7 @@ import { useState } from "react";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
 import Link from "next/link";
+import Layout from "@/components/Layout";
 
 // Create the API client for your schema
 const client = generateClient<Schema>();
@@ -11,37 +12,32 @@ export default function GenerateImagePage() {
     const [inputValue, setInputValue] = useState<string>("");
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setResult(null);
+        setLoading(true);
         try {
-            // Parse the JSON input provided by the user
             const parsedInput = JSON.parse(inputValue);
             console.log("Parsed input:", parsedInput);
-            console.log("About to call generateImage...");
             const output = await client.mutations.generateImage({
                 prompt: parsedInput.prompt,
                 prompt_upsampling: parsedInput.prompt_upsampling,
             });
-            // Replicate typically returns an array of URLs for images
-            // For most image models, the first item is the generated image
             console.log("API response:", output);
             setResult(output);
         } catch (err: any) {
             console.error(err);
             setError(err.message || "An error occurred");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div style={{
-            padding: "1rem",
-            maxWidth: "900px",
-            margin: "0 auto",
-            width: "100%"
-        }}>
+        <Layout>
             <nav style={{ marginBottom: "20px" }}>
                 <Link href="/dashboard">
                     ← Back to Dashboard
@@ -63,7 +59,9 @@ export default function GenerateImagePage() {
                     }}
                 />
                 <br />
-                <button type="submit" className="button">Generate Image</button>
+                <button type="submit" className="button" disabled={loading}>
+                    {loading ? <span className="spinner" /> : "Generate Image"}
+                </button>
             </form>
             {error && (
                 <div style={{ color: "red", marginTop: "1rem" }}>
@@ -84,6 +82,6 @@ export default function GenerateImagePage() {
                     )}
                 </div>
             )}
-        </div>
+        </Layout>
     );
 }
