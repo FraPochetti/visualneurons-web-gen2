@@ -60,9 +60,6 @@ export default function PhotoUpload() {
 
   return (
     <Layout>
-      <nav style={{ marginBottom: "20px" }}>
-        <Link href="/dashboard">← Back to Dashboard</Link>
-      </nav>
       <h1 className="container">Upload a Photo</h1>
       <div className="file-input-wrapper">
         <label className="file-input-label">
@@ -85,7 +82,9 @@ export default function PhotoUpload() {
       <h2 className="container">Uploaded Photos</h2>
       <div className="grid-container">
         {uploadedPhotos.map((photoUrl, index) => (
-          <img key={index} src={photoUrl} alt="Uploaded" className="grid-image" />
+          <div className="photo-item" key={index}>
+            <img src={photoUrl} alt="Uploaded" className="grid-image" />
+          </div>
         ))}
       </div>
     </Layout>

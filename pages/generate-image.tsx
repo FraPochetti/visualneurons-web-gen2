@@ -38,11 +38,6 @@ export default function GenerateImagePage() {
 
     return (
         <Layout>
-            <nav style={{ marginBottom: "20px" }}>
-                <Link href="/dashboard">
-                    ← Back to Dashboard
-                </Link>
-            </nav>
             <h1>Generate Image via Replicate</h1>
             <form onSubmit={handleSubmit}>
                 <textarea

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { list, getUrl } from "aws-amplify/storage";
 import { fetchAuthSession, getCurrentUser, fetchUserAttributes, signOut } from "aws-amplify/auth";
+import { remove } from "aws-amplify/storage";
 
 export default function Dashboard() {
     const [uploadedPhotos, setUploadedPhotos] = useState<{ path: string; url: string }[]>([]);
@@ -50,6 +51,17 @@ export default function Dashboard() {
         fetchPhotos();
     }, []);
 
+    const handleDelete = async (path: string) => {
+        try {
+            // Remove from S3
+            await remove({ path });
+            // Remove from local state
+            setUploadedPhotos((prev) => prev.filter((photo) => photo.path !== path));
+        } catch (err) {
+            console.error("Error deleting photo:", err);
+        }
+    };
+
     return (
         <div style={{ padding: "1rem", maxWidth: "900px", margin: "0 auto" }}>
             <header
@@ -60,9 +72,9 @@ export default function Dashboard() {
                     marginBottom: "20px",
                 }}
             >
-                <nav>
-                    <Link href="/upload">Upload Photo</Link> |{" "}
-                    <Link href="/generate-image">Generate Image</Link>
+                <nav className="nav">
+                    <Link href="/upload" className="nav-link">Upload Photo</Link>
+                    <Link href="/generate-image" className="nav-link">Generate Image</Link>
                 </nav>
                 <div>
                     {userEmail && <span>Hi, {userEmail}</span>}
@@ -73,39 +85,34 @@ export default function Dashboard() {
             </header>
             <section>
                 <h2>Uploaded Photos</h2>
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-                        gap: "10px",
-                    }}
-                >
+                <div className="grid-container">
                     {uploadedPhotos.slice(0, 6).map((photo) => (
-                        <img
-                            key={photo.path}
-                            src={photo.url}
-                            alt="Uploaded"
-                            style={{ width: "100%", objectFit: "cover", borderRadius: "8px" }}
-                        />
+                        <div className="photo-item" key={photo.path}>
+                            <img
+                                src={photo.url}
+                                alt="Uploaded"
+                                className="grid-image"
+                            />
+                            <button
+                                className="delete-button"
+                                onClick={() => handleDelete(photo.path)}
+                            >
+                                Delete
+                            </button>
+                        </div>
                     ))}
                 </div>
             </section>
             <section>
                 <h2>Generated Photos</h2>
                 {generatedPhotos.length > 0 ? (
-                    <div
-                        style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-                            gap: "10px",
-                        }}
-                    >
+                    <div className="grid-container">
                         {generatedPhotos.map((photo) => (
                             <img
                                 key={photo.path}
                                 src={photo.url}
                                 alt="Generated"
-                                style={{ width: "100%", objectFit: "cover", borderRadius: "8px" }}
+                                className="grid-image"
                             />
                         ))}
                     </div>

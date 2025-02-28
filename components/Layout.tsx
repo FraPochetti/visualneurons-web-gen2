@@ -5,11 +5,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return (
         <div className="container">
             <header className="header">
-                <nav>
-                    <Link href="/dashboard">Dashboard</Link> |{" "}
-                    <Link href="/upload">Upload Photo</Link> |{" "}
-                    <Link href="/generate-image">Generate Image</Link>
+                <nav className="nav">
+                    <Link href="/dashboard" className="nav-link">
+                        Dashboard
+                    </Link>
+                    <Link href="/upload" className="nav-link">
+                        Upload Photo
+                    </Link>
+                    <Link href="/generate-image" className="nav-link">
+                        Generate Image
+                    </Link>
                 </nav>
+
             </header>
             <main>{children}</main>
         </div>
