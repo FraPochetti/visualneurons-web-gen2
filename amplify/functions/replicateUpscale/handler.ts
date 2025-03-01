@@ -13,12 +13,20 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
     const model = "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e";
 
     try {
-        console.log("Creating prediction for image:", imageUrl);
-        // Create the prediction with the image as input
+        console.log("Fetching image data from URL:", imageUrl);
+        const response = await fetch(imageUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch image, status: ${response.status}`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        const imageBuffer = Buffer.from(arrayBuffer);
+
+        console.log("Creating prediction with image Buffer");
         const prediction = await replicate.predictions.create({
             model,
-            input: { image: imageUrl }
+            input: { image: imageBuffer }
         });
+
 
         console.log("Prediction created:", prediction.id);
 
