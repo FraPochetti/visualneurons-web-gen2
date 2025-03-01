@@ -5,5 +5,5 @@ export const replicateUpscale = defineFunction({
     environment: {
         REPLICATE_API_TOKEN: secret("REPLICATE_API_TOKEN")
     },
-    timeoutSeconds: 30,
+    timeoutSeconds: 59,
 });
