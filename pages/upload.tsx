@@ -79,7 +79,7 @@ export default function PhotoUpload() {
           Upload Photo
         </button>
       </div>
-      <h2 className="container">Uploaded Photos</h2>
+      <h2 className="container">My Photos</h2>
       <div className="grid-container">
         {uploadedPhotos.map((photoUrl, index) => (
           <div className="photo-item" key={index}>

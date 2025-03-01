@@ -2,12 +2,11 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { list, getUrl } from "aws-amplify/storage";
-import { fetchAuthSession, getCurrentUser, fetchUserAttributes, signOut } from "aws-amplify/auth";
+import { fetchAuthSession, fetchUserAttributes, signOut } from "aws-amplify/auth";
 import { remove } from "aws-amplify/storage";
 
 export default function Dashboard() {
     const [uploadedPhotos, setUploadedPhotos] = useState<{ path: string; url: string }[]>([]);
-    const [generatedPhotos, setGeneratedPhotos] = useState<{ path: string; url: string }[]>([]);
     const [userEmail, setUserEmail] = useState<string | null>(null);
 
     // Fetch user attributes (e.g., email) for display
@@ -84,7 +83,7 @@ export default function Dashboard() {
                 </div>
             </header>
             <section>
-                <h2>Uploaded Photos</h2>
+                <h2>My Photos</h2>
                 <div className="grid-container">
                     {uploadedPhotos.slice(0, 6).map((photo) => (
                         <div className="photo-item" key={photo.path}>
@@ -102,23 +101,6 @@ export default function Dashboard() {
                         </div>
                     ))}
                 </div>
-            </section>
-            <section>
-                <h2>Generated Photos</h2>
-                {generatedPhotos.length > 0 ? (
-                    <div className="grid-container">
-                        {generatedPhotos.map((photo) => (
-                            <img
-                                key={photo.path}
-                                src={photo.url}
-                                alt="Generated"
-                                className="grid-image"
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <p>No generated photos yet.</p>
-                )}
             </section>
         </div>
     );
