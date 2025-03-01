@@ -11,7 +11,6 @@
   "dependencies": {
     "@aws-amplify/ui-react": "^6.5.5",
     "aws-amplify": "^6.6.6",
-    "fetch-blob": "^4.0.0",
     "json-schema-to-ts": "^3.1.1",
     "next": "^14.2.23",
     "react": "^18",

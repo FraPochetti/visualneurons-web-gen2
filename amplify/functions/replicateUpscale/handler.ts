@@ -1,8 +1,6 @@
 // amplify/functions/replicateUpscale/handler.ts
 import { Schema } from "../../data/resource";
 import Replicate from "replicate";
-// Import File from fetch-blob package
-import { File } from "fetch-blob/file.js";
 
 export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) => {
     console.log("=== Starting upscaleImage handler ===");
@@ -17,32 +15,16 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
 
     console.log("Initializing Replicate client.");
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
-    // Your chosen upscaling model identifier
+    // Use your chosen upscaling model identifier version (ensure this is correct and available)
     const version = "dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e";
-    console.log("Using upscaling model:", version);
+    console.log("Using presigned image URL:", imageUrl);
+    console.log("Using upscaling model version:", version);
 
     try {
-        console.log("Fetching image data from URL:", imageUrl);
-        const response = await fetch(imageUrl);
-        console.log("Fetch response status:", response.status);
-        if (!response.ok) {
-            console.error("Failed to fetch image data. Status:", response.status);
-            throw new Error(`Failed to fetch image, status: ${response.status}`);
-        }
-
-        console.log("Reading response into arrayBuffer.");
-        const arrayBuffer = await response.arrayBuffer();
-        console.log("ArrayBuffer length:", arrayBuffer.byteLength);
-
-        // Create a proper File object using fetch-blob
-        console.log("Creating File object from arrayBuffer.");
-        const file = new File([arrayBuffer], "uploaded.png", { type: "image/png" });
-        console.log("File created. Size:", file.size, "Type:", file.type);
-
-        console.log("Creating prediction with Replicate using File input.");
+        console.log("Creating prediction with Replicate using presigned URL.");
         const prediction = await replicate.predictions.create({
             version,
-            input: { image: file }
+            input: { image: imageUrl }
         });
         console.log("Prediction created with ID:", prediction.id);
 
