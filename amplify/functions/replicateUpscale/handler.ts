@@ -1,6 +1,8 @@
 // amplify/functions/replicateUpscale/handler.ts
 import { Schema } from "../../data/resource";
 import Replicate from "replicate";
+// Import File from fetch-blob package
+import { File } from "fetch-blob/file.js";
 
 export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) => {
     console.log("=== Starting upscaleImage handler ===");
@@ -32,16 +34,15 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
         const arrayBuffer = await response.arrayBuffer();
         console.log("ArrayBuffer length:", arrayBuffer.byteLength);
 
-        const base64String = Buffer.from(arrayBuffer).toString("base64");
-        console.log("Base64 string length:", base64String.length);
+        // Create a proper File object using fetch-blob
+        console.log("Creating File object from arrayBuffer.");
+        const file = new File([arrayBuffer], "uploaded.png", { type: "image/png" });
+        console.log("File created. Size:", file.size, "Type:", file.type);
 
-        const dataUri = `data:application/octet-stream;base64,${base64String}`;
-        console.log("Data URI length:", dataUri.length);
-
-        console.log("Creating prediction with Replicate using data URI.");
+        console.log("Creating prediction with Replicate using File input.");
         const prediction = await replicate.predictions.create({
             model,
-            input: { image: dataUri }
+            input: { image: file }
         });
         console.log("Prediction created with ID:", prediction.id);
 
