@@ -2,6 +2,7 @@ import { Schema } from "../../data/resource";
 import Replicate from "replicate";
 import { promises as fs } from "fs";
 import path from "path";
+import { readFile } from "node:fs/promises";
 
 export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) => {
     console.log("=== Starting upscaleImage handler ===");
@@ -43,13 +44,14 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
         console.log("File written to ephemeral storage.");
 
         // Read the file back from ephemeral storage
-        const fileBuffer = await fs.readFile(tmpFilePath);
-        console.log("Read file from ephemeral storage, length:", fileBuffer.length);
+        //const fileBuffer = await fs.readFile(tmpFilePath);
+        //console.log("Read file from ephemeral storage, length:", fileBuffer.length);
+        const image = await readFile(tmpFilePath);
 
         console.log("Creating prediction with Replicate using file Buffer.");
         const prediction = await replicate.predictions.create({
             model,
-            input: { image: fileBuffer }
+            input: { image: image }
         });
         console.log("Prediction created with ID:", prediction.id);
 
