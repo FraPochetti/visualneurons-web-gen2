@@ -103,7 +103,12 @@ export default function Dashboard() {
                 <div className="grid-container">
                     {uploadedPhotos.slice(0, visibleCount).map((photo) => (
                         <div className="photo-item" key={photo.path}>
-                            <img src={photo.url} alt="Uploaded" className="grid-image" />
+                            <Link href={{
+                                pathname: "/edit-image",
+                                query: { url: photo.url },
+                            }}>
+                                <img src={photo.url} alt="Uploaded" className="grid-image" />
+                            </Link>
                             {photo.isAiGenerated && (<div className="ai-watermark">AI</div>)}
                             <button className="delete-button" onClick={() => handleDelete(photo.path)}>
                                 Delete
