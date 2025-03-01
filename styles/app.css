@@ -242,3 +242,16 @@ main {
   opacity: 1;
   /* visible on hover */
 }
+
+.ai-watermark {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  background-color: rgba(255, 255, 255, 0.7);
+  color: #000;
+  padding: 2px 4px;
+  font-size: 10px;
+  font-weight: bold;
+  border-radius: 3px;
+  z-index: 999
+}

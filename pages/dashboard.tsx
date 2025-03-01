@@ -1,13 +1,21 @@
 // pages/dashboard.tsx
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { list, getUrl } from "aws-amplify/storage";
+import { list, getUrl, getProperties } from "aws-amplify/storage";
 import { fetchAuthSession, fetchUserAttributes, signOut } from "aws-amplify/auth";
 import { remove } from "aws-amplify/storage";
 
 export default function Dashboard() {
-    const [uploadedPhotos, setUploadedPhotos] = useState<{ path: string; url: string }[]>([]);
+    interface Photo {
+        path: string;
+        url: string;
+        lastModified: Date;
+        isAiGenerated: boolean;
+    }
+
+    const [uploadedPhotos, setUploadedPhotos] = useState<Photo[]>([]);
     const [userEmail, setUserEmail] = useState<string | null>(null);
+    const [visibleCount, setVisibleCount] = useState(6);
 
     // Fetch user attributes (e.g., email) for display
     useEffect(() => {
@@ -34,7 +42,7 @@ export default function Dashboard() {
 
     // Fetch photos for the dashboard
     useEffect(() => {
-        async function fetchPhotos() {
+        const fetchPhotos = async () => {
             const session = await fetchAuthSession();
             const identityId = session.identityId;
             const userPath = `photos/${identityId}/`;
@@ -42,11 +50,19 @@ export default function Dashboard() {
             const photos = await Promise.all(
                 items.map(async (item) => {
                     const { url } = await getUrl({ path: item.path });
-                    return { path: item.path, url: url.toString() };
+                    const properties = await getProperties({ path: item.path });
+                    return {
+                        path: item.path,
+                        url: url.toString(),
+                        lastModified: item.lastModified ? new Date(item.lastModified) : new Date(),
+                        isAiGenerated: properties.metadata?.isaigenerated === "true", // check metadata
+                    };
                 })
             );
+            // Sort photos so the most recent are first
+            photos.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime());
             setUploadedPhotos(photos);
-        }
+        };
         fetchPhotos();
     }, []);
 
@@ -85,23 +101,22 @@ export default function Dashboard() {
             <section>
                 <h2>My Photos</h2>
                 <div className="grid-container">
-                    {uploadedPhotos.slice(0, 6).map((photo) => (
+                    {uploadedPhotos.slice(0, visibleCount).map((photo) => (
                         <div className="photo-item" key={photo.path}>
-                            <img
-                                src={photo.url}
-                                alt="Uploaded"
-                                className="grid-image"
-                            />
-                            <button
-                                className="delete-button"
-                                onClick={() => handleDelete(photo.path)}
-                            >
+                            <img src={photo.url} alt="Uploaded" className="grid-image" />
+                            {photo.isAiGenerated && (<div className="ai-watermark">AI</div>)}
+                            <button className="delete-button" onClick={() => handleDelete(photo.path)}>
                                 Delete
                             </button>
                         </div>
                     ))}
                 </div>
             </section>
+            {visibleCount < uploadedPhotos.length && (
+                <button className="button" onClick={() => setVisibleCount(visibleCount + 6)}>
+                    Load More
+                </button>
+            )}
         </div>
     );
 }

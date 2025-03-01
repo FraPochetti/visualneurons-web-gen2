@@ -46,17 +46,27 @@ export default function PhotoUpload() {
       const identityId = session.identityId;
       await new Promise((resolve) => setTimeout(resolve, 1500));
       const { items } = await list({ path: `photos/${identityId}/` });
+
+      // Convert each S3 item to a URL
       const urls = await Promise.all(
         items.map(async (item) => {
           const { url } = await getUrl({ path: item.path });
           return url.toString();
         })
       );
-      setUploadedPhotos(urls);
+
+      // Shuffle the array in place (or use .sort(() => 0.5 - Math.random()))
+      urls.sort(() => Math.random() - 0.5);
+
+      // Take the first 6
+      const randomSix = urls.slice(0, 6);
+
+      setUploadedPhotos(randomSix);
     } catch (error) {
       console.error("Error listing photos:", error);
     }
   };
+
 
   return (
     <Layout>
@@ -79,7 +89,7 @@ export default function PhotoUpload() {
           Upload Photo
         </button>
       </div>
-      <h2 className="container">My Photos</h2>
+      <h2 className="container">Some of my photos</h2>
       <div className="grid-container">
         {uploadedPhotos.map((photoUrl, index) => (
           <div className="photo-item" key={index}>
