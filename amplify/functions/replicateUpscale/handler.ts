@@ -18,8 +18,8 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
     console.log("Initializing Replicate client.");
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
     // Your chosen upscaling model identifier
-    const model = "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e";
-    console.log("Using upscaling model:", model);
+    const version = "dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e";
+    console.log("Using upscaling model:", version);
 
     try {
         console.log("Fetching image data from URL:", imageUrl);
@@ -41,7 +41,7 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
 
         console.log("Creating prediction with Replicate using File input.");
         const prediction = await replicate.predictions.create({
-            model,
+            version,
             input: { image: file }
         });
         console.log("Prediction created with ID:", prediction.id);
