@@ -1,5 +1,7 @@
 import { Schema } from "../../data/resource";
 import Replicate from "replicate";
+import { promises as fs } from "fs";
+import path from "path";
 
 export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) => {
     console.log("=== Starting upscaleImage handler ===");
