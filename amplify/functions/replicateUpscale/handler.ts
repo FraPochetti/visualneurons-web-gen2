@@ -14,7 +14,7 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
 
     console.log("Initializing Replicate client.");
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
-    // Use your upscaling model identifier:
+    // Your chosen upscaling model
     const model = "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e";
     console.log("Using upscaling model:", model);
 
@@ -34,15 +34,20 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
         const imageBuffer = Buffer.from(arrayBuffer);
         console.log("Image Buffer length:", imageBuffer.length);
 
-        // Convert Buffer to a Blob using Node 18's built-in Blob API.
-        console.log("Converting image Buffer to Blob.");
-        const blob = new Blob([imageBuffer], { type: "image/png" });
-        console.log("Blob created. Size:", blob.size, "Type:", blob.type);
+        // Write the file to ephemeral storage
+        const tmpFilePath = path.join("/tmp", "uploaded.png");
+        console.log("Writing image to ephemeral storage at:", tmpFilePath);
+        await fs.writeFile(tmpFilePath, imageBuffer);
+        console.log("File written to ephemeral storage.");
 
-        console.log("Creating prediction with Replicate using Blob input.");
+        // Read the file back from ephemeral storage
+        const fileBuffer = await fs.readFile(tmpFilePath);
+        console.log("Read file from ephemeral storage, length:", fileBuffer.length);
+
+        console.log("Creating prediction with Replicate using file Buffer.");
         const prediction = await replicate.predictions.create({
             model,
-            input: { image: blob }
+            input: { image: fileBuffer }
         });
         console.log("Prediction created with ID:", prediction.id);
 
