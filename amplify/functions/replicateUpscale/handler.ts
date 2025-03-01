@@ -1,8 +1,6 @@
+// amplify/functions/replicateUpscale/handler.ts
 import { Schema } from "../../data/resource";
 import Replicate from "replicate";
-import { promises as fs } from "fs";
-import path from "path";
-import { readFile } from "node:fs/promises";
 
 export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) => {
     console.log("=== Starting upscaleImage handler ===");
@@ -17,7 +15,7 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
 
     console.log("Initializing Replicate client.");
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
-    // Your chosen upscaling model
+    // Your chosen upscaling model identifier
     const model = "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e";
     console.log("Using upscaling model:", model);
 
@@ -34,24 +32,16 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
         const arrayBuffer = await response.arrayBuffer();
         console.log("ArrayBuffer length:", arrayBuffer.byteLength);
 
-        const imageBuffer = Buffer.from(arrayBuffer);
-        console.log("Image Buffer length:", imageBuffer.length);
+        const base64String = Buffer.from(arrayBuffer).toString("base64");
+        console.log("Base64 string length:", base64String.length);
 
-        // Write the file to ephemeral storage
-        const tmpFilePath = path.join("/tmp", "uploaded.png");
-        console.log("Writing image to ephemeral storage at:", tmpFilePath);
-        await fs.writeFile(tmpFilePath, imageBuffer);
-        console.log("File written to ephemeral storage.");
+        const dataUri = `data:application/octet-stream;base64,${base64String}`;
+        console.log("Data URI length:", dataUri.length);
 
-        // Read the file back from ephemeral storage
-        //const fileBuffer = await fs.readFile(tmpFilePath);
-        //console.log("Read file from ephemeral storage, length:", fileBuffer.length);
-        const image = await readFile(tmpFilePath);
-
-        console.log("Creating prediction with Replicate using file Buffer.");
+        console.log("Creating prediction with Replicate using data URI.");
         const prediction = await replicate.predictions.create({
             model,
-            input: { image: image }
+            input: { image: dataUri }
         });
         console.log("Prediction created with ID:", prediction.id);
 
