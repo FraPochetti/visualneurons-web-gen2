@@ -1,3 +1,4 @@
+// pages/edit-image.tsx
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import { useState } from "react";
@@ -43,9 +44,13 @@ export default function EditImagePage() {
             <h1>Image Editor</h1>
             <div style={{ maxWidth: "600px", margin: "20px auto" }}>
                 {upscaledUrl ? (
-                    <img src={upscaledUrl} alt="Upscaled" />
+                    <CompareSlider before={url} after={upscaledUrl} />
                 ) : (
-                    <img src={url} alt="Original" />
+                    <img
+                        src={url}
+                        alt="Selected"
+                        style={{ maxWidth: "100%", borderRadius: "8px" }}
+                    />
                 )}
             </div>
             <div style={{ textAlign: "center" }}>
@@ -56,4 +61,17 @@ export default function EditImagePage() {
             </div>
         </Layout>
     );
+    //     <Layout>
+    //         <h1>Image Editor</h1>
+    //         <div style={{ maxWidth: "600px", margin: "20px auto" }}>
+    //             <img src={upscaledUrl || url} alt="Selected" style={{ maxWidth: "100%", borderRadius: "8px" }} />
+    //         </div>
+    //         <div style={{ textAlign: "center" }}>
+    //             <button onClick={handleUpscale} className="button" disabled={loading}>
+    //                 {loading ? <span className="spinner" /> : "Upscale Image"}
+    //             </button>
+    //             {error && <p style={{ color: "red" }}>{error}</p>}
+    //         </div>
+    //     </Layout>
+    // );
 }

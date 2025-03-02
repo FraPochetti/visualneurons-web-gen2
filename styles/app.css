@@ -255,3 +255,9 @@ main {
   border-radius: 3px;
   z-index: 999
 }
+
+.compare-slider-container {
+  width: 100%;
+  min-height: 500px;
+  position: relative;
+}

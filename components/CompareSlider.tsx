@@ -9,12 +9,11 @@ interface CompareSliderProps {
 
 export default function CompareSlider({ before, after }: CompareSliderProps) {
     return (
-        <div style={{ maxWidth: "100%", margin: "0 auto" }}>
+        <div className="compare-slider-container">
             <ReactCompareImage
                 leftImage={before}
                 rightImage={after}
                 sliderPositionPercentage={0.5}
-                handleSize={40}  // optional
             />
         </div>
     );
