@@ -4,6 +4,7 @@ import type { Schema } from "@/amplify/data/resource";
 import { uploadData, getProperties } from "aws-amplify/storage";
 import { fetchAuthSession } from "aws-amplify/auth";
 import Layout from "@/components/Layout";
+import ModelCredits from "@/components/ModelCredits";
 
 const client = generateClient<Schema>();
 
@@ -143,6 +144,10 @@ export default function GenerateImagePage() {
                     </div>
                 )}
                 {error && <div style={{ color: "red", marginTop: "1rem" }}>Error: {error}</div>}
+                <ModelCredits
+                    modelName="Flux 1.1 Pro"
+                    modelUrl="https://replicate.com/black-forest-labs/flux-1.1-pro"
+                />
             </div>
         </Layout>
     );
