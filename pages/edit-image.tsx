@@ -43,13 +43,9 @@ export default function EditImagePage() {
             <h1>Image Editor</h1>
             <div style={{ maxWidth: "600px", margin: "20px auto" }}>
                 {upscaledUrl ? (
-                    <CompareSlider before={url} after={upscaledUrl} />
+                    <img src={upscaledUrl} alt="Upscaled" />
                 ) : (
-                    <img
-                        src={url}
-                        alt="Selected"
-                        style={{ maxWidth: "100%", borderRadius: "8px" }}
-                    />
+                    <img src={url} alt="Original" />
                 )}
             </div>
             <div style={{ textAlign: "center" }}>
