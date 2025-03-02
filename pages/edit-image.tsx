@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import { useState } from "react";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
-import CompareSlider from "@/components/CompareSlider";
+import CustomCompareSlider from "@/components/CustomCompareSlider";
 
 const client = generateClient<Schema>();
 
@@ -38,13 +38,13 @@ export default function EditImagePage() {
             setLoading(false);
         }
     };
-
+    console.log("Rendering with:", { url, upscaledUrl });
     return (
         <Layout>
             <h1>Image Editor</h1>
             <div style={{ maxWidth: "600px", margin: "20px auto" }}>
                 {upscaledUrl ? (
-                    <CompareSlider before={url} after={upscaledUrl} />
+                    <CustomCompareSlider before={url} after={upscaledUrl} />
                 ) : (
                     <img
                         src={url}
@@ -61,17 +61,4 @@ export default function EditImagePage() {
             </div>
         </Layout>
     );
-    //     <Layout>
-    //         <h1>Image Editor</h1>
-    //         <div style={{ maxWidth: "600px", margin: "20px auto" }}>
-    //             <img src={upscaledUrl || url} alt="Selected" style={{ maxWidth: "100%", borderRadius: "8px" }} />
-    //         </div>
-    //         <div style={{ textAlign: "center" }}>
-    //             <button onClick={handleUpscale} className="button" disabled={loading}>
-    //                 {loading ? <span className="spinner" /> : "Upscale Image"}
-    //             </button>
-    //             {error && <p style={{ color: "red" }}>{error}</p>}
-    //         </div>
-    //     </Layout>
-    // );
 }
