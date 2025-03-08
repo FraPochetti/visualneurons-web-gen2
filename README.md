@@ -1,25 +1,21 @@
-## AWS Amplify Next.js (Pages) Starter Template
+# Visual Neurons AI Image Editor
 
-This repository provides a starter template for creating applications using Next.js (Pages) and AWS Amplify, emphasizing easy setup for authentication, API, and database capabilities.
+This repo is a starting point for a web app where users can sign up, upload images, and edit them using AI.
 
-## Overview
+## What's Inside
 
-This template equips you with a foundational Next.js application integrated with AWS Amplify, streamlined for scalability and performance. It is ideal for developers looking to jumpstart their project with pre-configured AWS services like Cognito, AppSync, and DynamoDB.
+- **User Accounts:** Sign up and log in with email (via AWS Cognito).
+- **Image Handling:** 
+  - Upload your own images.
+  - Generate images using AI models hosted on Replicate.
+- **Editing:** Run AI-powered edits like object/background removal or upscaling. (Future plans include Amazon Bedrock integration.)
+- **Billing:** The first few edits are free—after that, you’re billed per API call.
+- **Tech Stack:** Built with Next.js and AWS Amplify Gen2 (auth, API, database, storage, and serverless functions).
 
-## Features
+## Getting Started
 
-- **Authentication**: Setup with Amazon Cognito for secure user authentication.
-- **API**: Ready-to-use GraphQL endpoint with AWS AppSync.
-- **Database**: Real-time database powered by Amazon DynamoDB.
+1. Clone the repo.
+2. Set up AWS Amplify Gen2 and add your API keys.
+3. Run the Next.js dev server and start exploring.
 
-## Deploying to AWS
-
-For detailed instructions on deploying your application, refer to the [deployment section](https://docs.amplify.aws/nextjs/start/quickstart/nextjs-pages-router/#deploy-a-fullstack-app-to-aws) of our documentation.
-
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
-
-## License
-
-This library is licensed under the MIT-0 License. See the LICENSE file.
+This repo is all about learning and experimenting, so feel free to modify and play around.
