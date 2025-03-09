@@ -22,6 +22,8 @@ const schema = a.schema({
   // Your ImageRecord model
   ImageRecord: a.model({
     identityId: a.string().required(),
+    userSub: a.string(),
+    userEmail: a.string(),
     originalImagePath: a.string().required(),
     editedImagePath: a.string(),
     model: a.string(),
@@ -32,6 +34,8 @@ const schema = a.schema({
   // NEW: Add a LogEntry model for detailed, queryable logs
   LogEntry: a.model({
     identityId: a.string().required(),
+    userSub: a.string(),
+    userEmail: a.string(),
     level: a.enum(["INFO", "WARNING", "ERROR", "DEBUG"]),
     details: a.json(),
   }),

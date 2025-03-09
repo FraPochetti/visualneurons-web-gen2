@@ -2,10 +2,9 @@ import { useState } from "react";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
 import { uploadData, getProperties } from "aws-amplify/storage";
-import { fetchAuthSession } from "aws-amplify/auth";
+import { fetchAuthSession, fetchUserAttributes } from "aws-amplify/auth";
 import Layout from "@/components/Layout";
 import ModelCredits from "@/components/ModelCredits";
-import { Model } from "aws-cdk-lib/aws-apigateway";
 
 const client = generateClient<Schema>();
 
@@ -24,6 +23,7 @@ export default function GenerateImagePage() {
         setResult(null);
         setLoading(true);
         const identityId = (await fetchAuthSession()).identityId!;
+        const attributes = await fetchUserAttributes();
         try {
             const output = await client.mutations.generateImage({
                 prompt: prompt,
@@ -32,6 +32,8 @@ export default function GenerateImagePage() {
             console.log("API response:", output);
             await client.models.LogEntry.create({
                 identityId: identityId,
+                userSub: attributes.sub,
+                userEmail: attributes.email,
                 level: "INFO",
                 details: JSON.stringify({
                     prompt: prompt,
@@ -45,6 +47,8 @@ export default function GenerateImagePage() {
             console.error(err);
             await client.models.LogEntry.create({
                 identityId: identityId,
+                userSub: attributes.sub,
+                userEmail: attributes.email,
                 level: "ERROR",
                 details: JSON.stringify({
                     error: err.message,
@@ -61,10 +65,10 @@ export default function GenerateImagePage() {
     // New handler to save the generated image
     async function handleSave() {
         if (!result || typeof result.data !== "string") return;
+        const session = await fetchAuthSession();
+        const identityId = session.identityId!;
+        const attributes = await fetchUserAttributes();
         try {
-            // Get the current user's identity so we can organize files per user.
-            const session = await fetchAuthSession();
-            const identityId = session.identityId!;
             const path = `photos/${identityId}/${saveFileName}`;
 
             // Check if the file already exists
@@ -114,6 +118,8 @@ export default function GenerateImagePage() {
             alert("File saved successfully.");
             await client.models.ImageRecord.create({
                 identityId: identityId,
+                userSub: attributes.sub,
+                userEmail: attributes.email,
                 originalImagePath: path,
                 model: "black-forest-labs/flux-1.1-pro",
                 source: "generated",

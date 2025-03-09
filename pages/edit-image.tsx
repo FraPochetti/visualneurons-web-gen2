@@ -4,7 +4,7 @@ import { useState } from "react"
 import { generateClient } from "aws-amplify/data"
 import type { Schema } from "@/amplify/data/resource"
 import CustomCompareSlider from "@/components/CustomCompareSlider"
-import { fetchAuthSession } from "aws-amplify/auth"
+import { fetchAuthSession, fetchUserAttributes } from "aws-amplify/auth"
 import { uploadData, getProperties } from "aws-amplify/storage"
 import ModelCredits from "@/components/ModelCredits";
 
@@ -30,12 +30,15 @@ export default function EditImagePage() {
         setLoading(true)
         setError("")
         const identityId = (await fetchAuthSession()).identityId!;
+        const attributes = await fetchUserAttributes();
         try {
             console.log("Upscaling image:", url)
             const result = await client.mutations.upscaleImage({ imageUrl: url })
             console.log("Upscale mutation result:", result.data)
             await client.models.LogEntry.create({
                 identityId: identityId,
+                userSub: attributes.sub,
+                userEmail: attributes.email,
                 level: "INFO",
                 details: JSON.stringify({
                     output: result.data,
@@ -48,6 +51,8 @@ export default function EditImagePage() {
             console.error("Upscale error:", err)
             await client.models.LogEntry.create({
                 identityId: identityId,
+                userSub: attributes.sub,
+                userEmail: attributes.email,
                 level: "ERROR",
                 details: JSON.stringify({
                     error: err.message,
@@ -63,10 +68,10 @@ export default function EditImagePage() {
 
     const handleSave = async () => {
         if (!upscaledUrl || typeof upscaledUrl !== "string") return
-
+        const session = await fetchAuthSession()
+        const identityId = session.identityId!;
+        const attributes = await fetchUserAttributes();
         try {
-            const session = await fetchAuthSession()
-            const identityId = session.identityId!;
             const path = `photos/${identityId}/${saveFileName}`
 
             let fileExists = false
@@ -103,6 +108,8 @@ export default function EditImagePage() {
             alert("File saved successfully.")
             await client.models.ImageRecord.create({
                 identityId: identityId,
+                userSub: attributes.sub,
+                userEmail: attributes.email,
                 originalImagePath: originalPath,
                 editedImagePath: path,
                 model: "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",

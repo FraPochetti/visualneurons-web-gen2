@@ -1,7 +1,7 @@
 // pages/upload.tsx
 import { useState, useEffect } from "react";
 import { uploadData, list, getUrl } from "aws-amplify/storage";
-import { fetchAuthSession } from "aws-amplify/auth";
+import { fetchAuthSession, fetchUserAttributes } from "aws-amplify/auth";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
 import Layout from "@/components/Layout";
@@ -28,6 +28,7 @@ export default function PhotoUpload() {
   };
 
   const handleUpload = async () => {
+    const attributes = await fetchUserAttributes();
     if (!selectedFile) return;
     try {
       const session = await fetchAuthSession();
@@ -40,6 +41,8 @@ export default function PhotoUpload() {
       setTimeout(fetchUploadedPhotos, 1500);
       await client.models.ImageRecord.create({
         identityId: identityId,
+        userSub: attributes.sub,
+        userEmail: attributes.email,
         originalImagePath: path,
         source: "uploaded",
       });
