@@ -32,8 +32,8 @@ export default function GenerateImagePage() {
                 timestamp: new Date().toISOString(),
                 level: "INFO",
                 message: "Replicate generate image success with model: black-forest-labs/flux-1.1-pro",
-                details: { output: output, model: "black-forest-labs/flux-1.1-pro", prompt: prompt },
             });
+            console.log("I am here");
             setResult(output);
         } catch (err: any) {
             console.error(err);
