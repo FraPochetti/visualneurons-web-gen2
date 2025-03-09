@@ -31,7 +31,8 @@ export default function GenerateImagePage() {
             await client.models.LogEntry.create({
                 timestamp: new Date().toISOString(),
                 level: "INFO",
-                message: "Replicate generate image success with model: black-forest-labs/flux-1.1-pro",
+                message: "Replicate generate image success",
+                details: { output: output.data, model: "black-forest-labs/flux-1.1-pro", prompt: prompt },
             });
             console.log("I am here");
             setResult(output);
