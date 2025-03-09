@@ -1,6 +1,9 @@
 // amplify/functions/replicate/handler.ts
 import { Schema } from "../../data/resource";
 import Replicate from "replicate";
+import { generateClient } from "aws-amplify/data";
+
+const client = generateClient<Schema>();
 
 export const handler: Schema["generateImage"]["functionHandler"] = async (event) => {
     console.log("=== Starting image generation ===");
@@ -49,6 +52,12 @@ export const handler: Schema["generateImage"]["functionHandler"] = async (event)
 
         console.log("Prediction completed:", completed.status);
         console.log("Output:", completed.output);
+        await client.models.LogEntry.create({
+            timestamp: new Date().toISOString(),
+            level: "INFO",
+            message: "Replicate generate image success with model: black-forest-labs/flux-1.1-pro",
+            details: { output: completed.output, model: model, prompt: prompt, predictionId: prediction.id },
+        });
 
         // Handle output based on its type
         if (typeof completed.output === 'string') {
@@ -58,8 +67,15 @@ export const handler: Schema["generateImage"]["functionHandler"] = async (event)
         } else {
             throw new Error(`Unexpected output format: ${JSON.stringify(completed.output)}`);
         }
-    } catch (error) {
-        console.error("Replicate API call failed:", error);
+    } catch (err) {
+        console.error("Replicate API call failed:", err);
+        const error = err instanceof Error ? err : new Error(String(err));
+        await client.models.LogEntry.create({
+            timestamp: new Date().toISOString(),
+            level: "ERROR",
+            message: "Replicate generate image error with model: black-forest-labs/flux-1.1-pro",
+            details: { error: error.message, stack: error.stack },
+        });
         throw error;
     }
 };
