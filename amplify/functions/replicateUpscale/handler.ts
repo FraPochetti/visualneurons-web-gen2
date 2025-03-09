@@ -1,9 +1,6 @@
 // amplify/functions/replicateUpscale/handler.ts
 import { Schema } from "../../data/resource";
 import Replicate from "replicate";
-import { generateClient } from "aws-amplify/data";
-
-const client = generateClient<Schema>();
 
 export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) => {
     console.log("=== Starting upscaling ===");
@@ -48,12 +45,6 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
         }
         console.log("Prediction completed:", completed.status);
         console.log("Output:", completed.output);
-        await client.models.LogEntry.create({
-            timestamp: new Date().toISOString(),
-            level: "INFO",
-            message: "Replicate upscale image success with model: philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
-            details: { output: completed.output, model: version, predictionId: prediction.id, imageUrl: imageUrl },
-        });
 
         // Handle the output – assuming it's a URL string
         if (typeof completed.output === 'string') {
@@ -65,13 +56,6 @@ export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) 
         }
     } catch (err) {
         console.error("Replicate API call failed:", err);
-        const error = err instanceof Error ? err : new Error(String(err));
-        await client.models.LogEntry.create({
-            timestamp: new Date().toISOString(),
-            level: "ERROR",
-            message: "Replicate upscale image error with model: philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
-            details: { error: error.message, stack: error.stack },
-        });
-        throw error;
+        throw err;
     }
 };
