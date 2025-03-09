@@ -33,22 +33,22 @@ export default function EditImagePage() {
             console.log("Upscaling image:", url)
             const result = await client.mutations.upscaleImage({ imageUrl: url })
             console.log("Upscale mutation result:", result.data)
-            setUpscaledUrl(result.data)
             await client.models.LogEntry.create({
                 timestamp: new Date().toISOString(),
                 level: "INFO",
                 message: "Replicate upscale image success with model: philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
                 details: { output: result.data, model: "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e", identityId: (await fetchAuthSession()).identityId },
             });
+            setUpscaledUrl(result.data)
         } catch (err: any) {
             console.error("Upscale error:", err)
-            setError(err.message || "An error occurred during upscaling.")
             await client.models.LogEntry.create({
                 timestamp: new Date().toISOString(),
                 level: "ERROR",
                 message: "Replicate upscale image error with model: philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
                 details: { error: err.message, stack: err.stack },
             });
+            setError(err.message || "An error occurred during upscaling.")
         } finally {
             setLoading(false)
         }

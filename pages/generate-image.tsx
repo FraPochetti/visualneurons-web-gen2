@@ -28,22 +28,22 @@ export default function GenerateImagePage() {
                 prompt_upsampling: true,
             });
             console.log("API response:", output);
-            setResult(output);
             await client.models.LogEntry.create({
                 timestamp: new Date().toISOString(),
                 level: "INFO",
                 message: "Replicate generate image success with model: black-forest-labs/flux-1.1-pro",
                 details: { output: output, model: "black-forest-labs/flux-1.1-pro", prompt: prompt, identityId: (await fetchAuthSession()).identityId },
             });
+            setResult(output);
         } catch (err: any) {
             console.error(err);
-            setError(err.message || "An error occurred");
             await client.models.LogEntry.create({
                 timestamp: new Date().toISOString(),
                 level: "ERROR",
                 message: "Replicate generate image error with model: black-forest-labs/flux-1.1-pro",
                 details: { error: err.message, stack: err.stack },
             });
+            setError(err.message || "An error occurred");
         } finally {
             setLoading(false);
         }
