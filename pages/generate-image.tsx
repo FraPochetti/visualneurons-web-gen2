@@ -32,7 +32,6 @@ export default function GenerateImagePage() {
                 timestamp: new Date().toISOString(),
                 level: "INFO",
                 message: "Replicate generate image success",
-                details: { prompt: prompt },
             });
             console.log("I am here");
             setResult(output);
