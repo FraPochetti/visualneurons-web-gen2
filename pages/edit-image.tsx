@@ -29,24 +29,31 @@ export default function EditImagePage() {
     const handleUpscale = async () => {
         setLoading(true)
         setError("")
+        const identityId = (await fetchAuthSession()).identityId!;
         try {
             console.log("Upscaling image:", url)
             const result = await client.mutations.upscaleImage({ imageUrl: url })
             console.log("Upscale mutation result:", result.data)
             await client.models.LogEntry.create({
-                timestamp: new Date().toISOString(),
+                identityId: identityId,
                 level: "INFO",
-                message: "Replicate upscale image success with model: philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
-                details: { output: result.data, model: "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e", identityId: (await fetchAuthSession()).identityId },
+                details: JSON.stringify({
+                    output: result.data,
+                    model: "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
+                    originalImagePath: originalPath,
+                }),
             });
             setUpscaledUrl(result.data)
         } catch (err: any) {
             console.error("Upscale error:", err)
             await client.models.LogEntry.create({
-                timestamp: new Date().toISOString(),
+                identityId: identityId,
                 level: "ERROR",
-                message: "Replicate upscale image error with model: philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
-                details: { error: err.message, stack: err.stack },
+                details: JSON.stringify({
+                    error: err.message,
+                    stack: err.stack,
+                    model: "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e"
+                }),
             });
             setError(err.message || "An error occurred during upscaling.")
         } finally {

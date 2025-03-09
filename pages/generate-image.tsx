@@ -5,6 +5,7 @@ import { uploadData, getProperties } from "aws-amplify/storage";
 import { fetchAuthSession } from "aws-amplify/auth";
 import Layout from "@/components/Layout";
 import ModelCredits from "@/components/ModelCredits";
+import { Model } from "aws-cdk-lib/aws-apigateway";
 
 const client = generateClient<Schema>();
 
@@ -22,6 +23,7 @@ export default function GenerateImagePage() {
         setError("");
         setResult(null);
         setLoading(true);
+        const identityId = (await fetchAuthSession()).identityId!;
         try {
             const output = await client.mutations.generateImage({
                 prompt: prompt,
@@ -29,20 +31,26 @@ export default function GenerateImagePage() {
             });
             console.log("API response:", output);
             await client.models.LogEntry.create({
-                timestamp: new Date().toISOString(),
+                identityId: identityId,
                 level: "INFO",
-                message: "Replicate generate image success",
-                details: JSON.stringify({ prompt: prompt, model: "black-forest-labs/flux-1.1-pro" }),
+                details: JSON.stringify({
+                    prompt: prompt,
+                    model: "black-forest-labs/flux-1.1-pro",
+                    output: output.data
+                }),
             });
             console.log("I am here");
             setResult(output);
         } catch (err: any) {
             console.error(err);
             await client.models.LogEntry.create({
-                timestamp: new Date().toISOString(),
+                identityId: identityId,
                 level: "ERROR",
-                message: "Replicate generate image error with model: black-forest-labs/flux-1.1-pro",
-                details: { error: err.message, stack: err.stack },
+                details: JSON.stringify({
+                    error: err.message,
+                    stack: err.stack,
+                    model: "black-forest-labs/flux-1.1-pro"
+                }),
             });
             setError(err.message || "An error occurred");
         } finally {

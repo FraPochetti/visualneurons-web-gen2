@@ -31,10 +31,8 @@ const schema = a.schema({
 
   // NEW: Add a LogEntry model for detailed, queryable logs
   LogEntry: a.model({
-    timestamp: a.datetime().required(),
+    identityId: a.string().required(),
     level: a.enum(["INFO", "WARNING", "ERROR", "DEBUG"]),
-    message: a.string().required(),
-    // Optional additional details (like stack traces or context)
     details: a.json(),
   }),
 }).authorization(allow => [allow.authenticated()]);
