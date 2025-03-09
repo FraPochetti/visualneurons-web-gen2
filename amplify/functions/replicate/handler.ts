@@ -3,8 +3,7 @@ import { Schema } from "../../data/resource";
 import Replicate from "replicate";
 
 export const handler: Schema["generateImage"]["functionHandler"] = async (event) => {
-    console.log("REPLICATE_API_TOKEN exists:", !!process.env.REPLICATE_API_TOKEN);
-    console.log("REPLICATE_API_TOKEN length:", process.env.REPLICATE_API_TOKEN?.length);
+    console.log("=== Starting image generation ===");
 
     const { prompt, prompt_upsampling } = event.arguments;
     if (!prompt) {

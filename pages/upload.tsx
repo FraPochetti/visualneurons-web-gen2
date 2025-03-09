@@ -1,9 +1,12 @@
 // pages/upload.tsx
 import { useState, useEffect } from "react";
 import { uploadData, list, getUrl } from "aws-amplify/storage";
-import { fetchAuthSession, fetchUserAttributes, signOut } from "aws-amplify/auth";
-import Link from "next/link";
+import { fetchAuthSession } from "aws-amplify/auth";
+import { generateClient } from "aws-amplify/data";
+import type { Schema } from "@/amplify/data/resource";
 import Layout from "@/components/Layout";
+
+const client = generateClient<Schema>();
 
 export default function PhotoUpload() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -28,13 +31,18 @@ export default function PhotoUpload() {
     if (!selectedFile) return;
     try {
       const session = await fetchAuthSession();
-      const identityId = session.identityId;
+      const identityId = session.identityId!;
       const path = `photos/${identityId}/${selectedFile.name}`;
       await uploadData({ path, data: selectedFile });
       setPreviewUrl(null);
       setSelectedFile(null);
       setFileName("");
       setTimeout(fetchUploadedPhotos, 1500);
+      await client.models.ImageRecord.create({
+        identityId: identityId,
+        originalImagePath: path,
+        source: "uploaded",
+      });
     } catch (error) {
       console.error("Upload failed:", error);
     }

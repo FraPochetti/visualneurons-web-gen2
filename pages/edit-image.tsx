@@ -12,18 +12,18 @@ const client = generateClient<Schema>()
 
 export default function EditImagePage() {
     const router = useRouter()
-    const { url } = router.query
     const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
     const [saveFileName, setSaveFileName] = useState("upscaled-image.jpg")
 
-    if (!url || typeof url !== "string") {
+    const { url, originalPath } = router.query;
+    if (!url || typeof url !== "string" || !originalPath || typeof originalPath !== "string") {
         return (
             <Layout>
-                <p>No image URL provided.</p>
+                <p>No image URL or original path provided.</p>
             </Layout>
-        )
+        );
     }
 
     const handleUpscale = async () => {
@@ -47,7 +47,7 @@ export default function EditImagePage() {
 
         try {
             const session = await fetchAuthSession()
-            const identityId = session.identityId
+            const identityId = session.identityId!;
             const path = `photos/${identityId}/${saveFileName}`
 
             let fileExists = false
@@ -82,6 +82,14 @@ export default function EditImagePage() {
                 },
             })
             alert("File saved successfully.")
+            await client.models.ImageRecord.create({
+                identityId: identityId,
+                originalImagePath: originalPath,
+                editedImagePath: path,
+                model: "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
+                action: "upscale",
+                source: "edited",
+            });
         } catch (err: any) {
             console.error("Error saving file:", err)
             alert("Error saving file: " + err.message)

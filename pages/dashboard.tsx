@@ -105,7 +105,7 @@ export default function Dashboard() {
                         <div className="photo-item" key={photo.path}>
                             <Link href={{
                                 pathname: "/edit-image",
-                                query: { url: photo.url },
+                                query: { url: photo.url, originalPath: photo.path },
                             }}>
                                 <img src={photo.url} alt="Uploaded" className="grid-image" />
                             </Link>

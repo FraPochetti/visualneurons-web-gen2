@@ -3,9 +3,7 @@ import { Schema } from "../../data/resource";
 import Replicate from "replicate";
 
 export const handler: Schema["upscaleImage"]["functionHandler"] = async (event) => {
-    console.log("=== Starting upscaleImage handler ===");
-    console.log("REPLICATE_API_TOKEN exists:", !!process.env.REPLICATE_API_TOKEN);
-    console.log("Received event arguments:", JSON.stringify(event.arguments));
+    console.log("=== Starting upscaling ===");
 
     const { imageUrl } = event.arguments;
     if (!imageUrl) {

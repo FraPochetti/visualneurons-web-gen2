@@ -43,7 +43,7 @@ export default function GenerateImagePage() {
         try {
             // Get the current user's identity so we can organize files per user.
             const session = await fetchAuthSession();
-            const identityId = session.identityId;
+            const identityId = session.identityId!;
             const path = `photos/${identityId}/${saveFileName}`;
 
             // Check if the file already exists
@@ -91,6 +91,13 @@ export default function GenerateImagePage() {
             });
 
             alert("File saved successfully.");
+            await client.models.ImageRecord.create({
+                identityId: identityId,
+                originalImagePath: path,
+                model: "black-forest-labs/flux-1.1-pro",
+                source: "generated",
+            });
+
         } catch (err) {
             console.error("Error saving file:", err);
             alert("Error saving file: " + err);

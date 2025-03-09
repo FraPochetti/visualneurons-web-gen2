@@ -21,11 +21,12 @@ const schema = a.schema({
 
   // Your ImageRecord model
   ImageRecord: a.model({
-    owner: a.string().required(),
+    identityId: a.string().required(),
     originalImagePath: a.string().required(),
-    editedImagePaths: a.string().array(),
-    transformationHistory: a.json(),
-    source: a.enum(["uploaded", "generated"]),
+    editedImagePath: a.string(),
+    model: a.string(),
+    action: a.string(),
+    source: a.enum(["uploaded", "generated", "edited"]),
   }),
 
   // NEW: Add a LogEntry model for detailed, queryable logs
