@@ -78,9 +78,9 @@ if __name__ == "__main__":
         include_dirs=[#"src/pages/[platform]/build-a-backend/storage", 
                       #"src/pages/[platform]/build-a-backend/functions",
                       "src/pages/[platform]/build-a-backend/data",
-                      "src/pages/[platform]/build-a-backend/data",
-                      "src/pages/[platform]/build-a-backend/add-aws-services/logging",
-                      "src/pages/[platform]/build-a-backend/add-aws-services/analytics",
+                      #"src/pages/[platform]/build-a-backend/data",
+                      #"src/pages/[platform]/build-a-backend/add-aws-services/logging",
+                      #"src/pages/[platform]/build-a-backend/add-aws-services/analytics",
                       #"src/pages/[platform]/build-a-backend/auth"
                       ],
         output_name="amplify_docs.md"
