@@ -25,26 +25,17 @@ export default function EditImagePage() {
     const originalPathString = Array.isArray(originalPath) ? originalPath[0] : originalPath
     const isReady = Boolean(urlString && originalPathString)
 
-    // If not ready, show a loading message.
-    if (!isReady) {
-        return (
-            <Layout>
-                <p>Loading image information...</p>
-            </Layout>
-        )
-    }
-
-    // At this point, we know they are defined.
-    const safeUrl = urlString!
-    const safeOriginalPath = originalPathString!
-
+    // Move the useEffect hook to the top level of the component
     useEffect(() => {
-        console.log("Checking for upscale record:", safeUrl)
+        // Only run this effect if both parameters are available
+        if (!isReady) return;
+
+        console.log("Checking for upscale record:", urlString)
         const checkUpscale = async () => {
             try {
                 const res = await client.models.ImageRecord.list({
                     filter: {
-                        editedImagePath: { eq: safeOriginalPath },
+                        editedImagePath: { eq: originalPathString! },
                         action: { eq: "upscale" },
                     },
                 })
@@ -57,16 +48,19 @@ export default function EditImagePage() {
             }
         }
         checkUpscale()
-    }, [safeUrl, safeOriginalPath])
+    }, [urlString, originalPathString, isReady])
 
     const handleUpscale = async () => {
+        if (!isReady) return;
+
         setLoading(true)
         setError("")
         const identityId = (await fetchAuthSession()).identityId!
         const attributes = await fetchUserAttributes()
         try {
-            console.log("Upscaling image:", safeUrl)
-            const result = await client.mutations.upscaleImage({ imageUrl: safeUrl })
+            console.log("Upscaling image:", urlString)
+            // Use non-null assertion since we've already checked isReady
+            const result = await client.mutations.upscaleImage({ imageUrl: urlString! })
             console.log("Upscale mutation result:", result.data)
             await client.models.LogEntry.create({
                 identityId,
@@ -77,7 +71,7 @@ export default function EditImagePage() {
                     output: result.data,
                     model:
                         "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
-                    originalImagePath: safeOriginalPath,
+                    originalImagePath: originalPathString!,
                 }),
             })
             setUpscaledUrl(result.data)
@@ -102,7 +96,7 @@ export default function EditImagePage() {
     }
 
     const handleSave = async () => {
-        if (!upscaledUrl || typeof upscaledUrl !== "string") return
+        if (!upscaledUrl || typeof upscaledUrl !== "string" || !isReady) return
         const session = await fetchAuthSession()
         const identityId = session.identityId!
         const attributes = await fetchUserAttributes()
@@ -145,7 +139,7 @@ export default function EditImagePage() {
                 identityId,
                 userSub: attributes.sub,
                 userEmail: attributes.email,
-                originalImagePath: safeOriginalPath,
+                originalImagePath: originalPathString!,
                 editedImagePath: path,
                 model:
                     "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
@@ -164,10 +158,12 @@ export default function EditImagePage() {
     }
 
     const handleCompareOriginal = async () => {
+        if (!isReady) return;
+
         try {
             const res = await client.models.ImageRecord.list({
                 filter: {
-                    editedImagePath: { eq: safeOriginalPath },
+                    editedImagePath: { eq: originalPathString },
                     action: { eq: "upscale" },
                 },
             })
@@ -196,18 +192,27 @@ export default function EditImagePage() {
         }
     }
 
-    console.log("Rendering with:", { url: safeUrl, upscaledUrl })
+    // If not ready, show a loading message.
+    if (!isReady) {
+        return (
+            <Layout>
+                <p>Loading image information...</p>
+            </Layout>
+        )
+    }
+
+    console.log("Rendering with:", { url: urlString, upscaledUrl })
 
     return (
         <Layout>
             <h1>Image Editor</h1>
             <div style={{ maxWidth: "600px", margin: "20px auto" }}>
                 {upscaledUrl ? (
-                    <CustomCompareSlider before={safeUrl} after={upscaledUrl} />
+                    <CustomCompareSlider before={urlString!} after={upscaledUrl} />
                 ) : compareOriginalUrl ? (
-                    <CustomCompareSlider before={compareOriginalUrl} after={safeUrl} />
+                    <CustomCompareSlider before={compareOriginalUrl} after={urlString!} />
                 ) : (
-                    <img src={safeUrl} alt="Selected" style={{ maxWidth: "100%", borderRadius: "8px" }} />
+                    <img src={urlString!} alt="Selected" style={{ maxWidth: "100%", borderRadius: "8px" }} />
                 )}
             </div>
             <div style={{ textAlign: "center" }}>
