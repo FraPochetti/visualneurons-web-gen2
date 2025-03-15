@@ -2,16 +2,16 @@ import { defineBackend } from '@aws-amplify/backend';
 import { auth } from './auth/resource';
 import { data } from './data/resource';
 import { storage } from './storage/resource';
-import { replicate } from './functions/replicate/resource';
 import { Policy, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { CfnApp } from "aws-cdk-lib/aws-pinpoint";
 import { Stack } from "aws-cdk-lib/core";
+import { aiDispatcher } from './functions/aiDispatcher/resource';
 
 const backend = defineBackend({
   auth,
   data,
   storage,
-  replicate,
+  aiDispatcher,
 });
 
 const analyticsStack = backend.createStack("analytics-stack");

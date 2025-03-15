@@ -1,6 +1,4 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
-import { replicate } from '../functions/replicate/resource';
-import { replicateUpscale } from '../functions/replicateUpscale/resource';
 
 const schema = a.schema({
   generateImage: a.mutation()
