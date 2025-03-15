@@ -60,7 +60,7 @@ export default function EditImagePage() {
         try {
             console.log("Upscaling image:", urlString)
             // Use non-null assertion since we've already checked isReady
-            const result = await client.mutations.upscaleImage({ imageUrl: urlString! })
+            const result = await client.mutations.upscaleImage({ imageUrl: urlString!, operation: "upscaleImage" })
             console.log("Upscale mutation result:", result.data)
             await client.models.LogEntry.create({
                 identityId,

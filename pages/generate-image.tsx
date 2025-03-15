@@ -28,6 +28,7 @@ export default function GenerateImagePage() {
             const output = await client.mutations.generateImage({
                 prompt: prompt,
                 prompt_upsampling: true,
+                operation: "generateImage",
             });
             console.log("API response:", output);
             await client.models.LogEntry.create({
