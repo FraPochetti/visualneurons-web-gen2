@@ -11,7 +11,7 @@ const schema = a.schema({
       operation: a.string().required()
     })
     .returns(a.string())
-    .handler(a.handler.function(require.resolve("../functions/aiDispatcher/handler.ts"))),
+    .handler(a.handler.function("../functions/aiDispatcher/handler.ts")),
 
   upscaleImage: a.mutation()
     .arguments({
@@ -20,7 +20,7 @@ const schema = a.schema({
       operation: a.string().required()
     })
     .returns(a.string())
-    .handler(a.handler.function(require.resolve("../functions/aiDispatcher/handler.ts"))),
+    .handler(a.handler.function("../functions/aiDispatcher/handler.ts")),
 
   ImageRecord: a.model({
     identityId: a.string().required(),
