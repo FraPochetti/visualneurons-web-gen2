@@ -7,16 +7,20 @@ const schema = a.schema({
     .arguments({
       prompt: a.string().required(),
       prompt_upsampling: a.boolean(),
+      provider: a.string(),
+      operation: a.string().required()
     })
     .returns(a.string())
-    .handler(a.handler.function(replicate)),
+    .handler(a.handler.function(require.resolve("../functions/aiDispatcher/handler.ts"))),
 
   upscaleImage: a.mutation()
     .arguments({
       imageUrl: a.string().required(),
+      provider: a.string(),
+      operation: a.string().required()
     })
     .returns(a.string())
-    .handler(a.handler.function(replicateUpscale)),
+    .handler(a.handler.function(require.resolve("../functions/aiDispatcher/handler.ts"))),
 
   ImageRecord: a.model({
     identityId: a.string().required(),
