@@ -1,4 +1,5 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+import { aiDispatcher } from '../functions/aiDispatcher/resource';
 
 const schema = a.schema({
   generateImage: a.mutation()
@@ -9,7 +10,7 @@ const schema = a.schema({
       operation: a.string().required()
     })
     .returns(a.string())
-    .handler(a.handler.function("../functions/aiDispatcher/handler.ts")),
+    .handler(a.handler.function(aiDispatcher)),
 
   upscaleImage: a.mutation()
     .arguments({
@@ -18,7 +19,7 @@ const schema = a.schema({
       operation: a.string().required()
     })
     .returns(a.string())
-    .handler(a.handler.function("../functions/aiDispatcher/handler.ts")),
+    .handler(a.handler.function(aiDispatcher)),
 
   ImageRecord: a.model({
     identityId: a.string().required(),
