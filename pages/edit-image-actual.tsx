@@ -18,16 +18,13 @@ export default function EditImagePage() {
     const [saveFileName, setSaveFileName] = useState("upscaled-image.jpg")
     const [isUpscaledRecord, setIsUpscaledRecord] = useState(false)
     const [compareOriginalUrl, setCompareOriginalUrl] = useState<string | null>(null)
-
-    // Extract query values and convert them to strings
+    const [provider, setProvider] = useState<string>("replicate");
     const { url, originalPath } = router.query
     const urlString = Array.isArray(url) ? url[0] : url
     const originalPathString = Array.isArray(originalPath) ? originalPath[0] : originalPath
     const isReady = Boolean(urlString && originalPathString)
 
-    // Move the useEffect hook to the top level of the component
     useEffect(() => {
-        // Only run this effect if both parameters are available
         if (!isReady) return;
 
         console.log("Checking for upscale record:", urlString)
@@ -53,47 +50,50 @@ export default function EditImagePage() {
     const handleUpscale = async () => {
         if (!isReady) return;
 
-        setLoading(true)
-        setError("")
-        const identityId = (await fetchAuthSession()).identityId!
-        const attributes = await fetchUserAttributes()
+        setLoading(true);
+        setError("");
+        const identityId = (await fetchAuthSession()).identityId!;
+        const attributes = await fetchUserAttributes();
         try {
-            console.log("Upscaling image:", urlString)
-            // Use non-null assertion since we've already checked isReady
-            const result = await client.mutations.upscaleImage({ imageUrl: urlString!, operation: "upscaleImage" })
-            console.log("Upscale mutation result:", result.data)
+            console.log("Upscaling image:", urlString);
+            const result = await client.mutations.upscaleImage({
+                imageUrl: urlString!,
+                provider: provider,
+                operation: "upscaleImage"
+            });
+            console.log("Upscale mutation result:", result.data);
             await client.models.LogEntry.create({
                 identityId,
                 userSub: attributes.sub,
                 userEmail: attributes.email,
                 level: "INFO",
+                provider: provider as "replicate" | "stability" | "clipdrop" | "user",
                 details: JSON.stringify({
                     output: result.data,
-                    model:
-                        "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
+                    model: "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
                     originalImagePath: originalPathString!,
                 }),
-            })
-            setUpscaledUrl(result.data)
+            });
+            setUpscaledUrl(result.data);
         } catch (err: any) {
-            console.error("Upscale error:", err)
+            console.error("Upscale error:", err);
             await client.models.LogEntry.create({
                 identityId,
                 userSub: attributes.sub,
                 userEmail: attributes.email,
                 level: "ERROR",
+                provider: provider as "replicate" | "stability" | "clipdrop" | "user",
                 details: JSON.stringify({
                     error: err.message,
                     stack: err.stack,
-                    model:
-                        "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
+                    model: "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
                 }),
-            })
-            setError(err.message || "An error occurred during upscaling.")
+            });
+            setError(err.message || "An error occurred during upscaling.");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     const handleSave = async () => {
         if (!upscaledUrl || typeof upscaledUrl !== "string" || !isReady) return
@@ -216,6 +216,18 @@ export default function EditImagePage() {
                 )}
             </div>
             <div style={{ textAlign: "center" }}>
+                <div style={{ marginBottom: "1rem" }}>
+                    <label htmlFor="provider-select">Select Provider: </label>
+                    <select
+                        id="provider-select"
+                        value={provider}
+                        onChange={(e) => setProvider(e.target.value)}
+                    >
+                        <option value="replicate">Replicate</option>
+                        <option value="stability">Stability</option>
+                        <option value="clipdrop">ClipDrop</option>
+                    </select>
+                </div>
                 {upscaledUrl ? (
                     <div>
                         <div style={{ marginBottom: "1rem" }}>
