@@ -3,7 +3,6 @@ import { replicate } from '../functions/replicate/resource';
 import { replicateUpscale } from '../functions/replicateUpscale/resource';
 
 const schema = a.schema({
-  // Existing custom mutations for image generation and upscaling
   generateImage: a.mutation()
     .arguments({
       prompt: a.string().required(),
@@ -19,7 +18,6 @@ const schema = a.schema({
     .returns(a.string())
     .handler(a.handler.function(replicateUpscale)),
 
-  // Your ImageRecord model
   ImageRecord: a.model({
     identityId: a.string().required(),
     userSub: a.string(),
@@ -28,15 +26,16 @@ const schema = a.schema({
     editedImagePath: a.string(),
     model: a.string(),
     action: a.string(),
+    provider: a.enum(["replicate", "stability", "clipdrop", "user"]),
     source: a.enum(["uploaded", "generated", "edited"]),
   }),
 
-  // NEW: Add a LogEntry model for detailed, queryable logs
   LogEntry: a.model({
     identityId: a.string().required(),
     userSub: a.string(),
     userEmail: a.string(),
     level: a.enum(["INFO", "WARNING", "ERROR", "DEBUG"]),
+    provider: a.enum(["replicate", "stability", "clipdrop", "user"]),
     details: a.json(),
   }),
 }).authorization(allow => [allow.authenticated()]);
