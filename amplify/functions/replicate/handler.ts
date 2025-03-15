@@ -11,7 +11,7 @@ export const handler: Schema["generateImage"]["functionHandler"] = async (event)
     }
 
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
-    const model = "black-forest-labs/flux-1.1-pro";
+    const model = "black-forest-labs/flux-1.1-pro-ultra";
 
     try {
         // Create the prediction

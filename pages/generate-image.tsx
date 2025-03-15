@@ -37,7 +37,7 @@ export default function GenerateImagePage() {
                 level: "INFO",
                 details: JSON.stringify({
                     prompt: prompt,
-                    model: "black-forest-labs/flux-1.1-pro",
+                    model: "black-forest-labs/flux-1.1-pro-ultra",
                     output: output.data
                 }),
             });
@@ -53,7 +53,7 @@ export default function GenerateImagePage() {
                 details: JSON.stringify({
                     error: err.message,
                     stack: err.stack,
-                    model: "black-forest-labs/flux-1.1-pro"
+                    model: "black-forest-labs/flux-1.1-pro-ultra"
                 }),
             });
             setError(err.message || "An error occurred");
@@ -121,7 +121,7 @@ export default function GenerateImagePage() {
                 userSub: attributes.sub,
                 userEmail: attributes.email,
                 originalImagePath: path,
-                model: "black-forest-labs/flux-1.1-pro",
+                model: "black-forest-labs/flux-1.1-pro-ultra",
                 source: "generated",
             });
 
@@ -179,8 +179,8 @@ export default function GenerateImagePage() {
                 )}
                 {error && <div style={{ color: "red", marginTop: "1rem" }}>Error: {error}</div>}
                 <ModelCredits
-                    modelName="Flux 1.1 Pro"
-                    modelUrl="https://replicate.com/black-forest-labs/flux-1.1-pro"
+                    modelName="Flux 1.1 Pro Ultra"
+                    modelUrl="https://replicate.com/black-forest-labs/flux-1.1-pro-ultra"
                 />
             </div>
         </Layout>

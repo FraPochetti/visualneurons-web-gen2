@@ -2,6 +2,7 @@
 
 *.ipynb
 *.env
+python_utils/images
 
 # dependencies
 /node_modules
