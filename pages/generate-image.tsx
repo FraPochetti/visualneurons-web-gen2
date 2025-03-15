@@ -9,14 +9,13 @@ import ModelCredits from "@/components/ModelCredits";
 const client = generateClient<Schema>();
 
 export default function GenerateImagePage() {
-    const [prompt, setPrompt] = useState<string>("");
+    const [prompt, setPrompt] = useState("");
+    const [provider, setProvider] = useState("replicate");
     const [result, setResult] = useState<any>(null);
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(false);
-    // New state for the file name to be used when saving the generated image.
-    const [saveFileName, setSaveFileName] = useState<string>("generated-image.jpg");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [saveFileName, setSaveFileName] = useState("generated-image.jpg");
 
-    // Existing handler to generate the image using your replicate function
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -26,35 +25,36 @@ export default function GenerateImagePage() {
         const attributes = await fetchUserAttributes();
         try {
             const output = await client.mutations.generateImage({
-                prompt: prompt,
+                prompt,
                 prompt_upsampling: true,
+                provider,
                 operation: "generateImage",
             });
             console.log("API response:", output);
             await client.models.LogEntry.create({
-                identityId: identityId,
+                identityId,
                 userSub: attributes.sub,
                 userEmail: attributes.email,
                 level: "INFO",
+                provider: provider as "replicate" | "stability" | "clipdrop" | "user",
                 details: JSON.stringify({
-                    prompt: prompt,
+                    prompt,
                     model: "black-forest-labs/flux-1.1-pro-ultra",
-                    output: output.data
+                    output: output.data,
                 }),
             });
-            console.log("I am here");
             setResult(output);
         } catch (err: any) {
             console.error(err);
             await client.models.LogEntry.create({
-                identityId: identityId,
+                identityId,
                 userSub: attributes.sub,
                 userEmail: attributes.email,
                 level: "ERROR",
                 details: JSON.stringify({
                     error: err.message,
                     stack: err.stack,
-                    model: "black-forest-labs/flux-1.1-pro-ultra"
+                    model: "black-forest-labs/flux-1.1-pro-ultra",
                 }),
             });
             setError(err.message || "An error occurred");
@@ -63,8 +63,7 @@ export default function GenerateImagePage() {
         }
     };
 
-    // New handler to save the generated image
-    async function handleSave() {
+    const handleSave = async () => {
         if (!result || typeof result.data !== "string") return;
         const session = await fetchAuthSession();
         const identityId = session.identityId!;
@@ -72,26 +71,19 @@ export default function GenerateImagePage() {
         try {
             const path = `photos/${identityId}/${saveFileName}`;
 
-            // Check if the file already exists
             let fileExists = false;
             try {
                 await getProperties({ path });
-                // If we get here, fileExists = true
                 fileExists = true;
             } catch (error: any) {
-                // If the error is 404 => doesn't exist => fileExists = false
-                // Otherwise, log it but STILL continue
                 if (error?.$metadata?.httpStatusCode === 404) {
                     fileExists = false;
                 } else {
                     console.warn("Non-404 error checking existence, continuing anyway:", error);
                     fileExists = false;
-                    // or maybe fileExists = true; depending on your preference
                 }
             }
 
-
-            // If file exists, ask user for confirmation to overwrite
             if (fileExists) {
                 const confirmOverwrite = window.confirm(
                     `A file named "${saveFileName}" already exists. Overwrite it?`
@@ -101,11 +93,8 @@ export default function GenerateImagePage() {
                 }
             }
 
-            // Fetch the generated image (using the URL returned by your replicate function)
             const response = await fetch(result.data);
             const blob = await response.blob();
-
-            // Upload the image Blob. Note that we attach metadata to mark it as AI-generated.
             await uploadData({
                 path,
                 data: blob,
@@ -115,22 +104,21 @@ export default function GenerateImagePage() {
                     },
                 },
             });
-
             alert("File saved successfully.");
             await client.models.ImageRecord.create({
-                identityId: identityId,
+                identityId,
                 userSub: attributes.sub,
                 userEmail: attributes.email,
                 originalImagePath: path,
                 model: "black-forest-labs/flux-1.1-pro-ultra",
                 source: "generated",
+                provider: "user",
             });
-
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error saving file:", err);
-            alert("Error saving file: " + err);
+            alert("Error saving file: " + err.message);
         }
-    }
+    };
 
     return (
         <Layout>
@@ -151,6 +139,17 @@ export default function GenerateImagePage() {
                         }}
                     />
                     <br />
+                    <div style={{ margin: "1rem 0" }}>
+                        <label htmlFor="provider-select">Select Provider: </label>
+                        <select
+                            id="provider-select"
+                            value={provider}
+                            onChange={(e) => setProvider(e.target.value)}
+                        >
+                            <option value="replicate">Replicate</option>
+                            <option value="stability">Stability</option>
+                        </select>
+                    </div>
                     <button type="submit" className="button" disabled={loading}>
                         {loading ? <span className="spinner" /> : "Generate Image"}
                     </button>
