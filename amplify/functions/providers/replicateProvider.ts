@@ -1,8 +1,37 @@
 // amplify/functions/providers/replicateProvider.ts
 import { IAIProvider } from "./IAIProvider";
 import Replicate from "replicate";
-
+import { AIOperation, ModelMetadata, ProviderMetadata } from "./IAIProvider";
 export class ReplicateProvider implements IAIProvider {
+    getProviderInfo(): ProviderMetadata {
+        return {
+            serviceProvider: "replicate",
+            apiEndpoint: "https://api.replicate.com/v1/predictions"
+        };
+    }
+
+    getModelInfo(operation: AIOperation): ModelMetadata {
+        switch (operation) {
+            case "generateImage":
+                return {
+                    modelName: "black-forest-labs/flux-1.1-pro-ultra",
+                    serviceProvider: "replicate",
+                    displayName: "Flux 1.1 Pro Ultra",
+                    modelUrl: "https://replicate.com/black-forest-labs/flux-1.1-pro-ultra"
+                };
+            case "upscaleImage":
+                return {
+                    modelName: "philz1337x/clarity-upscaler",
+                    modelVersion: "dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
+                    serviceProvider: "replicate",
+                    displayName: "Clarity Upscaler",
+                    modelUrl: "https://replicate.com/philz1337x/clarity-upscaler"
+                };
+            default:
+                throw new Error(`Operation ${operation} not supported by this provider`);
+        }
+    }
+
     async generateImage(prompt: string, promptUpsampling = true): Promise<string> {
         const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
         const model = "black-forest-labs/flux-1.1-pro-ultra";

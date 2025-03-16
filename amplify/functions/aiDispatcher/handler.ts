@@ -1,19 +1,26 @@
 // amplify/functions/aiDispatcher/handler.ts
 import { Logger } from "@aws-lambda-powertools/logger";
-import { createProvider } from '../providers/providerFactory';
+import { AIOperation } from '../providers/IAIProvider';
 
 // Initialize the logger
 const logger = new Logger({
     serviceName: 'aiDispatcher',
-    logLevel: 'INFO', // Can be DEBUG, INFO, WARN, ERROR
+    logLevel: 'INFO',
 });
 
 export const handler = async (event: any) => {
-    // Log the incoming event (sanitize sensitive data if needed)
+    // Extract user information
+    const userIdentity = event.identity || {};
+    const requestId = event.request?.headers?.['x-amzn-requestid'] || `req-${Date.now()}`;
+    const startTime = Date.now();
+
+    // Basic request logging
     logger.info('Function invoked', {
+        requestId,
         operation: event.arguments.operation,
         provider: event.arguments.provider || 'replicate',
-        eventType: event.info?.fieldName
+        eventType: event.info?.fieldName,
+        userSub: userIdentity.claims?.['sub'] || 'anonymous',
     });
 
     const operation = event.arguments.operation;
@@ -24,14 +31,28 @@ export const handler = async (event: any) => {
         const { createProvider } = await import('../providers/providerFactory');
         const providerInstance = createProvider(providerName);
 
-        logger.info(`Executing operation: ${operation}`);
+        // Get provider metadata for logging
+        const providerInfo = providerInstance.getProviderInfo();
+        logger.info('Using provider', {
+            requestId,
+            provider: providerInfo.serviceProvider,
+            apiEndpoint: providerInfo.apiEndpoint
+        });
+
+        // Get model-specific metadata based on operation
+        const modelInfo = providerInstance.getModelInfo(operation as AIOperation);
 
         let result;
         switch (operation) {
             case "generateImage":
-                logger.debug('Generate image operation', {
-                    prompt: event.arguments.prompt?.substring(0, 50) + '...',
-                    promptUpsampling: event.arguments.prompt_upsampling || false
+                logger.info('Generate image request', {
+                    requestId,
+                    provider: providerName,
+                    modelName: modelInfo.modelName,
+                    modelVersion: modelInfo.modelVersion,
+                    promptLength: event.arguments.prompt?.length || 0,
+                    // Avoid logging full prompts for privacy
+                    promptPreview: event.arguments.prompt?.substring(0, 20) + '...',
                 });
 
                 result = await providerInstance.generateImage(
@@ -41,8 +62,11 @@ export const handler = async (event: any) => {
                 break;
 
             case "upscaleImage":
-                logger.debug('Upscale image operation', {
-                    imageUrl: event.arguments.imageUrl?.substring(0, 50) + '...'
+                logger.info('Upscale image request', {
+                    requestId,
+                    provider: providerName,
+                    modelName: modelInfo.modelName,
+                    modelVersion: modelInfo.modelVersion
                 });
 
                 result = await providerInstance.upscaleImage(
@@ -51,22 +75,30 @@ export const handler = async (event: any) => {
                 break;
 
             default:
-                logger.error(`Unsupported operation: ${operation}`);
+                logger.error(`Unsupported operation: ${operation}`, { requestId });
                 throw new Error(`Unsupported operation: ${operation}`);
         }
 
-        logger.info('Operation completed successfully');
-        return result;
-    } catch (error: any) {
-        // Log the error in a structured way
-        logger.error('Error in aiDispatcher', {
-            error: error.message,
-            errorStack: error.stack,
+        const executionTime = Date.now() - startTime;
+        logger.info('Operation completed successfully', {
+            requestId,
+            provider: providerName,
             operation,
-            provider: providerName
+            modelName: modelInfo.modelName,
+            executionTimeMs: executionTime
         });
 
-        // Re-throw the error to maintain function behavior
+        return result;
+    } catch (error: any) {
+        const executionTime = Date.now() - startTime;
+        logger.error('Error in aiDispatcher', {
+            requestId,
+            errorMessage: error.message,
+            errorStack: error.stack,
+            operation,
+            provider: providerName,
+            executionTimeMs: executionTime,
+        });
         throw error;
     }
 };
