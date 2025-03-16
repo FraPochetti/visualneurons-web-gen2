@@ -51,8 +51,7 @@ export const handler = async (event: any) => {
                     modelName: modelInfo.modelName,
                     modelVersion: modelInfo.modelVersion,
                     promptLength: event.arguments.prompt?.length || 0,
-                    // Avoid logging full prompts for privacy
-                    promptPreview: event.arguments.prompt?.substring(0, 20) + '...',
+                    prompt: event.arguments.prompt,
                 });
 
                 result = await providerInstance.generateImage(

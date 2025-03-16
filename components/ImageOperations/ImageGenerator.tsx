@@ -5,6 +5,7 @@ import type { Schema } from '@/amplify/data/resource';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
 import ProviderSelector from '../ProviderSelector';
 import ModelCredits from '../ModelCredits';
+import { createProvider } from '@/amplify/functions/providers/providerFactory';
 
 interface ImageGeneratorProps {
     onSuccess?: (imageUrl: string) => void;
@@ -110,10 +111,18 @@ export default function ImageGenerator({ onSuccess }: ImageGeneratorProps) {
                 </div>
             )}
 
-            <ModelCredits
-                modelName="Flux 1.1 Pro Ultra"
-                modelUrl="https://replicate.com/black-forest-labs/flux-1.1-pro-ultra"
-            />
+            {(() => {
+                const providerInstance = createProvider(provider || "replicate");
+                const modelInfo = providerInstance.getModelInfo('generateImage');
+                console.log(modelInfo);
+
+                return (
+                    <ModelCredits
+                        modelName={modelInfo.displayName || modelInfo.modelName}
+                        modelUrl={modelInfo.modelUrl || ''}
+                    />
+                );
+            })()}
         </div>
     );
 }

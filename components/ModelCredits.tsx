@@ -3,7 +3,7 @@ import React from 'react';
 
 type ModelCreditsProps = {
     modelName: string;
-    modelUrl: string;
+    modelUrl?: string;
 };
 
 export default function ModelCredits({ modelName, modelUrl }: ModelCreditsProps) {

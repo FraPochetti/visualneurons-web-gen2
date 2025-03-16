@@ -10,6 +10,7 @@ import ModelCredits from "@/components/ModelCredits";
 import Upscaler from "@/components/ImageOperations/Upscaler";
 import CustomCompareSlider from "@/components/CustomCompareSlider";
 import ProviderSelector from "@/components/ProviderSelector";
+import { createProvider } from '@/amplify/functions/providers/providerFactory';
 
 const client = generateClient<Schema>();
 
@@ -217,7 +218,20 @@ export default function EditImagePage() {
                     </div>
                 )}
 
-                {!upscaledUrl && <ModelCredits modelName="Clarity Upscaler" modelUrl="https://replicate.com/philz1337x/clarity-upscaler" />}
+                {!upscaledUrl && (
+                    <>
+                        {(() => {
+                            const providerInstance = createProvider(provider);
+                            const modelInfo = providerInstance.getModelInfo('upscaleImage');
+                            return (
+                                <ModelCredits
+                                    modelName={modelInfo.displayName || modelInfo.modelName}
+                                    modelUrl={modelInfo.modelUrl}
+                                />
+                            );
+                        })()}
+                    </>
+                )}
 
                 {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
             </div>

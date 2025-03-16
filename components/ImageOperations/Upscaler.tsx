@@ -3,14 +3,12 @@ import { useState } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
-import CustomCompareSlider from '../CustomCompareSlider';
 
 interface UpscalerProps {
     imageUrl: string;
     originalPath: string;
     onSuccess: (upscaledUrl: string) => void;
-    // Don't include UI controls in the component
-    provider: string; // Take provider as a prop instead
+    provider: string;
 }
 
 export default function Upscaler({ imageUrl, originalPath, onSuccess, provider }: UpscalerProps) {
