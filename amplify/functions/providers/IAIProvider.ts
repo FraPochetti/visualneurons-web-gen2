@@ -3,7 +3,7 @@ export type AIOperation = 'generateImage' | 'upscaleImage' | 'inpaint' | 'outpai
 
 // For provider-level metadata (no model required)
 export interface ProviderMetadata {
-    serviceProvider: string;
+    serviceProvider: "replicate" | "stability" | "clipdrop" | "user";
     apiEndpoint?: string;
 }
 

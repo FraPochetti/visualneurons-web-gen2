@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
+import { createProvider } from '@/amplify/functions/providers/providerFactory';
+import { version } from 'os';
 
 interface UpscalerProps {
     imageUrl: string;
@@ -22,6 +24,9 @@ export default function Upscaler({ imageUrl, originalPath, onSuccess, provider }
         setError('');
         const identityId = (await fetchAuthSession()).identityId!;
         const attributes = await fetchUserAttributes();
+        const providerInstance = createProvider(provider);
+        const modelInfo = providerInstance.getModelInfo('upscaleImage');
+        const providerInfo = providerInstance.getProviderInfo();
 
         try {
             console.log("Upscaling image:", imageUrl);
@@ -43,10 +48,11 @@ export default function Upscaler({ imageUrl, originalPath, onSuccess, provider }
                 userSub: attributes.sub,
                 userEmail: attributes.email,
                 level: "INFO",
-                provider: provider as "replicate" | "stability" | "clipdrop" | "user",
+                provider: providerInfo.serviceProvider,
                 details: JSON.stringify({
                     output: result.data,
-                    model: "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
+                    model: modelInfo.modelName,
+                    version: modelInfo.modelVersion,
                     originalImagePath: originalPath,
                 }),
             });
@@ -56,11 +62,12 @@ export default function Upscaler({ imageUrl, originalPath, onSuccess, provider }
                 userSub: attributes.sub,
                 userEmail: attributes.email,
                 level: "ERROR",
-                provider: provider as "replicate" | "stability" | "clipdrop" | "user",
+                provider: providerInfo.serviceProvider,
                 details: JSON.stringify({
                     error: err.message,
                     stack: err.stack,
-                    model: "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
+                    model: modelInfo.modelName,
+                    version: modelInfo.modelVersion,
                 }),
             });
             console.error("Upscale error:", err);

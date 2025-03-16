@@ -3,17 +3,20 @@ import { useState } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
-import ProviderSelector from '../ProviderSelector';
-import ModelCredits from '../ModelCredits';
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
+import { ModelMetadata, ProviderMetadata } from '@/amplify/functions/providers/IAIProvider';
 
 interface ImageGeneratorProps {
-    onSuccess?: (imageUrl: string) => void;
+    provider: string; // now provided from the parent
+    onSuccess?: (result: {
+        imageUrl: string;
+        modelInfo: ModelMetadata;
+        providerInfo: ProviderMetadata;
+    }) => void;
 }
 
-export default function ImageGenerator({ onSuccess }: ImageGeneratorProps) {
+export default function ImageGenerator({ provider, onSuccess }: ImageGeneratorProps) {
     const [prompt, setPrompt] = useState('');
-    const [provider, setProvider] = useState('replicate');
     const [result, setResult] = useState<string | null>(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -26,6 +29,11 @@ export default function ImageGenerator({ onSuccess }: ImageGeneratorProps) {
         const identityId = (await fetchAuthSession()).identityId!;
         const attributes = await fetchUserAttributes();
 
+        // Use the passed-in provider prop here
+        const providerInstance = createProvider(provider);
+        const modelInfo = providerInstance.getModelInfo('generateImage');
+        const providerInfo = providerInstance.getProviderInfo();
+
         try {
             const output = await client.mutations.generateImage({
                 prompt,
@@ -36,7 +44,7 @@ export default function ImageGenerator({ onSuccess }: ImageGeneratorProps) {
 
             setResult(output.data);
             if (onSuccess && typeof output.data === 'string') {
-                onSuccess(output.data);
+                onSuccess({ imageUrl: output.data, modelInfo, providerInfo });
             }
 
             await client.models.LogEntry.create({
@@ -44,10 +52,10 @@ export default function ImageGenerator({ onSuccess }: ImageGeneratorProps) {
                 userSub: attributes.sub,
                 userEmail: attributes.email,
                 level: "INFO",
-                provider: provider as "replicate" | "stability" | "clipdrop" | "user",
+                provider: providerInfo.serviceProvider,
                 details: JSON.stringify({
                     prompt,
-                    model: "black-forest-labs/flux-1.1-pro-ultra",
+                    model: modelInfo.modelName,
                     output: output.data,
                 }),
             });
@@ -60,7 +68,7 @@ export default function ImageGenerator({ onSuccess }: ImageGeneratorProps) {
                 details: JSON.stringify({
                     error: err.message,
                     stack: err.stack,
-                    model: "black-forest-labs/flux-1.1-pro-ultra",
+                    model: modelInfo.modelName,
                 }),
             });
             console.error(err);
@@ -87,8 +95,6 @@ export default function ImageGenerator({ onSuccess }: ImageGeneratorProps) {
             />
 
             <div style={{ marginTop: "1rem" }}>
-                <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)} />
-
                 <button
                     onClick={handleGenerate}
                     className="button"
@@ -110,19 +116,6 @@ export default function ImageGenerator({ onSuccess }: ImageGeneratorProps) {
                     />
                 </div>
             )}
-
-            {(() => {
-                const providerInstance = createProvider(provider || "replicate");
-                const modelInfo = providerInstance.getModelInfo('generateImage');
-                console.log(modelInfo);
-
-                return (
-                    <ModelCredits
-                        modelName={modelInfo.displayName || modelInfo.modelName}
-                        modelUrl={modelInfo.modelUrl || ''}
-                    />
-                );
-            })()}
         </div>
     );
 }

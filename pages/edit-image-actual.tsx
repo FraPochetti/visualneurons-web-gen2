@@ -68,6 +68,10 @@ export default function EditImagePage() {
         const session = await fetchAuthSession();
         const identityId = session.identityId!;
         const attributes = await fetchUserAttributes();
+        const providerInstance = createProvider(provider);
+        const modelInfo = providerInstance.getModelInfo('upscaleImage');
+        const providerInfo = providerInstance.getProviderInfo();
+
         try {
             const path = `photos/${identityId}/${saveFileName}`;
 
@@ -109,10 +113,10 @@ export default function EditImagePage() {
                 userEmail: attributes.email,
                 originalImagePath: originalPathString!,
                 editedImagePath: path,
-                model: "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
+                model: modelInfo.modelName,
                 action: "upscale",
                 source: "edited",
-                provider: "replicate",
+                provider: providerInfo.serviceProvider,
             });
         } catch (err: any) {
             console.error("Error saving file:", err);
