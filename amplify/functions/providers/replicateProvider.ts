@@ -14,7 +14,7 @@ export class ReplicateProvider implements IAIProvider {
         switch (operation) {
             case "generateImage":
                 return {
-                    modelName: "black-forest-labs/flux-1.1-pro-ultra",
+                    modelName: "black-forest-labs/flux-1.1-pro-ultra-BLA",
                     serviceProvider: "replicate",
                     displayName: "Flux 1.1 Pro Ultra",
                     modelUrl: "https://replicate.com/black-forest-labs/flux-1.1-pro-ultra"
