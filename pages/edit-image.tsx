@@ -1,8 +1,2 @@
-// pages/edit-image.tsx
-import dynamic from "next/dynamic";
-
-const EditImagePage = dynamic(() => import("./edit-image-actual"), {
-    ssr: false,
-});
-
+import EditImagePage from './edit-image-actual';
 export default EditImagePage;

@@ -7,6 +7,7 @@ import CustomCompareSlider from "@/components/CustomCompareSlider"
 import { fetchAuthSession, fetchUserAttributes } from "aws-amplify/auth"
 import { uploadData, getProperties, getUrl } from "aws-amplify/storage"
 import ModelCredits from "@/components/ModelCredits";
+import ProviderSelector from "@/components/ProviderSelector"
 
 const client = generateClient<Schema>()
 
@@ -216,18 +217,7 @@ export default function EditImagePage() {
                 )}
             </div>
             <div style={{ textAlign: "center" }}>
-                <div style={{ marginBottom: "1rem" }}>
-                    <label htmlFor="provider-select">Select Provider: </label>
-                    <select
-                        id="provider-select"
-                        value={provider}
-                        onChange={(e) => setProvider(e.target.value)}
-                    >
-                        <option value="replicate">Replicate</option>
-                        <option value="stability">Stability</option>
-                        <option value="clipdrop">ClipDrop</option>
-                    </select>
-                </div>
+                <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)} />
                 {upscaledUrl ? (
                     <div>
                         <div style={{ marginBottom: "1rem" }}>

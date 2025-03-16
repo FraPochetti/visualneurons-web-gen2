@@ -5,6 +5,7 @@ import { uploadData, getProperties } from "aws-amplify/storage";
 import { fetchAuthSession, fetchUserAttributes } from "aws-amplify/auth";
 import Layout from "@/components/Layout";
 import ModelCredits from "@/components/ModelCredits";
+import ProviderSelector from "@/components/ProviderSelector";
 
 const client = generateClient<Schema>();
 
@@ -139,17 +140,7 @@ export default function GenerateImagePage() {
                         }}
                     />
                     <br />
-                    <div style={{ margin: "1rem 0" }}>
-                        <label htmlFor="provider-select">Select Provider: </label>
-                        <select
-                            id="provider-select"
-                            value={provider}
-                            onChange={(e) => setProvider(e.target.value)}
-                        >
-                            <option value="replicate">Replicate</option>
-                            <option value="stability">Stability</option>
-                        </select>
-                    </div>
+                    <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)} />
                     <button type="submit" className="button" disabled={loading}>
                         {loading ? <span className="spinner" /> : "Generate Image"}
                     </button>
