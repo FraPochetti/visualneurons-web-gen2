@@ -2,6 +2,9 @@
 import { IAIProvider } from "./IAIProvider";
 import Replicate from "replicate";
 import { AIOperation, ModelMetadata, ProviderMetadata } from "./IAIProvider";
+
+const GENERATE_IMAGE_MODEL = "black-forest-labs/flux-1.1-pro-ultra";
+const UPSCALE_IMAGE_VERSION = "dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e";
 export class ReplicateProvider implements IAIProvider {
     getProviderInfo(): ProviderMetadata {
         return {
@@ -14,7 +17,7 @@ export class ReplicateProvider implements IAIProvider {
         switch (operation) {
             case "generateImage":
                 return {
-                    modelName: "black-forest-labs/flux-1.1-pro-ultra",
+                    modelName: GENERATE_IMAGE_MODEL,
                     serviceProvider: "replicate",
                     displayName: "Flux 1.1 Pro Ultra",
                     modelUrl: "https://replicate.com/black-forest-labs/flux-1.1-pro-ultra"
@@ -22,7 +25,7 @@ export class ReplicateProvider implements IAIProvider {
             case "upscaleImage":
                 return {
                     modelName: "philz1337x/clarity-upscaler",
-                    modelVersion: "dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
+                    modelVersion: UPSCALE_IMAGE_VERSION,
                     serviceProvider: "replicate",
                     displayName: "Clarity Upscaler",
                     modelUrl: "https://replicate.com/philz1337x/clarity-upscaler"
@@ -34,7 +37,7 @@ export class ReplicateProvider implements IAIProvider {
 
     async generateImage(prompt: string, promptUpsampling = true): Promise<string> {
         const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
-        const model = "black-forest-labs/flux-1.1-pro-ultra-BLA";
+        const model = GENERATE_IMAGE_MODEL;
 
         // Create prediction
         const prediction = await replicate.predictions.create({
@@ -70,7 +73,7 @@ export class ReplicateProvider implements IAIProvider {
 
     async upscaleImage(imageUrl: string): Promise<string> {
         const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
-        const version = "dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e";
+        const version = UPSCALE_IMAGE_VERSION;
 
         const prediction = await replicate.predictions.create({
             version,

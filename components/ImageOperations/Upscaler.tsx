@@ -36,12 +36,17 @@ export default function Upscaler({ imageUrl, originalPath, onSuccess, provider }
                 operation: "upscaleImage"
             });
 
-            if (result.data && typeof result.data === 'string') {
+            if (result.errors && result.errors.length > 0) {
+                const message = result.errors[0].message;
+                setError(message);
+                alert("Error: " + message);
+            } else if (result.data && typeof result.data === 'string') {
                 setUpscaledUrl(result.data);
                 onSuccess(result.data);
             } else {
                 throw new Error("Invalid response from upscale operation");
             }
+
 
             await client.models.LogEntry.create({
                 identityId,
