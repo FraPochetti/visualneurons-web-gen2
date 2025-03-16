@@ -55,7 +55,7 @@ export const handler = async (event: any) => {
                 });
 
                 result = await providerInstance.generateImage(
-                    event.arguments.prompt + null,
+                    null,
                     event.arguments.prompt_upsampling || false
                 );
                 break;
