@@ -42,9 +42,15 @@ export default function ImageGenerator({ provider, onSuccess }: ImageGeneratorPr
                 operation: "generateImage",
             });
 
-            setResult(output.data);
-            if (onSuccess && typeof output.data === 'string') {
-                onSuccess({ imageUrl: output.data, modelInfo, providerInfo });
+            if (output.errors && output.errors.length > 0) {
+                const message = output.errors[0].message;
+                setError(message);
+                alert("Error: " + message);
+            } else {
+                setResult(output.data);
+                if (onSuccess && typeof output.data === 'string') {
+                    onSuccess({ imageUrl: output.data, modelInfo, providerInfo });
+                }
             }
 
             await client.models.LogEntry.create({
