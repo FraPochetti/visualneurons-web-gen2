@@ -14,7 +14,7 @@ export class ReplicateProvider implements IAIProvider {
         switch (operation) {
             case "generateImage":
                 return {
-                    modelName: "black-forest-labs/flux-1.1-pro-ultra-BLA",
+                    modelName: "black-forest-labs/flux-1.1-pro-ultra",
                     serviceProvider: "replicate",
                     displayName: "Flux 1.1 Pro Ultra",
                     modelUrl: "https://replicate.com/black-forest-labs/flux-1.1-pro-ultra"
@@ -34,7 +34,7 @@ export class ReplicateProvider implements IAIProvider {
 
     async generateImage(prompt: string, promptUpsampling = true): Promise<string> {
         const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
-        const model = "black-forest-labs/flux-1.1-pro-ultra";
+        const model = "black-forest-labs/flux-1.1-pro-ultra-BLA";
 
         // Create prediction
         const prediction = await replicate.predictions.create({
