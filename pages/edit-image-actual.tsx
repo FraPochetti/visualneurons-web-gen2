@@ -11,6 +11,7 @@ import Upscaler from "@/components/ImageOperations/Upscaler";
 import CustomCompareSlider from "@/components/CustomCompareSlider";
 import ProviderSelector from "@/components/ProviderSelector";
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
+import { saveImageRecord } from "@/utils/saveImageRecord";
 
 const client = generateClient<Schema>();
 
@@ -65,58 +66,21 @@ export default function EditImagePage() {
 
     const handleSave = async () => {
         if (!upscaledUrl || typeof upscaledUrl !== "string" || !isReady) return;
-        const session = await fetchAuthSession();
-        const identityId = session.identityId!;
-        const attributes = await fetchUserAttributes();
         const providerInstance = createProvider(provider);
         const modelInfo = providerInstance.getModelInfo('upscaleImage');
         const providerInfo = providerInstance.getProviderInfo();
 
         try {
-            const path = `photos/${identityId}/${saveFileName}`;
-
-            let fileExists = false;
-            try {
-                await getProperties({ path });
-                fileExists = true;
-            } catch (error: any) {
-                if (error?.$metadata?.httpStatusCode === 404) {
-                    fileExists = false;
-                } else {
-                    console.warn("Non-404 error checking existence, continuing anyway:", error);
-                    fileExists = false;
-                }
-            }
-
-            if (fileExists) {
-                const confirmOverwrite = window.confirm(
-                    `A file named "${saveFileName}" already exists. Overwrite it?`
-                );
-                if (!confirmOverwrite) {
-                    return;
-                }
-            }
-
-            const response = await fetch(upscaledUrl);
-            const blob = await response.blob();
-            await uploadData({
-                path,
-                data: blob,
-                options: {
-                    metadata: { isAiGenerated: "true" },
-                },
-            });
-            alert("File saved successfully.");
-            await client.models.ImageRecord.create({
-                identityId,
-                userSub: attributes.sub,
-                userEmail: attributes.email,
-                originalImagePath: originalPathString!,
-                editedImagePath: path,
-                model: modelInfo.modelName,
-                action: "upscale",
+            await saveImageRecord({
+                imageUrl: upscaledUrl,
+                fileName: saveFileName,
                 source: "edited",
-                provider: providerInfo.serviceProvider,
+                action: "upscale",
+                // Pass the original image path so that it remains unchanged
+                originalImagePathOverride: originalPathString!,
+                checkOverwrite: true,
+                modelName: modelInfo.modelName,
+                providerService: providerInfo.serviceProvider,
             });
         } catch (err: any) {
             console.error("Error saving file:", err);

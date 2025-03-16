@@ -10,6 +10,7 @@ import type { Schema } from "@/amplify/data/resource";
 import { ModelMetadata, ProviderMetadata } from '@/amplify/functions/providers/IAIProvider';
 import ModelCredits from "@/components/ModelCredits";
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
+import { saveImageRecord } from "@/utils/saveImageRecord";
 interface GeneratedResult {
     imageUrl: string;
     modelInfo: ModelMetadata;
@@ -30,33 +31,13 @@ export default function GenerateImagePage() {
     const handleSave = async () => {
         if (!generatedResult) return;
         const { imageUrl, modelInfo, providerInfo } = generatedResult;
-        const session = await fetchAuthSession();
-        const identityId = session.identityId!;
-        const attributes = await fetchUserAttributes();
-
         try {
-            const path = `photos/${identityId}/${saveFileName}`;
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-
-            await uploadData({
-                path,
-                data: blob,
-                options: {
-                    metadata: { isAiGenerated: "true" },
-                },
-            });
-
-            alert("File saved successfully.");
-
-            await client.models.ImageRecord.create({
-                identityId,
-                userSub: attributes.sub,
-                userEmail: attributes.email,
-                originalImagePath: path,
-                model: modelInfo.modelName,
+            await saveImageRecord({
+                imageUrl,
+                fileName: saveFileName,
                 source: "generated",
-                provider: providerInfo.serviceProvider,
+                modelName: modelInfo.modelName,
+                providerService: providerInfo.serviceProvider,
             });
         } catch (err: any) {
             console.error("Error saving file:", err);
