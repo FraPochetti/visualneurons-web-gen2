@@ -4,8 +4,6 @@ import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
-import { version } from 'os';
-
 interface UpscalerProps {
     imageUrl: string;
     originalPath: string;

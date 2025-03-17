@@ -3,8 +3,6 @@ import Layout from "@/components/Layout";
 import ImageGenerator from "@/components/ImageOperations/ImageGenerator";
 import ProviderSelector from "@/components/ProviderSelector";
 import { useState } from "react";
-import { uploadData } from "aws-amplify/storage";
-import { fetchAuthSession, fetchUserAttributes } from "aws-amplify/auth";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
 import { ModelMetadata, ProviderMetadata } from '@/amplify/functions/providers/IAIProvider';
