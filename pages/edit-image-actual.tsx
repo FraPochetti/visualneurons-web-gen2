@@ -6,76 +6,78 @@ import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
 import { getProperties, getUrl } from "aws-amplify/storage";
 import ModelCredits from "@/components/ModelCredits";
-import Upscaler from "@/components/ImageOperations/Upscaler";
 import CustomCompareSlider from "@/components/CustomCompareSlider";
 import ProviderSelector from "@/components/ProviderSelector";
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import { saveImageRecord } from "@/utils/saveImageRecord";
+import OperationSelector from "@/components/OperationSelector";
+import ImageOperationManager from "@/components/ImageOperations/ImageOperationManager";
+import { AIOperation } from "@/amplify/functions/providers/IAIProvider";
 
 const client = generateClient<Schema>();
 
 export default function EditImagePage() {
     const router = useRouter();
+    const [operation, setOperation] = useState<AIOperation>("upscaleImage");
     const [provider, setProvider] = useState("replicate");
-    const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
-    const [saveFileName, setSaveFileName] = useState("upscaled-image.jpg");
-    const [isUpscaledRecord, setIsUpscaledRecord] = useState(false);
+    const [processedUrl, setProcessedUrl] = useState<string | null>(null);
+    const [saveFileName, setSaveFileName] = useState(`${operation}-image.jpg`);
+    const [isProcessedRecord, setIsProcessedRecord] = useState(false);
     const [compareOriginalUrl, setCompareOriginalUrl] = useState<string | null>(null);
     const { url, originalPath } = router.query;
     const urlString = Array.isArray(url) ? url[0] : url;
     const originalPathString = Array.isArray(originalPath) ? originalPath[0] : originalPath;
     const isReady = Boolean(urlString && originalPathString);
 
-    // Get the upscaler component's functions and state
-    const { upscale, loading, error } = isReady ?
-        Upscaler({
+    // Update filename when operation changes
+    useEffect(() => {
+        setSaveFileName(`${operation}-image.jpg`);
+    }, [operation]);
+
+    const { execute, loading, error } = isReady ?
+        ImageOperationManager({
+            operation,
+            provider,
             imageUrl: urlString!,
             originalPath: originalPathString!,
-            onSuccess: setUpscaledUrl,
-            provider
-        }) : { upscale: () => { }, loading: false, error: "" };
+            onSuccess: setProcessedUrl
+        }) : { execute: () => { }, loading: false, error: "" };
 
     useEffect(() => {
         if (!isReady) return;
 
-        console.log("Checking for upscale record:", urlString);
-        const checkUpscale = async () => {
+        console.log(`Checking for ${operation} record:`, urlString);
+        const checkProcessed = async () => {
             try {
                 const res = await client.models.ImageRecord.list({
                     filter: {
                         editedImagePath: { eq: originalPathString! },
-                        action: { eq: "upscale" },
+                        action: { eq: operation },
                     },
                 });
                 console.log("Results:", res);
                 if (res.data && res.data.length > 0) {
-                    setIsUpscaledRecord(true);
+                    setIsProcessedRecord(true);
                 }
             } catch (err) {
-                console.error("Error checking upscale record:", err);
+                console.error(`Error checking ${operation} record:`, err);
             }
         };
-        checkUpscale();
-    }, [urlString, originalPathString, isReady]);
-
-    // Handler for when upscaling is successful
-    const handleUpscaleSuccess = (imageUrl: string) => {
-        setUpscaledUrl(imageUrl);
-    };
+        checkProcessed();
+    }, [urlString, originalPathString, isReady, operation]);
 
     const handleSave = async () => {
-        if (!upscaledUrl || typeof upscaledUrl !== "string" || !isReady) return;
+        if (!processedUrl || typeof processedUrl !== "string" || !isReady) return;
         const providerInstance = createProvider(provider);
-        const modelInfo = providerInstance.getModelInfo('upscaleImage');
+        const modelInfo = providerInstance.getModelInfo(operation);
         const providerInfo = providerInstance.getProviderInfo();
 
         try {
             await saveImageRecord({
-                imageUrl: upscaledUrl,
+                imageUrl: processedUrl,
                 fileName: saveFileName,
                 source: "edited",
-                action: "upscale",
-                // Pass the original image path so that it remains unchanged
+                action: operation,
                 originalImagePathOverride: originalPathString!,
                 checkOverwrite: true,
                 modelName: modelInfo.modelName,
@@ -94,18 +96,18 @@ export default function EditImagePage() {
             const res = await client.models.ImageRecord.list({
                 filter: {
                     editedImagePath: { eq: originalPathString },
-                    action: { eq: "upscale" },
+                    action: { eq: operation },
                 },
             });
             if (!res.data || res.data.length === 0) {
-                console.log("No upscale records found.");
+                console.log(`No ${operation} records found.`);
                 return;
             }
             const sortedRecords = res.data.sort((a, b) => {
                 return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             });
             const mostRecentRecord = sortedRecords[0];
-            console.log("Most recent upscale record:", mostRecentRecord);
+            console.log(`Most recent ${operation} record:`, mostRecentRecord);
             const originalImagePathFromRecord = mostRecentRecord.originalImagePath;
             console.log("Original image path from record:", originalImagePathFromRecord);
             try {
@@ -118,11 +120,10 @@ export default function EditImagePage() {
                 console.error("Original image file does not exist:", err);
             }
         } catch (err) {
-            console.error("Error fetching upscale records:", err);
+            console.error(`Error fetching ${operation} records:`, err);
         }
     };
 
-    // If not ready, show a loading message.
     if (!isReady) {
         return (
             <Layout>
@@ -135,8 +136,8 @@ export default function EditImagePage() {
         <Layout>
             <h1>Image Editor</h1>
             <div style={{ maxWidth: "600px", margin: "20px auto" }}>
-                {upscaledUrl ? (
-                    <CustomCompareSlider before={urlString!} after={upscaledUrl} />
+                {processedUrl ? (
+                    <CustomCompareSlider before={urlString!} after={processedUrl} />
                 ) : compareOriginalUrl ? (
                     <CustomCompareSlider before={compareOriginalUrl} after={urlString!} />
                 ) : (
@@ -145,24 +146,29 @@ export default function EditImagePage() {
             </div>
 
             <div style={{ textAlign: "center" }}>
-                {!upscaledUrl && !compareOriginalUrl && (
+                {!processedUrl && !compareOriginalUrl && (
                     <div>
-                        {/* Provider selector on its own line */}
                         <div style={{ marginBottom: "15px" }}>
                             <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)} />
                         </div>
+                        <div style={{ marginBottom: "15px" }}>
+                            <OperationSelector
+                                value={operation}
+                                onChange={(e) => setOperation(e.target.value as AIOperation)}
+                                provider={provider}
+                            />
+                        </div>
 
-                        {/* Buttons in a row */}
                         <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
                             <button
-                                onClick={upscale}
+                                onClick={execute}
                                 className="button"
                                 disabled={loading}
                             >
-                                {loading ? <span className="spinner" /> : "Upscale Image"}
+                                {loading ? <span className="spinner" /> : `Process Image`}
                             </button>
 
-                            {isUpscaledRecord && (
+                            {isProcessedRecord && (
                                 <button onClick={handleCompareOriginal} className="button">
                                     Compare with original
                                 </button>
@@ -171,7 +177,7 @@ export default function EditImagePage() {
                     </div>
                 )}
 
-                {upscaledUrl && (
+                {processedUrl && (
                     <div>
                         <div style={{ marginBottom: "1rem" }}>
                             <label>
@@ -185,11 +191,11 @@ export default function EditImagePage() {
                     </div>
                 )}
 
-                {!upscaledUrl && (
+                {!processedUrl && (
                     <>
                         {(() => {
                             const providerInstance = createProvider(provider);
-                            const modelInfo = providerInstance.getModelInfo('upscaleImage');
+                            const modelInfo = providerInstance.getModelInfo(operation);
                             return (
                                 <ModelCredits
                                     modelName={modelInfo.displayName || modelInfo.modelName}
