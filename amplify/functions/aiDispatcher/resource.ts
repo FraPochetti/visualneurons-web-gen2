@@ -5,6 +5,7 @@ export const aiDispatcher = defineFunction({
     name: "aiDispatcher",
     environment: {
         REPLICATE_API_TOKEN: secret("REPLICATE_API_TOKEN"),
+        STABILITY_API_TOKEN: secret("STABILITY_API_TOKEN"),
         LOG_LEVEL: "DEBUG"  // You can set this to INFO, DEBUG, WARN, or ERROR
     },
     timeoutSeconds: 59,

@@ -12,6 +12,8 @@
     "@aws-amplify/ui-react": "^6.5.5",
     "@aws-lambda-powertools/logger": "^2.16.0",
     "aws-amplify": "^6.6.6",
+    "axios": "^1.8.3",
+    "form-data": "^4.0.2",
     "json-schema-to-ts": "^3.1.1",
     "next": "^15.2.2",
     "react": "^18",
