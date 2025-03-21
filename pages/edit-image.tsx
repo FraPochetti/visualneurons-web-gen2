@@ -10,8 +10,8 @@ import ProviderSelector from "@/components/ProviderSelector";
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import { saveImageRecord } from "@/utils/saveImageRecord";
 import OperationSelector from "@/components/OperationSelector";
-import ImageOperationManager from "@/components/ImageOperations/ImageOperationManager";
 import { AIOperation } from "@/amplify/functions/providers/IAIProvider";
+import { useImageOperation } from '@/components/ImageOperations/useImageOperation';
 
 const client = generateClient<Schema>();
 
@@ -30,14 +30,13 @@ export default function EditImagePage() {
         setSaveFileName(`${operation}-image.jpg`);
     }, [operation]);
 
-    const imageOperationManager = ImageOperationManager({
+    const { execute, loading, error } = useImageOperation({
         operation,
         provider,
         imageUrl: urlString ?? "",
         originalPath: originalPathString ?? "",
         onSuccess: setProcessedUrl,
     });
-    const { execute, loading, error } = imageOperationManager;
 
     const handleSave = async () => {
         if (!processedUrl || typeof processedUrl !== "string" || !isReady) return;

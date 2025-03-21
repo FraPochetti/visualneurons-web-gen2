@@ -54,7 +54,7 @@ class ProjectExporter:
 if __name__ == "__main__":
     exporter = ProjectExporter(
         root_dir="/home/ubuntu/visualneurons-web-gen2",
-        include_dirs=["amplify", "pages", "styles"],
+        include_dirs=["amplify", "pages", "styles", "components"],
         output_dir="/home/ubuntu",
         output_name="app.md"
     )

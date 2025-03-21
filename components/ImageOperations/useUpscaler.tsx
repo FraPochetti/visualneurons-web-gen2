@@ -1,37 +1,41 @@
-// Updated components/ImageOperations/Upscaler.tsx
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
-interface UpscalerProps {
+
+interface UseUpscalerParams {
     imageUrl: string;
     originalPath: string;
-    onSuccess: (upscaledUrl: string) => void;
     provider: string;
+    onSuccess: (upscaledUrl: string) => void;
 }
 
-export default function Upscaler({ imageUrl, originalPath, onSuccess, provider }: UpscalerProps) {
+export function useUpscaler({
+    imageUrl,
+    originalPath,
+    provider,
+    onSuccess,
+}: UseUpscalerParams) {
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const client = generateClient<Schema>();
 
-    const handleUpscale = async () => {
+    const upscale = useCallback(async () => {
         setLoading(true);
-        setError('');
-        const identityId = (await fetchAuthSession()).identityId!;
-        const attributes = await fetchUserAttributes();
-        const providerInstance = createProvider(provider);
-        const modelInfo = providerInstance.getModelInfo('upscaleImage');
-        const providerInfo = providerInstance.getProviderInfo();
-
+        setError(null);
         try {
+            const identityId = (await fetchAuthSession()).identityId!;
+            const attributes = await fetchUserAttributes();
+            const providerInstance = createProvider(provider);
+            const modelInfo = providerInstance.getModelInfo('upscaleImage');
+            const providerInfo = providerInstance.getProviderInfo();
+
             console.log("Upscaling image:", imageUrl);
             const result = await client.mutations.upscaleImage({
                 imageUrl: imageUrl,
                 provider: provider,
-                operation: "upscaleImage"
+                operation: "upscaleImage",
             });
 
             if (result.errors && result.errors.length > 0) {
@@ -39,12 +43,10 @@ export default function Upscaler({ imageUrl, originalPath, onSuccess, provider }
                 setError(message);
                 alert("Error: " + message);
             } else if (result.data && typeof result.data === 'string') {
-                setUpscaledUrl(result.data);
                 onSuccess(result.data);
             } else {
                 throw new Error("Invalid response from upscale operation");
             }
-
 
             await client.models.LogEntry.create({
                 identityId,
@@ -60,6 +62,12 @@ export default function Upscaler({ imageUrl, originalPath, onSuccess, provider }
                 }),
             });
         } catch (err: any) {
+            const identityId = (await fetchAuthSession()).identityId!;
+            const attributes = await fetchUserAttributes();
+            const providerInstance = createProvider(provider);
+            const modelInfo = providerInstance.getModelInfo('upscaleImage');
+            const providerInfo = providerInstance.getProviderInfo();
+
             await client.models.LogEntry.create({
                 identityId,
                 userSub: attributes.sub,
@@ -78,13 +86,7 @@ export default function Upscaler({ imageUrl, originalPath, onSuccess, provider }
         } finally {
             setLoading(false);
         }
-    };
+    }, [imageUrl, originalPath, provider, onSuccess, client]);
 
-    // Only expose the upscale function and state variables
-    return {
-        upscale: handleUpscale,
-        upscaledUrl,
-        loading,
-        error
-    };
+    return { upscale, loading, error };
 }
