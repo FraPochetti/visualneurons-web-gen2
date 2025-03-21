@@ -4,7 +4,6 @@ import Layout from "@/components/Layout";
 import { useState, useEffect } from "react";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
-import { getProperties, getUrl } from "aws-amplify/storage";
 import ModelCredits from "@/components/ModelCredits";
 import CustomCompareSlider from "@/components/CustomCompareSlider";
 import ProviderSelector from "@/components/ProviderSelector";
@@ -31,15 +30,14 @@ export default function EditImagePage() {
         setSaveFileName(`${operation}-image.jpg`);
     }, [operation]);
 
-    const { execute, loading, error } = isReady
-        ? ImageOperationManager({
-            operation,
-            provider,
-            imageUrl: urlString!,
-            originalPath: originalPathString!,
-            onSuccess: setProcessedUrl,
-        })
-        : { execute: () => { }, loading: false, error: "" };
+    const imageOperationManager = ImageOperationManager({
+        operation,
+        provider,
+        imageUrl: urlString ?? "",
+        originalPath: originalPathString ?? "",
+        onSuccess: setProcessedUrl,
+    });
+    const { execute, loading, error } = imageOperationManager;
 
     const handleSave = async () => {
         if (!processedUrl || typeof processedUrl !== "string" || !isReady) return;
