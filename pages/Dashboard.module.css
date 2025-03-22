@@ -1,0 +1,23 @@
+.container {
+    padding: 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    font-size: 0.9rem;
+}
+
+.logoutButton {
+    margin-left: 10px;
+}

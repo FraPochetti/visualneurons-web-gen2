@@ -1,5 +1,6 @@
 // components/Layout.tsx
 import Link from "next/link";
+import styles from "./Layout.module.css";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
@@ -21,20 +22,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </nav>
             </header>
             <main>{children}</main>
-            <footer
-                style={{
-                    textAlign: "center",
-                    marginTop: "2rem",
-                    padding: "1rem",
-                    fontSize: "0.9rem",
-                }}
-            >
+            <footer className={styles.footer}>
                 Made with ❤️ by{" "}
                 <a
                     href="https://www.linkedin.com/in/francescopochetti/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ textDecoration: "underline", color: "inherit" }}
+                    className={styles.footerLink}
                 >
                     Francesco Pochetti
                 </a>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { list, getUrl, getProperties } from "aws-amplify/storage";
 import { fetchAuthSession, fetchUserAttributes, signOut } from "aws-amplify/auth";
 import { remove } from "aws-amplify/storage";
+import styles from "./Dashboard.module.css"; // Import the module
 
 export default function Dashboard() {
     interface Photo {
@@ -17,7 +18,7 @@ export default function Dashboard() {
     const [userEmail, setUserEmail] = useState<string | null>(null);
     const [visibleCount, setVisibleCount] = useState(6);
 
-    // Fetch user attributes (e.g., email) for display
+    // Fetch user attributes for display
     useEffect(() => {
         async function fetchUserData() {
             try {
@@ -55,11 +56,10 @@ export default function Dashboard() {
                         path: item.path,
                         url: url.toString(),
                         lastModified: item.lastModified ? new Date(item.lastModified) : new Date(),
-                        isAiGenerated: properties.metadata?.isaigenerated === "true", // check metadata
+                        isAiGenerated: properties.metadata?.isaigenerated === "true",
                     };
                 })
             );
-            // Sort photos so the most recent are first
             photos.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime());
             setUploadedPhotos(photos);
         };
@@ -68,9 +68,7 @@ export default function Dashboard() {
 
     const handleDelete = async (path: string) => {
         try {
-            // Remove from S3
             await remove({ path });
-            // Remove from local state
             setUploadedPhotos((prev) => prev.filter((photo) => photo.path !== path));
         } catch (err) {
             console.error("Error deleting photo:", err);
@@ -78,15 +76,8 @@ export default function Dashboard() {
     };
 
     return (
-        <div style={{ padding: "1rem", maxWidth: "900px", margin: "0 auto" }}>
-            <header
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "20px",
-                }}
-            >
+        <div className={styles.container}>
+            <header className={styles.header}>
                 <nav className="nav">
                     <Link href="/upload" className="nav-link">Upload Photo</Link>
                     <Link href="/generate-image" className="nav-link">Generate Image</Link>
@@ -94,7 +85,7 @@ export default function Dashboard() {
                 </nav>
                 <div>
                     {userEmail && <span>Hi, {userEmail}</span>}
-                    <button onClick={handleLogout} className="button" style={{ marginLeft: "10px" }}>
+                    <button onClick={handleLogout} className={`button ${styles.logoutButton}`}>
                         🚪 Logout
                     </button>
                 </div>
@@ -123,14 +114,7 @@ export default function Dashboard() {
                     Load More
                 </button>
             )}
-            <footer
-                style={{
-                    textAlign: "center",
-                    marginTop: "2rem",
-                    padding: "1rem",
-                    fontSize: "0.9rem",
-                }}
-            >
+            <footer className={styles.footer}>
                 Made with ❤️ by{" "}
                 <a
                     href="https://www.linkedin.com/in/francescopochetti/"

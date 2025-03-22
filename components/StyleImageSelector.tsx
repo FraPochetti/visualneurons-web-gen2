@@ -1,6 +1,7 @@
 import { list, getUrl } from 'aws-amplify/storage';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { useState, useEffect } from 'react';
+import styles from "./StyleImageSelector.module.css";
 
 interface StyleImageSelectorProps {
     onSelect: (imageUrl: string) => void;
@@ -50,36 +51,17 @@ export default function StyleImageSelector({ onSelect }: StyleImageSelectorProps
     };
 
     return (
-        <div
-            style={{
-                display: 'flex',
-                gap: '10px',
-                overflowX: 'auto',
-                marginTop: '1rem',
-                paddingBottom: '0.5rem',
-            }}
-        >
+        <div className={styles.container}>
             {photos.map((photo) => (
                 <div
                     key={photo.path}
                     onClick={() => handleSelect(photo.url)}
-                    style={{
-                        position: 'relative',
-                        cursor: 'pointer',
-                        flexShrink: 0,
-                        border: selected === photo.url ? '3px solid #00f' : '3px solid transparent',
-                        borderRadius: '8px'
-                    }}
+                    className={`${styles.photoItem} ${selected === photo.url ? styles.selected : ""}`}
                 >
                     <img
                         src={photo.url}
                         alt="Style"
-                        style={{
-                            width: '120px',
-                            height: '120px',
-                            objectFit: 'cover',
-                            borderRadius: '5px'
-                        }}
+                        className={styles.photoImage}
                     />
                 </div>
             ))}

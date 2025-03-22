@@ -1,0 +1,28 @@
+/* EditImage.module.css */
+.imageContainer {
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.selectedImage {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.inputContainer {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.inputLabel {
+    margin-right: 0.5rem;
+    font-weight: bold;
+}
+
+.textInput {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    max-width: 600px;
+    box-sizing: border-box;
+}

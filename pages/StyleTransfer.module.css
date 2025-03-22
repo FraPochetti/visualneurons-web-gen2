@@ -1,0 +1,26 @@
+.container {
+    margin: 1rem 0;
+}
+
+.promptInput {
+    width: 100%;
+    max-width: 600px;
+    padding: 0.5rem;
+    height: 4rem;
+    box-sizing: border-box;
+}
+
+.buttonContainer {
+    margin-top: 1rem;
+}
+
+.resultContainer {
+    margin-top: 1rem;
+    max-width: 100%;
+}
+
+.resultImage {
+    max-width: 100%;
+    border-radius: 8px;
+    /* or any styling you like */
+}

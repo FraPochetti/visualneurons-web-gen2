@@ -5,9 +5,10 @@ import type { Schema } from '@/amplify/data/resource';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import { ModelMetadata, ProviderMetadata } from '@/amplify/functions/providers/IAIProvider';
+import styles from "./ImageGenerator.module.css";
 
 interface ImageGeneratorProps {
-    provider: string; // now provided from the parent
+    provider: string;
     onSuccess?: (result: {
         imageUrl: string;
         modelInfo: ModelMetadata;
@@ -29,7 +30,6 @@ export default function ImageGenerator({ provider, onSuccess }: ImageGeneratorPr
         const identityId = (await fetchAuthSession()).identityId!;
         const attributes = await fetchUserAttributes();
 
-        // Use the passed-in provider prop here
         const providerInstance = createProvider(provider);
         const modelInfo = providerInstance.getModelInfo('generateImage');
         const providerInfo = providerInstance.getProviderInfo();
@@ -91,16 +91,10 @@ export default function ImageGenerator({ provider, onSuccess }: ImageGeneratorPr
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Enter a prompt, e.g. cool sunrise"
                 rows={4}
-                style={{
-                    width: "100%",
-                    maxWidth: "600px",
-                    padding: "0.5rem",
-                    borderRadius: "4px",
-                    border: "1px solid #ccc",
-                }}
+                className={styles.textarea}
             />
 
-            <div style={{ marginTop: "1rem" }}>
+            <div className={styles.buttonContainer}>
                 <button
                     onClick={handleGenerate}
                     className="button"
@@ -110,15 +104,15 @@ export default function ImageGenerator({ provider, onSuccess }: ImageGeneratorPr
                 </button>
             </div>
 
-            {error && <div style={{ color: "red", marginTop: "1rem" }}>Error: {error}</div>}
+            {error && <div className={styles.errorMessage}>Error: {error}</div>}
 
             {result && (
-                <div style={{ marginTop: "1rem" }}>
+                <div className={styles.resultContainer}>
                     <h2>Generated Image:</h2>
                     <img
                         src={result}
                         alt="Generated"
-                        style={{ maxWidth: "100%", maxHeight: "500px" }}
+                        className={styles.resultImage}
                     />
                 </div>
             )}

@@ -1,5 +1,5 @@
-// components/ProviderSelector.tsx
 import React from 'react';
+import styles from "./ProviderSelector.module.css";
 
 interface ProviderSelectorProps {
     value: string;
@@ -8,9 +8,9 @@ interface ProviderSelectorProps {
 
 export default function ProviderSelector({ value, onChange }: ProviderSelectorProps) {
     return (
-        <div style={{ margin: "1rem 0" }}>
-            <label htmlFor="provider-select">Select Provider: </label>
-            <select id="provider-select" value={value} onChange={onChange}>
+        <div className={styles.container}>
+            <label htmlFor="provider-select" className={styles.label}>Select Provider: </label>
+            <select id="provider-select" value={value} onChange={onChange} className={styles.select}>
                 <option value="replicate">Replicate</option>
                 <option value="stability">Stability</option>
             </select>

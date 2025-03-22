@@ -8,6 +8,7 @@ import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import StyleImageSelector from '@/components/StyleImageSelector';
 import { saveImageRecord } from '@/utils/saveImageRecord';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
+import styles from "./StyleTransfer.module.css"; // Import the module
 
 export default function StyleTransferPage() {
     const [provider, setProvider] = useState('stability');
@@ -114,19 +115,22 @@ export default function StyleTransferPage() {
         <Layout>
             <h1>Style Transfer</h1>
             <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)} />
-            <div style={{ margin: '1rem 0' }}>
+
+            {/* Instead of inline margin, use the container class */}
+            <div className={styles.container}>
                 <input
                     type="text"
                     placeholder="Enter your prompt"
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    style={{ width: '100%', maxWidth: '600px', padding: '0.5rem', height: '4rem' }}
+                    className={styles.promptInput}
                 />
             </div>
+
             <h3>Select a Style Image:</h3>
             <StyleImageSelector onSelect={handleSelectImage} />
 
-            <div style={{ marginTop: '1rem' }}>
+            <div className={styles.buttonContainer}>
                 <button
                     onClick={handleStyleTransfer}
                     className="button"
@@ -138,11 +142,12 @@ export default function StyleTransferPage() {
 
             {result && (
                 <>
-                    <div style={{ marginTop: '1rem' }}>
+                    <div className={styles.resultContainer}>
                         <h2>Result</h2>
-                        <img src={result} alt="Style Transfer Result" style={{ maxWidth: '100%' }} />
+                        <img src={result} alt="Style Transfer Result" className={styles.resultImage} />
                     </div>
-                    <div style={{ marginTop: '1rem' }}>
+
+                    <div className={styles.container}>
                         <div style={{ marginBottom: '1rem' }}>
                             <label>
                                 File name:{" "}
@@ -150,7 +155,9 @@ export default function StyleTransferPage() {
                                     type="text"
                                     value={saveFileName}
                                     onChange={(e) => setSaveFileName(e.target.value)}
-                                    style={{ padding: '0.5rem', maxWidth: '600px' }}
+                                    className={styles.promptInput}
+                                    style={{ height: 'auto' }}
+                                /* optional if you want a single-line input */
                                 />
                             </label>
                         </div>

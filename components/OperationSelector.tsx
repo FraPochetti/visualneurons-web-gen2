@@ -1,5 +1,5 @@
-// components/OperationSelector.tsx
 import { AIOperation } from '@/amplify/functions/providers/IAIProvider';
+import styles from "./OperationSelector.module.css";
 
 interface OperationSelectorProps {
     value: AIOperation;
@@ -8,16 +8,14 @@ interface OperationSelectorProps {
 }
 
 export default function OperationSelector({ value, onChange, provider }: OperationSelectorProps) {
-    // We'll start with just upscaleImage, but more operations can be added later
     const operations: { value: AIOperation; label: string }[] = [
         { value: 'upscaleImage', label: 'Upscale' },
-        // Add more as they're implemented
     ];
 
     return (
-        <div>
-            <label htmlFor="operation">Operation: </label>
-            <select id="operation" value={value} onChange={onChange} className="select">
+        <div className={styles.container}>
+            <label htmlFor="operation" className={styles.label}>Operation:</label>
+            <select id="operation" value={value} onChange={onChange} className={styles.select}>
                 {operations.map((op) => (
                     <option key={op.value} value={op.value}>
                         {op.label}

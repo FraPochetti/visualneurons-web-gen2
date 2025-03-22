@@ -1,4 +1,3 @@
-// pages/edit-image.tsx
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import { useState, useEffect } from "react";
@@ -12,6 +11,7 @@ import { saveImageRecord } from "@/utils/saveImageRecord";
 import OperationSelector from "@/components/OperationSelector";
 import { AIOperation } from "@/amplify/functions/providers/IAIProvider";
 import { useImageOperation } from '@/components/ImageOperations/useImageOperation';
+import styles from "./EditImage.module.css"; // Import the module
 
 const client = generateClient<Schema>();
 
@@ -72,11 +72,11 @@ export default function EditImagePage() {
     return (
         <Layout>
             <h1>Image Editor</h1>
-            <div style={{ maxWidth: "600px", margin: "20px auto" }}>
+            <div className={styles.imageContainer}>
                 {processedUrl ? (
                     <CustomCompareSlider before={urlString!} after={processedUrl} />
                 ) : (
-                    <img src={urlString!} alt="Selected" style={{ maxWidth: "100%", borderRadius: "8px" }} />
+                    <img src={urlString!} alt="Selected" className={styles.selectedImage} />
                 )}
             </div>
 
@@ -102,14 +102,15 @@ export default function EditImagePage() {
                 )}
 
                 {processedUrl && (
-                    <div>
+                    <div className={styles.inputContainer}>
                         <div style={{ marginBottom: "1rem" }}>
-                            <label>
+                            <label className={styles.inputLabel}>
                                 File name:{" "}
                                 <input
                                     type="text"
                                     value={saveFileName}
                                     onChange={(e) => setSaveFileName(e.target.value)}
+                                    className={styles.textInput}
                                 />
                             </label>
                         </div>

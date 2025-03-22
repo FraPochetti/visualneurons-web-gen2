@@ -1,5 +1,5 @@
-// components/ModelCredits.tsx
 import React from 'react';
+import styles from "./ModelCredits.module.css";
 
 type ModelCreditsProps = {
     modelName: string;
@@ -8,9 +8,9 @@ type ModelCreditsProps = {
 
 export default function ModelCredits({ modelName, modelUrl }: ModelCreditsProps) {
     return (
-        <div style={{ textAlign: "center", marginTop: "1rem", fontSize: "0.9rem" }}>
+        <div className={styles.container}>
             <span>Powered by </span>
-            <a href={modelUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#000", textDecoration: "underline" }}>
+            <a href={modelUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
                 {modelName}
             </a>
         </div>

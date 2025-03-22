@@ -1,0 +1,42 @@
+/* CustomCompareSlider.module.css */
+.container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.afterImage {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.beforeContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.beforeImage {
+    width: 100%;
+    height: auto;
+    /* The dynamic width will be set on the container element */
+}
+
+.sliderLine {
+    position: absolute;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background-color: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+}
+
+.rangeInput {
+    width: 100%;
+    margin: 10px 0;
+}
