@@ -8,5 +8,5 @@ export const aiDispatcher = defineFunction({
         STABILITY_API_TOKEN: secret("STABILITY_API_TOKEN"),
         LOG_LEVEL: "DEBUG"
     },
-    timeoutSeconds: 59,
+    timeoutSeconds: 120,
 });
