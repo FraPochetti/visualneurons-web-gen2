@@ -1,5 +1,5 @@
 // amplify/functions/providers/IAIProvider.ts
-export type AIOperation = 'generateImage' | 'upscaleImage' | 'inpaint' | 'outpaint' | 'recolor';
+export type AIOperation = 'generateImage' | 'upscaleImage' | 'inpaint' | 'outpaint' | 'recolor' | 'styleTransfer';
 
 // For provider-level metadata (no model required)
 export interface ProviderMetadata {
@@ -21,4 +21,5 @@ export interface IAIProvider {
     getModelInfo(operation: AIOperation): ModelMetadata;
     generateImage(prompt: string, promptUpsampling?: boolean): Promise<string>;
     upscaleImage(imageUrl: string): Promise<string>;
+    styleTransfer(prompt: string, styleImageUrl: string): Promise<string>;
 }

@@ -15,6 +15,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <Link href="/generate-image" className="nav-link">
                         Generate Image
                     </Link>
+                    <Link href="/style-transfer" className="nav-link">
+                        Style Transfer
+                    </Link>
                 </nav>
             </header>
             <main>{children}</main>

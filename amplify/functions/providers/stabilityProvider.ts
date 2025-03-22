@@ -26,12 +26,18 @@ export class StabilityProvider implements IAIProvider {
                     modelName: "esrgan-v1-x2plus",
                     serviceProvider: "stability"
                 };
+            case "styleTransfer":
+                return {
+                    modelName: "stable-image/control/style",
+                    serviceProvider: "stability",
+                    displayName: "Style Transfer",
+                    modelUrl: "https://stability.ai/stable-image"
+                };
             default:
                 throw new Error(`Operation ${operation} not supported by Stability provider`);
         }
     }
 
-    // amplify/functions/providers/stabilityProvider.ts - Enhance error handling
     async generateImage(prompt: string, promptUpsampling = true): Promise<string> {
         try {
             const formData = new FormData();
@@ -51,7 +57,6 @@ export class StabilityProvider implements IAIProvider {
                 }
             );
 
-            // Enhanced error handling
             if (response.status !== 200) {
                 throw new Error(`API returned status code ${response.status}: ${JSON.stringify(response.data)}`);
             }
@@ -66,6 +71,38 @@ export class StabilityProvider implements IAIProvider {
             throw new Error(`Stability image generation failed: ${error.message}`);
         }
     }
+
+    async styleTransfer(prompt: string, styleImageUrl: string): Promise<string> {
+        const imageResponse = await axios.get(styleImageUrl, { responseType: 'arraybuffer' });
+
+        const formData = new FormData();
+        formData.append('prompt', prompt);
+        formData.append('image', imageResponse.data, 'style.png');
+
+        const response = await axios.post(
+            'https://api.stability.ai/v2beta/stable-image/control/style',
+            formData,
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.STABILITY_API_TOKEN}`,
+                    Accept: 'application/json',
+                    ...formData.getHeaders()
+                },
+                responseType: 'json'
+            }
+        );
+
+        if (response.status !== 200) {
+            throw new Error(`Stability API returned ${response.status}: ${JSON.stringify(response.data)}`);
+        }
+
+        if (response.data && response.data.image) {
+            return `data:image/png;base64,${response.data.image}`;
+        }
+
+        throw new Error('No image data found in the response');
+    }
+
 
     async upscaleImage(imageUrl: string): Promise<string> {
         throw new Error("Stability provider upscaling not implemented yet");

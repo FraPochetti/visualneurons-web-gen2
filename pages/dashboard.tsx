@@ -90,6 +90,7 @@ export default function Dashboard() {
                 <nav className="nav">
                     <Link href="/upload" className="nav-link">Upload Photo</Link>
                     <Link href="/generate-image" className="nav-link">Generate Image</Link>
+                    <Link href="/style-transfer" className="nav-link">Style Transfer</Link>
                 </nav>
                 <div>
                     {userEmail && <span>Hi, {userEmail}</span>}

@@ -21,6 +21,17 @@ const schema = a.schema({
     .returns(a.string())
     .handler(a.handler.function(aiDispatcher)),
 
+  styleTransfer: a.mutation()
+    .arguments({
+      prompt: a.string().required(),
+      styleImageUrl: a.string().required(),
+      provider: a.string(),
+      operation: a.string().required()
+    })
+    .returns(a.string())
+    .handler(a.handler.function(aiDispatcher)),
+
+
   ImageRecord: a.model({
     identityId: a.string().required(),
     userSub: a.string(),

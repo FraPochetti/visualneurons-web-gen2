@@ -73,6 +73,21 @@ export const handler = async (event: any) => {
                 );
                 break;
 
+            case "styleTransfer":
+                logger.info('Style transfer request', {
+                    requestId,
+                    provider: providerName,
+                    prompt: event.arguments.prompt,
+                    styleImageUrl: event.arguments.styleImageUrl,
+                });
+
+                result = await providerInstance.styleTransfer(
+                    event.arguments.prompt,
+                    event.arguments.styleImageUrl
+                );
+                break;
+
+
             default:
                 logger.error(`Unsupported operation: ${operation}`, { requestId });
                 throw new Error(`Unsupported operation: ${operation}`);
