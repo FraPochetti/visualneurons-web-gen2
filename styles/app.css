@@ -146,6 +146,7 @@ main {
 .nav-link {
   position: relative;
   text-decoration: none;
+  color: #000;
 }
 
 .nav-link::after {
