@@ -111,11 +111,9 @@ export class StabilityProvider implements IAIProvider {
 
     async outPaint(imageUrl: string): Promise<string> {
         try {
-            // Fetch the image data (as binary)
             const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
             const formData = new FormData();
             formData.append('image', imageResponse.data, 'input.png');
-            // Append outpaint directions with default values (512 pixels each)
             formData.append('left', '512');
             formData.append('right', '512');
             formData.append('up', '512');

@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import type { AIOperation } from '@/amplify/functions/providers/IAIProvider';
 import { useUpscaler } from './useUpscaler';
+import { useOutpainter } from './useOutpainter';
 
 interface UseImageOperationParams {
     operation: AIOperation;
@@ -20,8 +21,8 @@ export function useImageOperation({
 }: UseImageOperationParams) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
     const upscaler = useUpscaler({ imageUrl, originalPath, provider, onSuccess });
+    const outpainter = useOutpainter({ imageUrl, originalPath, provider, onSuccess });
 
     const execute = useCallback(async () => {
         setLoading(true);
@@ -34,9 +35,7 @@ export function useImageOperation({
                 const result = await providerInstance.generateImage("Default prompt", false);
                 onSuccess(result);
             } else if (operation === 'outpaint') {
-                const providerInstance = createProvider(provider);
-                const result = await providerInstance.outPaint(imageUrl);
-                onSuccess(result);
+                await outpainter.outpaint();
             } else {
                 throw new Error(`Unsupported operation: ${operation}`);
             }
@@ -45,7 +44,15 @@ export function useImageOperation({
         } finally {
             setLoading(false);
         }
-    }, [operation, provider, imageUrl, originalPath, onSuccess, upscaler.upscale]);
+    }, [operation, provider, imageUrl, originalPath, onSuccess, upscaler.upscale, outpainter.outpaint]);
 
-    return { execute, loading: loading || (operation === 'upscaleImage' && upscaler.loading), error: error || (operation === 'upscaleImage' ? upscaler.error : null) };
+    return {
+        execute,
+        loading: loading ||
+            (operation === 'upscaleImage' && upscaler.loading) ||
+            (operation === 'outpaint' && outpainter.loading),
+        error: error ||
+            (operation === 'upscaleImage' ? upscaler.error : null) ||
+            (operation === 'outpaint' ? outpainter.error : null)
+    };
 }
