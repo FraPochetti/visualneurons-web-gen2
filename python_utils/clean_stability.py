@@ -2,7 +2,7 @@ import json
 
 # Manually edit this list to include the paths you want to keep.
 target_paths = [
-    "/v2beta/stable-image/generate/ultra",
+    "/v2beta/stable-image/edit/outpaint",
     # Add other paths here if needed.
 ]
 

@@ -33,6 +33,10 @@ export function useImageOperation({
                 const providerInstance = createProvider(provider);
                 const result = await providerInstance.generateImage("Default prompt", false);
                 onSuccess(result);
+            } else if (operation === 'outpaint') {
+                const providerInstance = createProvider(provider);
+                const result = await providerInstance.outPaint(imageUrl);
+                onSuccess(result);
             } else {
                 throw new Error(`Unsupported operation: ${operation}`);
             }
@@ -43,6 +47,5 @@ export function useImageOperation({
         }
     }, [operation, provider, imageUrl, originalPath, onSuccess, upscaler.upscale]);
 
-    // Merge the loading/error state from upscaler if applicable
     return { execute, loading: loading || (operation === 'upscaleImage' && upscaler.loading), error: error || (operation === 'upscaleImage' ? upscaler.error : null) };
 }

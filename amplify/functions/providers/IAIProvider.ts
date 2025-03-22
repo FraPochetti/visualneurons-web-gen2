@@ -22,4 +22,5 @@ export interface IAIProvider {
     generateImage(prompt: string, promptUpsampling?: boolean): Promise<string>;
     upscaleImage(imageUrl: string): Promise<string>;
     styleTransfer(prompt: string, styleImageUrl: string): Promise<string>;
+    outPaint(imageUrl: string): Promise<string>;
 }

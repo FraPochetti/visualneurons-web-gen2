@@ -1,4 +1,3 @@
-// amplify/functions/providers/stabilityProvider.ts
 import { AIOperation, IAIProvider, ModelMetadata, ProviderMetadata } from "./IAIProvider";
 import axios from "axios";
 import FormData from "form-data";
@@ -31,6 +30,13 @@ export class StabilityProvider implements IAIProvider {
                     modelName: "stable-image/control/style",
                     serviceProvider: "stability",
                     displayName: "Style Transfer",
+                    modelUrl: "https://stability.ai/stable-image"
+                };
+            case "outpaint":
+                return {
+                    modelName: "stable-image/edit/outpaint",
+                    serviceProvider: "stability",
+                    displayName: "Stable Diffusion Outpaint",
                     modelUrl: "https://stability.ai/stable-image"
                 };
             default:
@@ -103,6 +109,44 @@ export class StabilityProvider implements IAIProvider {
         throw new Error('No image data found in the response');
     }
 
+    async outPaint(imageUrl: string): Promise<string> {
+        try {
+            // Fetch the image data (as binary)
+            const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+            const formData = new FormData();
+            formData.append('image', imageResponse.data, 'input.png');
+            // Append outpaint directions with default values (512 pixels each)
+            formData.append('left', '512');
+            formData.append('right', '512');
+            formData.append('up', '512');
+            formData.append('down', '512');
+
+            const response = await axios.post(
+                'https://api.stability.ai/v2beta/stable-image/edit/outpaint',
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${process.env.STABILITY_API_TOKEN}`,
+                        Accept: 'application/json',
+                        ...formData.getHeaders()
+                    },
+                    responseType: 'json'
+                }
+            );
+
+            if (response.status !== 200) {
+                throw new Error(`API returned status code ${response.status}: ${JSON.stringify(response.data)}`);
+            }
+
+            if (response.data && response.data.image) {
+                return `data:image/png;base64,${response.data.image}`;
+            }
+            throw new Error('No image data in response');
+        } catch (error: any) {
+            console.error('Stability Outpaint error:', error.response?.data || error.message);
+            throw new Error(`Stability Outpaint failed: ${error.message}`);
+        }
+    }
 
     async upscaleImage(imageUrl: string): Promise<string> {
         throw new Error("Stability provider upscaling not implemented yet");

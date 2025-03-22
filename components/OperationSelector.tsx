@@ -10,6 +10,7 @@ interface OperationSelectorProps {
 export default function OperationSelector({ value, onChange, provider }: OperationSelectorProps) {
     const operations: { value: AIOperation; label: string }[] = [
         { value: 'upscaleImage', label: 'Upscale' },
+        { value: 'outpaint', label: 'Outpaint' }
     ];
 
     return (

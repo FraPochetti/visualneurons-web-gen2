@@ -31,6 +31,14 @@ const schema = a.schema({
     .returns(a.string())
     .handler(a.handler.function(aiDispatcher)),
 
+  outpaintImage: a.mutation()
+    .arguments({
+      imageUrl: a.string().required(),
+      provider: a.string(),
+      operation: a.string().required()
+    })
+    .returns(a.string())
+    .handler(a.handler.function(aiDispatcher)),
 
   ImageRecord: a.model({
     identityId: a.string().required(),

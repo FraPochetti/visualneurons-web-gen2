@@ -109,4 +109,8 @@ export class ReplicateProvider implements IAIProvider {
         throw new Error("Style transfer is not supported by the Replicate provider.");
     }
 
+    async outPaint(imageUrl: string): Promise<string> {
+        throw new Error("Outpainting is not supported by the Replicate provider.");
+    }
+
 }

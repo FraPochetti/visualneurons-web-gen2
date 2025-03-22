@@ -74,7 +74,15 @@ export default function EditImagePage() {
             <h1>Image Editor</h1>
             <div className={styles.imageContainer}>
                 {processedUrl ? (
-                    <CustomCompareSlider before={urlString!} after={processedUrl} />
+                    operation === 'outpaint' ? (
+                        <img
+                            src={processedUrl}
+                            alt="Outpainted Result"
+                            className={styles.outpaintedImage}
+                        />
+                    ) : (
+                        <CustomCompareSlider before={urlString!} after={processedUrl} />
+                    )
                 ) : (
                     <img src={urlString!} alt="Selected" className={styles.selectedImage} />
                 )}

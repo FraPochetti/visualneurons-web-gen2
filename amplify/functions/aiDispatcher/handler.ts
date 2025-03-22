@@ -87,6 +87,18 @@ export const handler = async (event: any) => {
                 );
                 break;
 
+            case "outpaint":
+                logger.info('Outpaint image request', {
+                    requestId,
+                    provider: providerName,
+                    modelName: modelInfo.modelName,
+                    modelVersion: modelInfo.modelVersion
+                });
+
+                result = await providerInstance.outPaint(
+                    event.arguments.imageUrl
+                );
+                break;
 
             default:
                 logger.error(`Unsupported operation: ${operation}`, { requestId });
