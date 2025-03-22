@@ -114,35 +114,44 @@ export class StabilityProvider implements IAIProvider {
             // Get the image data
             const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
 
-            // Create the payload object
-            const payload = {
-                image: imageResponse.data,
-                left: 100,
-                right: 100,
-                up: 100,
-                down: 100,
-                output_format: "png"
-            };
+            // Create form data with smaller outpaint values
+            const formData = new FormData();
+            formData.append('image', imageResponse.data, 'input.png');
 
-            // Use postForm method as shown in the documentation
+            // Use smaller values and ensure they're sent as integers, not strings
+            formData.append('left', 50);
+            formData.append('right', 50);
+            formData.append('up', 50);
+            formData.append('down', 50);
+
+            // Add output format explicitly
+            formData.append('output_format', 'png');
+
+            // Increase the request timeout
             const response = await axios.post(
                 'https://api.stability.ai/v2beta/stable-image/edit/outpaint',
-                payload,
+                formData,
                 {
                     headers: {
                         Authorization: `Bearer ${process.env.STABILITY_API_TOKEN}`,
-                        Accept: "image/*",
-                        "Content-Type": "multipart/form-data"
+                        Accept: 'application/json',
+                        ...formData.getHeaders()
                     },
-                    responseType: 'arraybuffer',
-                    timeout: 60000 // 60 second timeout
+                    responseType: 'json',
+                    timeout: 90000 // 90 second timeout for the request itself
                 }
             );
 
-            // Convert arraybuffer to base64
-            const base64Image = Buffer.from(response.data).toString('base64');
-            return `data:image/png;base64,${base64Image}`;
+            // Rest of your code remains the same
+            if (response.status !== 200) {
+                throw new Error(`API returned status code ${response.status}: ${JSON.stringify(response.data)}`);
+            }
 
+            if (response.data && response.data.image) {
+                return `data:image/png;base64,${response.data.image}`;
+            }
+
+            throw new Error('No image data in response');
         } catch (error: any) {
             console.error('Stability Outpaint error:', error.response?.data || error.message);
             throw new Error(`Stability Outpaint failed: ${error.message}`);
