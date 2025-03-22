@@ -104,4 +104,9 @@ export class ReplicateProvider implements IAIProvider {
         }
         throw new Error("Unexpected output format");
     }
+
+    async styleTransfer(prompt: string, styleImageUrl: string): Promise<string> {
+        throw new Error("Style transfer is not supported by the Replicate provider.");
+    }
+
 }
