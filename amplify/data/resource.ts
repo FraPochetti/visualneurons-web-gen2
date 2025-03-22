@@ -29,7 +29,7 @@ const schema = a.schema({
     editedImagePath: a.string(),
     model: a.string(),
     action: a.string(),
-    provider: a.enum(["replicate", "stability", "clipdrop", "user"]),
+    provider: a.enum(["replicate", "stability", "user"]),
     source: a.enum(["uploaded", "generated", "edited"]),
   }),
 
@@ -38,7 +38,7 @@ const schema = a.schema({
     userSub: a.string(),
     userEmail: a.string(),
     level: a.enum(["INFO", "WARNING", "ERROR", "DEBUG"]),
-    provider: a.enum(["replicate", "stability", "clipdrop", "user"]),
+    provider: a.enum(["replicate", "stability", "user"]),
     details: a.json(),
   }),
 }).authorization(allow => [allow.authenticated()]);
