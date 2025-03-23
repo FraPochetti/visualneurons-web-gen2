@@ -6,6 +6,7 @@ export const aiDispatcher = defineFunction({
     environment: {
         REPLICATE_API_TOKEN: secret("REPLICATE_API_TOKEN"),
         STABILITY_API_TOKEN: secret("STABILITY_API_TOKEN"),
+        LAMBDA_RESIZE_URL: secret("LAMBDA_RESIZE_URL"),
         LOG_LEVEL: "DEBUG"
     },
     timeoutSeconds: 120,
