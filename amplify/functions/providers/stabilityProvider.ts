@@ -111,23 +111,16 @@ export class StabilityProvider implements IAIProvider {
 
     async outPaint(imageUrl: string): Promise<string> {
         try {
-            // Get the image data
             const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
 
-            // Create form data with smaller outpaint values
             const formData = new FormData();
             formData.append('image', imageResponse.data, 'input.png');
-
-            // Use smaller values and ensure they're sent as integers, not strings
-            formData.append('left', 50);
-            formData.append('right', 50);
-            formData.append('up', 50);
-            formData.append('down', 50);
-
-            // Add output format explicitly
+            formData.append('left', 100);
+            formData.append('right', 100);
+            formData.append('up', 100);
+            formData.append('down', 100);
             formData.append('output_format', 'png');
 
-            // Increase the request timeout
             const response = await axios.post(
                 'https://api.stability.ai/v2beta/stable-image/edit/outpaint',
                 formData,
@@ -138,11 +131,10 @@ export class StabilityProvider implements IAIProvider {
                         ...formData.getHeaders()
                     },
                     responseType: 'json',
-                    timeout: 90000 // 90 second timeout for the request itself
+                    timeout: 90000
                 }
             );
 
-            // Rest of your code remains the same
             if (response.status !== 200) {
                 throw new Error(`API returned status code ${response.status}: ${JSON.stringify(response.data)}`);
             }
