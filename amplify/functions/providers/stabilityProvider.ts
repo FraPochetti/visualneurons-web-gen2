@@ -115,10 +115,10 @@ export class StabilityProvider implements IAIProvider {
 
             const formData = new FormData();
             formData.append('image', imageResponse.data, 'input.png');
-            formData.append('left', 100);
-            formData.append('right', 100);
-            formData.append('up', 100);
-            formData.append('down', 100);
+            formData.append('left', 500);
+            formData.append('right', 500);
+            formData.append('up', 500);
+            formData.append('down', 500);
             formData.append('output_format', 'png');
 
             const response = await axios.post(
