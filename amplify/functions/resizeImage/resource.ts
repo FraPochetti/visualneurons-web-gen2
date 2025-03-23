@@ -7,8 +7,4 @@ export const resizeImage = defineFunction({
     layers: {
         nodeSharp: "arn:aws:lambda:eu-central-1:257446244580:layer:nodeSharp:1",
     },
-    bundling: {
-        // Tells Amplify’s bundler to skip packaging "sharp"
-        externals: ["sharp"]
-    }
 });
