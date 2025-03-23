@@ -6,12 +6,20 @@ import { Policy, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { CfnApp } from "aws-cdk-lib/aws-pinpoint";
 import { Stack } from "aws-cdk-lib/core";
 import { aiDispatcher } from './functions/aiDispatcher/resource';
+import { resizeImage } from './functions/resizeImage/resource';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 
 const backend = defineBackend({
   auth,
   data,
   storage,
   aiDispatcher,
+  resizeImage,
+});
+
+const resizeLambda = backend.resizeImage.resources.lambda;
+const functionUrl = resizeLambda.addFunctionUrl({
+  authType: lambda.FunctionUrlAuthType.NONE,
 });
 
 const analyticsStack = backend.createStack("analytics-stack");
