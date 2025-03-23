@@ -76,8 +76,8 @@ if __name__ == "__main__":
     exporter = ProjectExporter(
         root_dir="/home/ubuntu/docs",
         include_dirs=[#"src/pages/[platform]/build-a-backend/storage", 
-                      #"src/pages/[platform]/build-a-backend/functions",
-                      "src/pages/[platform]/build-a-backend/data",
+                      "src/pages/[platform]/build-a-backend/functions",
+                      #"src/pages/[platform]/build-a-backend/data",
                       #"src/pages/[platform]/build-a-backend/add-aws-services/logging",
                       #"src/pages/[platform]/build-a-backend/add-aws-services/analytics",
                       #"src/pages/[platform]/build-a-backend/auth"
