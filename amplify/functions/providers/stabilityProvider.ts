@@ -2,6 +2,23 @@ import { AIOperation, IAIProvider, ModelMetadata, ProviderMetadata } from "./IAI
 import axios from "axios";
 import FormData from "form-data";
 
+// Helper function to call the resize Lambda via its Function URL stored in LAMBDA_RESIZE_URL secret
+async function callResizeLambda(base64Image: string): Promise<string> {
+    // Retrieve the Lambda URL from environment variables (set via Amplify secrets)
+    const lambdaUrl = process.env.LAMBDA_RESIZE_URL;
+    if (!lambdaUrl) {
+        throw new Error("LAMBDA_RESIZE_URL is not configured.");
+    }
+
+    // POST the base64 image to the Lambda
+    const response = await axios.post(lambdaUrl, { imageBase64: base64Image });
+    if (response.status !== 200) {
+        throw new Error(`Resize Lambda error: ${response.statusText}`);
+    }
+    // Expecting the response to contain { imageBase64: "<resized_base64>" }
+    return response.data.imageBase64;
+}
+
 export class StabilityProvider implements IAIProvider {
     getProviderInfo(): ProviderMetadata {
         return {
@@ -111,10 +128,20 @@ export class StabilityProvider implements IAIProvider {
 
     async outPaint(imageUrl: string): Promise<string> {
         try {
+            // Fetch the original image as a binary array
             const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+            const originalBuffer = Buffer.from(imageResponse.data);
+            // Convert the original image to base64
+            const originalBase64 = originalBuffer.toString('base64');
+
+            // Call your resize Lambda to get a resized base64 image
+            const resizedBase64 = await callResizeLambda(originalBase64);
+
+            // Convert the resized base64 back to a Buffer for FormData
+            const resizedBuffer = Buffer.from(resizedBase64, 'base64');
 
             const formData = new FormData();
-            formData.append('image', imageResponse.data, 'input.png');
+            formData.append('image', resizedBuffer, 'input.png');
             formData.append('left', 300);
             formData.append('right', 300);
             formData.append('up', 300);
