@@ -1,5 +1,5 @@
-/* EditImage.module.css */
 .imageContainer {
+    width: 100%;
     max-width: 600px;
     margin: 20px auto;
 }
@@ -16,7 +16,7 @@
 
 .inputLabel {
     margin-right: 0.5rem;
-    font-weight: bold;
+    font-weight: normal;
 }
 
 .textInput {

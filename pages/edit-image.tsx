@@ -11,7 +11,8 @@ import { saveImageRecord } from "@/utils/saveImageRecord";
 import OperationSelector from "@/components/OperationSelector";
 import { AIOperation } from "@/amplify/functions/providers/IAIProvider";
 import { useImageOperation } from '@/components/ImageOperations/useImageOperation';
-import styles from "./EditImage.module.css"; // Import the module
+import styles from "./EditImage.module.css";
+import VerticalCompare from "@/components/VerticalCompare";
 
 const client = generateClient<Schema>();
 
@@ -75,14 +76,11 @@ export default function EditImagePage() {
             <div className={styles.imageContainer}>
                 {processedUrl ? (
                     operation === 'outpaint' ? (
-                        <img
-                            src={processedUrl}
-                            alt="Outpainted Result"
-                            className={styles.outpaintedImage}
-                        />
-                    ) : (
-                        <CustomCompareSlider before={urlString!} after={processedUrl} />
-                    )
+                        <VerticalCompare before={urlString!} after={processedUrl} />
+                    ) :
+                        (
+                            <CustomCompareSlider before={urlString!} after={processedUrl} />
+                        )
                 ) : (
                     <img src={urlString!} alt="Selected" className={styles.selectedImage} />
                 )}
