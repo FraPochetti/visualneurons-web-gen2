@@ -90,7 +90,8 @@ export default function EditImagePage() {
                 {!processedUrl && (
                     <div>
                         <div style={{ marginBottom: "15px" }}>
-                            <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)} />
+                            <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)}
+                                allowedProviders={["replicate", "stability"]} />
                         </div>
                         <div style={{ marginBottom: "15px" }}>
                             <OperationSelector

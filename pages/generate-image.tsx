@@ -47,7 +47,8 @@ export default function GenerateImagePage() {
         <Layout>
             <div style={{ padding: 20 }}>
                 <h1>Generate Image with AI</h1>
-                <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)} />
+                <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)}
+                    allowedProviders={["replicate", "stability"]} />
                 <ImageGenerator provider={provider} onSuccess={handleImageGenerated} />
 
                 {generatedResult && (

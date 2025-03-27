@@ -31,6 +31,17 @@ const schema = a.schema({
     .returns(a.string())
     .handler(a.handler.function(aiDispatcher)),
 
+  chatWithImage: a.mutation()
+    .arguments({
+      prompt: a.string().required(),
+      imageUrl: a.string().required(),
+      history: a.json(), // Optional history as JSON
+      provider: a.string(),
+      operation: a.string().required()
+    })
+    .returns(a.json()) // Returns { text: string, image: string | null }
+    .handler(a.handler.function(aiDispatcher)),
+
   outpaintImage: a.mutation()
     .arguments({
       imageUrl: a.string().required(),
@@ -48,7 +59,7 @@ const schema = a.schema({
     editedImagePath: a.string(),
     model: a.string(),
     action: a.string(),
-    provider: a.enum(["replicate", "stability", "user"]),
+    provider: a.enum(["replicate", "stability", "gemini", "user"]),
     source: a.enum(["uploaded", "generated", "edited"]),
   }),
 

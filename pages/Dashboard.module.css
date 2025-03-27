@@ -21,3 +21,13 @@
 .logoutButton {
     margin-left: 10px;
 }
+
+.userSection {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.userEmail {
+    margin-bottom: 0.25rem;
+}

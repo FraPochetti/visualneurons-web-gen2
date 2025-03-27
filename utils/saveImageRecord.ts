@@ -13,7 +13,7 @@ export interface SaveImageRecordParams {
     action?: string;
     checkOverwrite?: boolean;
     modelName: string;
-    providerService: "replicate" | "stability" | "user";
+    providerService: "replicate" | "stability" | "gemini" | "user";
 }
 export async function saveImageRecord({
     imageUrl,

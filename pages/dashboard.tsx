@@ -82,9 +82,10 @@ export default function Dashboard() {
                     <Link href="/upload" className="nav-link">Upload Photo</Link>
                     <Link href="/generate-image" className="nav-link">Generate Image</Link>
                     <Link href="/style-transfer" className="nav-link">Style Transfer</Link>
+                    <Link href="/chat-with-image" className="nav-link">Chat with Image</Link>
                 </nav>
-                <div>
-                    {userEmail && <span>Hi, {userEmail}</span>}
+                <div className={styles.userSection}>
+                    {userEmail && <span className={styles.userEmail}>Hi, {userEmail}</span>}
                     <button onClick={handleLogout} className={`button ${styles.logoutButton}`}>
                         🚪 Logout
                     </button>
@@ -102,9 +103,22 @@ export default function Dashboard() {
                                 <img src={photo.url} alt="Uploaded" className="grid-image" />
                             </Link>
                             {photo.isAiGenerated && (<div className="ai-watermark">AI</div>)}
+
+                            {/* Delete button stays at top right */}
                             <button className="delete-button" onClick={() => handleDelete(photo.path)}>
                                 Delete
                             </button>
+
+                            {/* Chat button moved to bottom right */}
+                            <Link
+                                href={{
+                                    pathname: "/chat-with-image",
+                                    query: { imageUrl: photo.url },
+                                }}
+                                className="chat-button"
+                            >
+                                Chat
+                            </Link>
                         </div>
                     ))}
                 </div>

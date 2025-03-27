@@ -1,0 +1,78 @@
+/* components/ImageOperations/ChatWithImage.module.css */
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    gap: 1rem;
+}
+
+.chatArea {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.emptyChat {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #888;
+    font-style: italic;
+}
+
+.message {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.userMessage {
+    background-color: #f0f0f0;
+    margin-left: 2rem;
+}
+
+.aiMessage {
+    background-color: #e1f5fe;
+    margin-right: 2rem;
+}
+
+.messageHeader {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.messageContent {
+    white-space: pre-wrap;
+}
+
+.messageImage {
+    max-width: 100%;
+    max-height: 200px;
+    margin-top: 0.5rem;
+    border-radius: 4px;
+}
+
+.inputArea {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.textarea {
+    flex: 1;
+    min-height: 80px;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    resize: vertical;
+}
+
+.errorMessage {
+    color: red;
+    margin-top: 1rem;
+}

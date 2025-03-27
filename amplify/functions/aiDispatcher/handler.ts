@@ -1,4 +1,3 @@
-// amplify/functions/aiDispatcher/handler.ts
 import { Logger } from "@aws-lambda-powertools/logger";
 import { AIOperation } from '../providers/IAIProvider';
 
@@ -97,6 +96,26 @@ export const handler = async (event: any) => {
 
                 result = await providerInstance.outPaint(
                     event.arguments.imageUrl
+                );
+                break;
+
+            case "chatWithImage":
+                logger.info('Chat with image request', {
+                    requestId,
+                    provider: providerName,
+                    modelName: modelInfo.modelName,
+                    prompt: event.arguments.prompt,
+                    imageUrl: event.arguments.imageUrl,
+                });
+                // Check if chatWithImage is available
+                if (!providerInstance.chatWithImage) {
+                    logger.error('chatWithImage not supported by provider', { provider: providerName, requestId });
+                    throw new Error(`Provider ${providerName} does not support chatWithImage`);
+                }
+                result = await providerInstance.chatWithImage(
+                    event.arguments.prompt,
+                    event.arguments.imageUrl,
+                    event.arguments.history || []
                 );
                 break;
 
