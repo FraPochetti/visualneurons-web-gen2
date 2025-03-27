@@ -68,7 +68,7 @@ const schema = a.schema({
     userSub: a.string(),
     userEmail: a.string(),
     level: a.enum(["INFO", "WARNING", "ERROR", "DEBUG"]),
-    provider: a.enum(["replicate", "stability", "user"]),
+    provider: a.enum(["replicate", "stability", "gemini", "user"]),
     details: a.json(),
   }),
 }).authorization(allow => [allow.authenticated()]);
