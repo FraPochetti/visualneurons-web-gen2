@@ -7,18 +7,6 @@ const logger = new Logger({
     logLevel: 'INFO',
 });
 
-async function convertUrlToBase64(url: string): Promise<string> {
-    try {
-        const response = await axios.get(url, { responseType: 'arraybuffer' });
-        const buffer = Buffer.from(response.data, 'binary');
-        const mimeType = response.headers['content-type'] || 'image/jpeg';
-        return `data:${mimeType};base64,${buffer.toString('base64')}`;
-    } catch (error: any) {
-        logger.error('Failed to convert URL to base64', { url, error: error.message });
-        throw new Error(`Failed to fetch image: ${error.message}`);
-    }
-}
-
 export const handler = async (event: any) => {
     const userIdentity = event.identity || {};
     const requestId = event.request?.headers?.['x-amzn-requestid'] || `req-${Date.now()}`;
@@ -116,11 +104,6 @@ export const handler = async (event: any) => {
                     prompt: event.arguments.prompt,
                     imageUrl: event.arguments.imageUrl,
                 });
-
-                if (imageUrl && !imageUrl.startsWith("data:image/")) {
-                    logger.info('Converting image URL to base64', { requestId });
-                    imageUrl = await convertUrlToBase64(imageUrl);
-                }
 
                 if (!providerInstance.chatWithImage) {
                     logger.error('chatWithImage not supported by provider', { provider: providerName, requestId });

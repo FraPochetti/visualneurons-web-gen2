@@ -33,8 +33,12 @@ export default function ChatWithImage({ provider, imageUrl, onSuccess }: ChatWit
     const client = generateClient<Schema>();
 
     const handleSubmit = async () => {
-        if (!prompt.trim() || loading) return;
+        if (!prompt.trim() || loading) {
+            console.log('ChatWithImage: Empty prompt or already loading, skipping submission');
+            return;
+        }
 
+        console.log('ChatWithImage: Handling chat submission');
         setLoading(true);
         setError(null);
 
@@ -42,7 +46,7 @@ export default function ChatWithImage({ provider, imageUrl, onSuccess }: ChatWit
         const userMessage: ChatMessage = {
             role: 'user',
             content: prompt,
-            image: messages.length === 0 ? imageUrl : undefined // Only include image with first message
+            image: messages.length === 0 ? imageUrl : undefined // Only include image with first message (for display)
         };
 
         setMessages(prev => [...prev, userMessage]);
@@ -53,27 +57,35 @@ export default function ChatWithImage({ provider, imageUrl, onSuccess }: ChatWit
                 role: msg.role,
                 parts: [
                     ...(msg.content ? [{ text: msg.content }] : []),
-                    ...(msg.image ? [{ image: msg.image }] : [])
+                    // Don't include image in history - the backend will handle the first image separately
                 ]
             }));
 
-            // Call the API - always pass imageUrl, but only add it to history if it's the first message
+            console.log(`ChatWithImage: Sending request to API. Provider: ${provider}, Prompt length: ${prompt.length}`);
+
+            // Send direct imageUrl to backend - conversion happens there
             const result = await client.mutations.chatWithImage({
                 prompt,
-                imageUrl: imageUrl,
+                imageUrl, // Pass original image URL directly
                 history: history.length > 0 ? history : undefined,
                 provider,
                 operation: "chatWithImage"
             });
 
             if (result.errors && result.errors.length > 0) {
-                throw new Error(result.errors[0].message);
+                const errorMessage = result.errors[0].message;
+                console.error(`ChatWithImage: API returned error: ${errorMessage}`);
+                throw new Error(errorMessage);
             }
+
+            console.log('ChatWithImage: Received successful response from API');
 
             // Cast the result.data to our expected type
             const responseData = result.data as unknown as ChatResponse;
 
             if (responseData) {
+                console.log(`ChatWithImage: Processing response. Has text: ${!!responseData.text}, Has image: ${!!responseData.image}`);
+
                 // Add AI response to chat
                 const aiMessage: ChatMessage = {
                     role: 'model',
@@ -86,13 +98,17 @@ export default function ChatWithImage({ provider, imageUrl, onSuccess }: ChatWit
                 if (onSuccess) {
                     onSuccess(responseData);
                 }
+            } else {
+                console.warn('ChatWithImage: Response data was empty or malformed');
+                throw new Error('Received empty or invalid response from the AI service');
             }
         } catch (err: any) {
-            console.error("Chat error:", err);
+            console.error("ChatWithImage: Error during chat:", err);
             setError(err.message || "An error occurred during chat.");
         } finally {
             setLoading(false);
             setPrompt(''); // Clear input after sending
+            console.log('ChatWithImage: Request completed, loading state reset');
         }
     };
 
@@ -107,8 +123,7 @@ export default function ChatWithImage({ provider, imageUrl, onSuccess }: ChatWit
                     messages.map((msg, index) => (
                         <div
                             key={index}
-                            className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.aiMessage
-                                }`}
+                            className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.aiMessage}`}
                         >
                             <div style={{ fontWeight: "bold", marginBottom: "4px" }}>
                                 {msg.role === 'user' ? 'You' : 'AI'}
