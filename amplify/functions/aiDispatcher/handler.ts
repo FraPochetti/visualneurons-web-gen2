@@ -1,19 +1,29 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { AIOperation } from '../providers/IAIProvider';
+import axios from 'axios';
 
-// Initialize the logger
 const logger = new Logger({
     serviceName: 'aiDispatcher',
     logLevel: 'INFO',
 });
 
+async function convertUrlToBase64(url: string): Promise<string> {
+    try {
+        const response = await axios.get(url, { responseType: 'arraybuffer' });
+        const buffer = Buffer.from(response.data, 'binary');
+        const mimeType = response.headers['content-type'] || 'image/jpeg';
+        return `data:${mimeType};base64,${buffer.toString('base64')}`;
+    } catch (error: any) {
+        logger.error('Failed to convert URL to base64', { url, error: error.message });
+        throw new Error(`Failed to fetch image: ${error.message}`);
+    }
+}
+
 export const handler = async (event: any) => {
-    // Extract user information
     const userIdentity = event.identity || {};
     const requestId = event.request?.headers?.['x-amzn-requestid'] || `req-${Date.now()}`;
     const startTime = Date.now();
 
-    // Basic request logging
     logger.info('Function invoked', {
         requestId,
         operation: event.arguments.operation,
@@ -24,13 +34,13 @@ export const handler = async (event: any) => {
 
     const operation = event.arguments.operation;
     const providerName = event.arguments.provider || "replicate";
+    let imageUrl = event.arguments.imageUrl;
 
     try {
         logger.debug('Creating provider instance', { provider: providerName });
         const { createProvider } = await import('../providers/providerFactory');
         const providerInstance = createProvider(providerName);
 
-        // Get provider metadata for logging
         const providerInfo = providerInstance.getProviderInfo();
         logger.info('Using provider', {
             requestId,
@@ -38,7 +48,6 @@ export const handler = async (event: any) => {
             apiEndpoint: providerInfo.apiEndpoint
         });
 
-        // Get model-specific metadata based on operation
         const modelInfo = providerInstance.getModelInfo(operation as AIOperation);
 
         let result;
@@ -107,14 +116,19 @@ export const handler = async (event: any) => {
                     prompt: event.arguments.prompt,
                     imageUrl: event.arguments.imageUrl,
                 });
-                // Check if chatWithImage is available
+
+                if (imageUrl && !imageUrl.startsWith("data:image/")) {
+                    logger.info('Converting image URL to base64', { requestId });
+                    imageUrl = await convertUrlToBase64(imageUrl);
+                }
+
                 if (!providerInstance.chatWithImage) {
                     logger.error('chatWithImage not supported by provider', { provider: providerName, requestId });
                     throw new Error(`Provider ${providerName} does not support chatWithImage`);
                 }
                 result = await providerInstance.chatWithImage(
                     event.arguments.prompt,
-                    event.arguments.imageUrl,
+                    imageUrl,
                     event.arguments.history || []
                 );
                 break;
