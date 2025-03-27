@@ -1,4 +1,4 @@
-/* components/ImageOperations/ChatWithImage.module.css */
+/* ChatWithImage.module.css */
 .container {
     display: flex;
     flex-direction: column;
@@ -9,6 +9,8 @@
 }
 
 .chatArea {
+    display: flex;
+    flex-direction: column;
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 1rem;
@@ -27,35 +29,38 @@
 }
 
 .message {
-    margin-bottom: 1rem;
-    padding: 0.5rem;
-    border-radius: 8px;
+    display: inline-block;
+    /* Let messages size themselves nicely */
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 12px;
+    max-width: 70%;
+    line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .userMessage {
-    background-color: #f0f0f0;
-    margin-left: 2rem;
+    background-color: #dcf8c6;
+    /* A light green bubble, like WhatsApp */
+    align-self: flex-end;
+    /* Push user messages to the right */
+    border-top-right-radius: 0;
+    /* Square corner on top-right if you like */
 }
 
 .aiMessage {
-    background-color: #e1f5fe;
-    margin-right: 2rem;
-}
-
-.messageHeader {
-    font-weight: bold;
-    margin-bottom: 0.25rem;
-}
-
-.messageContent {
-    white-space: pre-wrap;
+    background-color: #f1f0f0;
+    /* A light gray bubble */
+    align-self: flex-start;
+    /* Push AI messages to the left */
+    border-top-left-radius: 0;
+    /* Square corner on top-left if you like */
 }
 
 .messageImage {
+    margin-top: 8px;
     max-width: 100%;
-    max-height: 200px;
-    margin-top: 0.5rem;
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 .inputArea {

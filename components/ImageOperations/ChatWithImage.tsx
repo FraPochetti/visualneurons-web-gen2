@@ -107,20 +107,25 @@ export default function ChatWithImage({ provider, imageUrl, onSuccess }: ChatWit
                     messages.map((msg, index) => (
                         <div
                             key={index}
-                            className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.aiMessage}`}
+                            className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.aiMessage
+                                }`}
                         >
-                            <div className={styles.messageHeader}>
+                            <div style={{ fontWeight: "bold", marginBottom: "4px" }}>
                                 {msg.role === 'user' ? 'You' : 'AI'}
                             </div>
-                            <div className={styles.messageContent}>
-                                {msg.content}
-                                {msg.image && (
-                                    <img src={msg.image} alt="Image" className={styles.messageImage} />
-                                )}
-                            </div>
+                            {msg.image && (
+                                <img
+                                    src={msg.image}
+                                    alt="Message"
+                                    className={styles.messageImage}
+                                />
+                            )}
+                            {/* Then the text content */}
+                            {msg.content}
                         </div>
                     ))
                 )}
+
                 {error && <div className={styles.errorMessage}>Error: {error}</div>}
             </div>
 
