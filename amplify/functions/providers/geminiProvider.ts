@@ -72,14 +72,13 @@ export class GeminiProvider implements IAIProvider {
         }
     }
 
-    // Helper function to convert URL to base64
     private async convertUrlToBase64(url: string): Promise<string> {
         try {
             console.log(`GeminiProvider: Converting URL to base64: ${url.substring(0, 50)}...`);
 
             // Check if it's already a base64 data URL
-            if (url.startsWith('data:')) {
-                console.log("GeminiProvider: URL is already a data URL");
+            if (url.startsWith('data:image/')) {
+                console.log("GeminiProvider: URL is already a valid image data URL");
                 return url;
             }
 
@@ -89,7 +88,23 @@ export class GeminiProvider implements IAIProvider {
                 timeout: 15000 // 15 second timeout
             });
 
-            const contentType = response.headers['content-type'] || 'image/jpeg';
+            // Force image MIME type based on content or default to jpeg
+            let contentType = response.headers['content-type'] || 'image/jpeg';
+
+            // If content is octet-stream or another non-image type, determine from data or default to jpeg
+            if (!contentType.startsWith('image/')) {
+                // Try to detect image type from header bytes
+                const header = Buffer.from(response.data.slice(0, 4)).toString('hex');
+                if (header.startsWith('89504e47')) {
+                    contentType = 'image/png';
+                } else if (header.startsWith('ffd8ff')) {
+                    contentType = 'image/jpeg';
+                } else {
+                    // Default to jpeg if detection fails
+                    contentType = 'image/jpeg';
+                }
+            }
+
             const base64 = Buffer.from(response.data).toString('base64');
             const dataUrl = `data:${contentType};base64,${base64}`;
 
