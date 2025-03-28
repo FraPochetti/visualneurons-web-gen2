@@ -94,6 +94,7 @@ export class GeminiProvider implements IAIProvider {
             const dataUrl = `data:${contentType};base64,${base64}`;
 
             console.log(`GeminiProvider: Successfully converted image to base64. Length: ${dataUrl.length}`);
+            console.log(`First 100 characters of base64: ${dataUrl.substring(0, 100)}...`);
             return dataUrl;
         } catch (error: any) {
             console.error("GeminiProvider: Failed to convert URL to base64:", error);
@@ -118,7 +119,7 @@ export class GeminiProvider implements IAIProvider {
                 console.log("GeminiProvider: Image URL is not in base64 format, converting...");
                 base64Image = await this.convertUrlToBase64(imageUrl);
             }
-
+            console.log(`First 100 characters of base64: ${base64Image.substring(0, 100)}...`);
             // Format history with explicit typing
             const formattedHistory: Content[] = history.map(item => ({
                 role: item.role,
