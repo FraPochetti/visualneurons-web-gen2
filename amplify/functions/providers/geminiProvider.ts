@@ -172,6 +172,7 @@ export class GeminiProvider implements IAIProvider {
 
             const result = await chat.sendMessage(messageParts);
             const response = result.response;
+            console.log("Full Gemini response:", JSON.stringify(response));
 
             if (!response.candidates?.length) throw new Error("No candidates in response");
 
