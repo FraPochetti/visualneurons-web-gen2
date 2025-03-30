@@ -100,6 +100,18 @@ export const handler = async (event: any) => {
                 );
                 break;
 
+            case "inpaint":
+                logger.info('Inpaint (edit) image request', {
+                    requestId,
+                    provider: providerName,
+                    prompt: event.arguments.prompt,
+                });
+                result = await providerInstance.inpaint(
+                    event.arguments.prompt,
+                    event.arguments.imageBase64
+                );
+                break;
+
             default:
                 logger.error(`Unsupported operation: ${operation}`, { requestId });
                 throw new Error(`Unsupported operation: ${operation}`);

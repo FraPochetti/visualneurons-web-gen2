@@ -180,4 +180,8 @@ export class StabilityProvider implements IAIProvider {
     async upscaleImage(imageUrl: string): Promise<string> {
         throw new Error("Stability provider upscaling not implemented yet");
     }
+
+    async inpaint(prompt: string, imageBase64: string): Promise<string> {
+        throw new Error("Stability provider inpainting not implemented yet");
+    }
 }

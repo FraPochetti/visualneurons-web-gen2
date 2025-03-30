@@ -3,7 +3,7 @@ export type AIOperation = 'generateImage' | 'upscaleImage' | 'inpaint' | 'outpai
 
 // For provider-level metadata (no model required)
 export interface ProviderMetadata {
-    serviceProvider: "replicate" | "stability" | "user";
+    serviceProvider: "replicate" | "stability" | "gemini" | "user";
     apiEndpoint?: string;
 }
 
@@ -23,4 +23,5 @@ export interface IAIProvider {
     upscaleImage(imageUrl: string): Promise<string>;
     styleTransfer(prompt: string, styleImageUrl: string): Promise<string>;
     outPaint(imageUrl: string): Promise<string>;
+    inpaint(prompt: string, imageBase64: string): Promise<string>;
 }

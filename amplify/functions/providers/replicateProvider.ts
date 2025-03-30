@@ -113,4 +113,7 @@ export class ReplicateProvider implements IAIProvider {
         throw new Error("Outpainting is not supported by the Replicate provider.");
     }
 
+    async inpaint(prompt: string, imageBase64: string): Promise<string> {
+        throw new Error("Inpainting is not supported by the Replicate provider.");
+    }
 }

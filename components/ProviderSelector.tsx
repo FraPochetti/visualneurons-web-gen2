@@ -13,6 +13,7 @@ export default function ProviderSelector({ value, onChange }: ProviderSelectorPr
             <select id="provider-select" value={value} onChange={onChange} className={styles.select}>
                 <option value="replicate">Replicate</option>
                 <option value="stability">Stability</option>
+                <option value="gemini">Gemini</option>
             </select>
         </div>
     );
