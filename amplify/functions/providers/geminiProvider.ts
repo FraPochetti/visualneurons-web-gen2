@@ -19,6 +19,14 @@ export class GeminiProvider implements IAIProvider {
                 displayName: "Gemini 2.0 Flash Experimental",
                 modelUrl: "https://developers.google.com/genai/gemini"
             };
+        } else if (operation === 'inpaint') {
+            return {
+                modelName: 'gemini-2.0-flash-exp-image-generation',
+                modelVersion: 'experimental',
+                serviceProvider: "gemini",
+                displayName: "Gemini 2.0 Editor",
+                modelUrl: "https://developers.google.com/genai/gemini"
+            };
         }
         throw new Error(`Operation ${operation} not supported by GeminiProvider`);
     }
@@ -54,8 +62,6 @@ export class GeminiProvider implements IAIProvider {
             throw new Error(`Gemini generation failed: ${error.message}`);
         }
     }
-
-
 
     async inpaint(prompt: string, imageBase64: string): Promise<string> {
         const ai = new GoogleGenAI({ apiKey: process.env.GCP_API_TOKEN });

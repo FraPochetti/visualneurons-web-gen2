@@ -8,9 +8,10 @@ interface OperationSelectorProps {
 }
 
 // Map of supported operations by provider
-const PROVIDER_OPERATIONS: Record<string, AIOperation[]> = {
+export const PROVIDER_OPERATIONS: Record<string, AIOperation[]> = {
     replicate: ['upscaleImage'],
-    stability: ['upscaleImage', 'outpaint']
+    stability: ['upscaleImage', 'outpaint'],
+    gemini: ['inpaint']
 };
 
 export default function OperationSelector({ value, onChange, provider }: OperationSelectorProps) {
@@ -20,7 +21,8 @@ export default function OperationSelector({ value, onChange, provider }: Operati
     // Map operations to user-friendly labels
     const operationLabels: Record<string, string> = {
         'upscaleImage': 'Upscale',
-        'outpaint': 'Outpaint'
+        'outpaint': 'Outpaint',
+        'inpaint': 'Edit Image',
     };
 
     // Generate options list

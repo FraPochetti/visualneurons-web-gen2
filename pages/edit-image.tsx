@@ -1,25 +1,21 @@
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import { useState, useEffect } from "react";
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "@/amplify/data/resource";
 import ModelCredits from "@/components/ModelCredits";
 import CustomCompareSlider from "@/components/CustomCompareSlider";
 import ProviderSelector from "@/components/ProviderSelector";
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import { saveImageRecord } from "@/utils/saveImageRecord";
-import OperationSelector from "@/components/OperationSelector";
+import OperationSelector, { PROVIDER_OPERATIONS } from '@/components/OperationSelector';
 import { AIOperation } from "@/amplify/functions/providers/IAIProvider";
 import { useImageOperation } from '@/components/ImageOperations/useImageOperation';
 import styles from "./EditImage.module.css";
 import VerticalCompare from "@/components/VerticalCompare";
 
-const client = generateClient<Schema>();
-
 export default function EditImagePage() {
     const router = useRouter();
-    const [operation, setOperation] = useState<AIOperation>("upscaleImage");
     const [provider, setProvider] = useState("replicate");
+    const [operation, setOperation] = useState<AIOperation>("upscaleImage");
     const [processedUrl, setProcessedUrl] = useState<string | null>(null);
     const [saveFileName, setSaveFileName] = useState(`${operation}-image.jpg`);
     const { url, originalPath } = router.query;
@@ -62,6 +58,15 @@ export default function EditImagePage() {
         }
     };
 
+    const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newProvider = e.target.value;
+        setProvider(newProvider);
+        const supportedOps = PROVIDER_OPERATIONS[newProvider] || [];
+        if (supportedOps.length > 0 && !supportedOps.includes(operation)) {
+            setOperation(supportedOps[0]);
+        }
+    };
+
     if (!isReady) {
         return (
             <Layout>
@@ -90,7 +95,11 @@ export default function EditImagePage() {
                 {!processedUrl && (
                     <div>
                         <div style={{ marginBottom: "15px" }}>
-                            <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)} />
+                            <ProviderSelector
+                                value={provider}
+                                onChange={handleProviderChange}
+                                excludeProviders={["gemini"]}
+                            />
                         </div>
                         <div style={{ marginBottom: "15px" }}>
                             <OperationSelector
