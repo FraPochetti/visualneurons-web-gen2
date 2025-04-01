@@ -108,7 +108,7 @@ export const handler = async (event: any) => {
                 });
                 result = await providerInstance.inpaint(
                     event.arguments.prompt,
-                    event.arguments.imageBase64
+                    event.arguments.imageBase64 || event.arguments.imageUrl
                 );
                 break;
 

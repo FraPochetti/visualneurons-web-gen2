@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Layout from "@/components/Layout";
 import UserPhotos from "@/components/UserPhotos";
 import { uploadImage } from "@/utils/uploadImage";
-import { getImageAsBase64 } from "@/utils/imageUtils";
 import { saveImageRecord } from "@/utils/saveImageRecord";
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
@@ -44,23 +43,25 @@ export default function ImageChatPage() {
         setMessages(prev => [...prev, userMessage]);
         setInputText('');
         setProcessing(true);
+
         try {
-            const imageBase64 = await getImageAsBase64(selectedImage);
-            const result = await client.mutations.inpaintImage({
+            // Instead of base64 conversion in browser, pass the image URL directly
+            const output = await client.mutations.inpaintImage({
                 prompt: inputText,
-                imageBase64,
+                imageUrl: selectedImage,  // Use URL directly
                 provider: "gemini",
                 operation: "inpaint",
             });
-            if (typeof result === 'string') {
+
+            if (typeof output.data === 'string') {
                 const aiMessage: Message = {
                     id: (Date.now() + 1).toString(),
                     type: 'ai',
                     text: 'Here\'s your edited image:',
-                    image: result,
+                    image: output.data,
                 };
                 setMessages(prev => [...prev, aiMessage]);
-                setSelectedImage(result);
+                setSelectedImage(output.data);
             } else {
                 throw new Error("Invalid response from Gemini");
             }

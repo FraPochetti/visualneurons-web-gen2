@@ -34,7 +34,8 @@ const schema = a.schema({
   inpaintImage: a.mutation()
     .arguments({
       prompt: a.string().required(),
-      imageBase64: a.string().required(),
+      imageUrl: a.string(), // Add this parameter
+      imageBase64: a.string(), // Make this optional
       provider: a.string(),
       operation: a.string().required()
     })

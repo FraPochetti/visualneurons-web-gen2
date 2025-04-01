@@ -1,6 +1,7 @@
 // amplify/functions/providers/geminiProvider.ts
 import { GoogleGenAI } from '@google/genai';
 import { IAIProvider, AIOperation, ProviderMetadata, ModelMetadata } from './IAIProvider';
+import axios from 'axios';
 
 export class GeminiProvider implements IAIProvider {
     getProviderInfo(): ProviderMetadata {
@@ -63,9 +64,18 @@ export class GeminiProvider implements IAIProvider {
         }
     }
 
-    async inpaint(prompt: string, imageBase64: string): Promise<string> {
+    async inpaint(prompt: string, imageInput: string): Promise<string> {
         const ai = new GoogleGenAI({ apiKey: process.env.GCP_API_TOKEN });
         try {
+            let imageBase64 = imageInput;
+
+            // If the input is a URL, fetch and convert to base64
+            if (imageInput.startsWith('http')) {
+                const response = await axios.get(imageInput, { responseType: 'arraybuffer' });
+                const buffer = Buffer.from(response.data);
+                imageBase64 = buffer.toString('base64');
+            }
+
             const contents = [
                 { text: prompt },
                 {
@@ -75,6 +85,8 @@ export class GeminiProvider implements IAIProvider {
                     }
                 }
             ];
+
+            // Rest of the function remains the same
             const response = await ai.models.generateContent({
                 model: 'gemini-2.0-flash-exp-image-generation',
                 contents,
