@@ -19,6 +19,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <Link href="/style-transfer" className="nav-link">
                         Style Transfer
                     </Link>
+                    <Link href="/image-chat" className="nav-link">
+                        Image Chat
+                    </Link>
                 </nav>
             </header>
             <main>{children}</main>
