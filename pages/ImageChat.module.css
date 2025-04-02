@@ -23,7 +23,8 @@
     flex-direction: column;
     gap: 1rem;
     margin-bottom: 1rem;
-    max-height: 500px;
+    max-height: 400px;
+    /* Reduced height for scrollable chat */
     overflow-y: auto;
 }
 
@@ -43,6 +44,21 @@
 .aiMessage {
     align-self: flex-start;
     max-width: 90%;
+}
+
+.aiMessageImageContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.aiMessageImage {
+    max-width: 200px;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    /* Add space below the image */
 }
 
 .inputArea {
@@ -74,4 +90,9 @@
     border-radius: 8px;
     margin: 1rem 0;
     cursor: pointer;
+}
+
+/* (Optional) If you want to ensure no other images are inadvertently styled */
+.message img {
+    border-radius: 4px;
 }
