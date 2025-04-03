@@ -67,26 +67,40 @@ export class GeminiProvider implements IAIProvider {
     async inpaint(prompt: string, imageInput: string): Promise<string> {
         const ai = new GoogleGenAI({ apiKey: process.env.GCP_API_TOKEN });
         try {
-            let imageBase64 = imageInput;
+            let imageBase64 = '';
+            let mimeType = 'image/png';
 
             // If the input is a URL, fetch and convert to base64
             if (imageInput.startsWith('http')) {
+                console.log("INSIDE HTTP: Image inpu starts with first 100 chars:", imageInput.substring(0, 100));
                 const response = await axios.get(imageInput, { responseType: 'arraybuffer' });
                 const buffer = Buffer.from(response.data);
                 imageBase64 = buffer.toString('base64');
+            } else {
+                // Check for and strip Data URI prefix
+                console.log("INSIDE BASE64: Image input starts with first 100 chars:", imageInput.substring(0, 100));
+                const match = imageInput.match(/^data:(image\/\w+);base64,(.*)$/);
+                if (match && match[1] && match[2]) {
+                    mimeType = match[1]; // Get actual mime type
+                    imageBase64 = match[2]; // Get raw Base64 data
+                } else {
+                    // Assume it might be raw base64 already or handle error
+                    console.log("Image input does not match Data URI format. Using as is with first 100 chars:", imageInput.substring(0, 100));
+                    imageBase64 = imageInput;
+                    // Consider logging a warning here if format is unexpected
+                }
             }
 
             const contents = [
                 { text: prompt },
                 {
                     inlineData: {
-                        mimeType: 'image/png',
+                        mimeType: mimeType,
                         data: imageBase64,
                     }
                 }
             ];
 
-            // Rest of the function remains the same
             const response = await ai.models.generateContent({
                 model: 'gemini-2.0-flash-exp-image-generation',
                 contents,
@@ -94,18 +108,16 @@ export class GeminiProvider implements IAIProvider {
                     responseModalities: ['Text', 'Image']
                 },
             });
-            // Validate that candidates exist
+
             if (!response.candidates || response.candidates.length === 0) {
                 console.error("No candidates returned from Gemini in inpaint. Full response:", JSON.stringify(response));
                 throw new Error("No candidates returned from Gemini");
             }
             const candidate = response.candidates[0];
-            // Validate that content and parts are defined and non-empty
             if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0) {
                 console.error("No content parts found in Gemini candidate for inpainting. Full candidate:", JSON.stringify(candidate));
                 throw new Error("No content parts found in Gemini candidate for inpainting");
             }
-            // Look for the inline image data
             for (const part of candidate.content.parts) {
                 if (part.inlineData) {
                     return `data:image/png;base64,${part.inlineData.data}`;
@@ -117,6 +129,7 @@ export class GeminiProvider implements IAIProvider {
             throw new Error(`Gemini inpainting failed: ${error.message}`);
         }
     }
+
 
 
     // For now, we do not implement other methods (upscaleImage, styleTransfer, outPaint)
