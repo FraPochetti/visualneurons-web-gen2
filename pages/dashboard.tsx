@@ -83,6 +83,7 @@ export default function Dashboard() {
                     <Link href="/generate-image" className="nav-link">Generate Image</Link>
                     <Link href="/style-transfer" className="nav-link">Style Transfer</Link>
                     <Link href="/image-chat" className="nav-link">Image Chat</Link>
+                    <Link href="/generate-video" className="nav-link">Generate Video</Link>
                 </nav>
                 <div className={styles.userInfo}>
                     {userEmail && <div>Hi, {userEmail}</div>}

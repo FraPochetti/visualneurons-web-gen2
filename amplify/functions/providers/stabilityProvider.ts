@@ -184,4 +184,7 @@ export class StabilityProvider implements IAIProvider {
     async inpaint(prompt: string, imageBase64: string): Promise<string> {
         throw new Error("Stability provider inpainting not implemented yet");
     }
+    async generateVideo(promptImage: string, promptText: string, duration?: number, ratio?: string): Promise<string> {
+        throw new Error("Stability provider video generation not implemented yet");
+    }
 }

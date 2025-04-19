@@ -8,6 +8,7 @@ export const aiDispatcher = defineFunction({
         STABILITY_API_TOKEN: secret("STABILITY_API_TOKEN"),
         LAMBDA_RESIZE_URL: secret("LAMBDA_RESIZE_URL"),
         GCP_API_TOKEN: secret("GCP_API_TOKEN"),
+        RUNWAY_API_TOKEN: secret("RUNWAY_API_TOKEN"),
         LOG_LEVEL: "DEBUG"
     },
     timeoutSeconds: 120,

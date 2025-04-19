@@ -142,4 +142,12 @@ export class GeminiProvider implements IAIProvider {
     async outPaint(imageUrl: string): Promise<string> {
         throw new Error("Operation not supported by GeminiProvider");
     }
+    async generateVideo(
+        promptImage: string,
+        promptText: string,
+        duration?: number,
+        ratio?: string
+    ): Promise<string> {
+        throw new Error("Operation not supported by GeminiProvider");
+    }
 }

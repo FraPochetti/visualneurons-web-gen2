@@ -1,9 +1,16 @@
 // amplify/functions/providers/IAIProvider.ts
-export type AIOperation = 'generateImage' | 'upscaleImage' | 'inpaint' | 'outpaint' | 'recolor' | 'styleTransfer';
+export type AIOperation =
+    | 'generateImage'
+    | 'upscaleImage'
+    | 'inpaint'
+    | 'outpaint'
+    | 'recolor'
+    | 'styleTransfer'
+    | 'generateVideo';
 
 // For provider-level metadata (no model required)
 export interface ProviderMetadata {
-    serviceProvider: "replicate" | "stability" | "gemini" | "user";
+    serviceProvider: "replicate" | "stability" | "gemini" | "user" | "runway";
     apiEndpoint?: string;
 }
 
@@ -24,4 +31,5 @@ export interface IAIProvider {
     styleTransfer(prompt: string, styleImageUrl: string): Promise<string>;
     outPaint(imageUrl: string): Promise<string>;
     inpaint(prompt: string, imageBase64: string): Promise<string>;
+    generateVideo(promptImage: string, promptText: string, duration?: number, ratio?: string): Promise<string>;
 }

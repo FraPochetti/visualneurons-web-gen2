@@ -256,3 +256,19 @@ main {
   border-radius: 3px;
   z-index: 999
 }
+
+.video-inputs input,
+.video-inputs textarea,
+.video-inputs select {
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.video-inputs button {
+  margin-top: 1rem;
+}

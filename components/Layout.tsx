@@ -22,6 +22,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <Link href="/image-chat" className="nav-link">
                         Image Chat
                     </Link>
+                    <Link href="/generate-video" className="nav-link">Generate Video</Link>
                 </nav>
             </header>
             <main>{children}</main>
