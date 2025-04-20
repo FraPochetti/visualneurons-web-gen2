@@ -16,7 +16,7 @@ export const handler = async (event: any) => {
     const startTime = Date.now();
 
     // ── Handle our new getVideoStatus query ──
-    if (event.info.fieldName === "getVideoStatus") {
+    if (event.info?.fieldName === "getVideoStatus") {
         const { taskId, provider = "runway" } = event.arguments;
         logger.info("getVideoStatus called", { taskId });
         if (provider !== "runway") {
