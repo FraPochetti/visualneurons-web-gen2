@@ -83,6 +83,14 @@ const schema = a.schema({
     provider: a.enum(["replicate", "stability", "gemini", "runway", "user"]),
     details: a.json(),
   }),
+
+  getVideoStatus: a.query()
+    .arguments({
+      taskId: a.string().required(),
+      provider: a.string(),            // optional, defaults to "runway"
+    })
+    .returns(a.json())                // returns { status: string, output: string }
+    .handler(a.handler.function(aiDispatcher)),
 }).authorization(allow => [allow.authenticated()]);
 
 export type Schema = ClientSchema<typeof schema>;

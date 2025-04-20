@@ -1,6 +1,7 @@
 // amplify/functions/aiDispatcher/handler.ts
 import { Logger } from "@aws-lambda-powertools/logger";
 import { AIOperation } from '../providers/IAIProvider';
+import https from "https";
 
 // Initialize the logger
 const logger = new Logger({
@@ -13,6 +14,46 @@ export const handler = async (event: any) => {
     const userIdentity = event.identity || {};
     const requestId = event.request?.headers?.['x-amzn-requestid'] || `req-${Date.now()}`;
     const startTime = Date.now();
+
+    // ── Handle our new getVideoStatus query ──
+    if (event.info.fieldName === "getVideoStatus") {
+        const { taskId, provider = "runway" } = event.arguments;
+        logger.info("getVideoStatus called", { taskId });
+        if (provider !== "runway") {
+            throw new Error(`getVideoStatus only supported for runway`);
+        }
+
+        // Fetch the Runway task status via REST (no extra deps)
+        const result = await new Promise<{ status: string; output: string }>((resolve, reject) => {
+            const req = https.request({
+                hostname: "api.runwayml.com",
+                path: `/v1/tasks/${taskId}`,
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${process.env.RUNWAY_API_TOKEN}`,
+                    "X-Runway-Version": "2024-11-06",
+                },
+            }, (res) => {
+                let body = "";
+                res.on("data", (chunk) => { body += chunk; });
+                res.on("end", () => {
+                    try {
+                        const json = JSON.parse(body);
+                        const output = Array.isArray(json.output)
+                            ? json.output[0]
+                            : json.output;
+                        resolve({ status: json.status, output });
+                    } catch (err) {
+                        reject(err);
+                    }
+                });
+            });
+            req.on("error", reject);
+            req.end();
+        });
+
+        return result;
+    }
 
     // Basic request logging
     logger.info('Function invoked', {
