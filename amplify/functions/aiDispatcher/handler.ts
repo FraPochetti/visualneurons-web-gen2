@@ -10,6 +10,11 @@ const logger = new Logger({
 });
 
 export const handler = async (event: any) => {
+    console.log("📡 AppSync invoked:", {
+        infoField: event.info?.fieldName,
+        parentType: event.info?.parentTypeName,
+        argumentKeys: Object.keys(event.arguments ?? {}),
+    });
     // Extract user information
     const userIdentity = event.identity || {};
     const requestId = event.request?.headers?.['x-amzn-requestid'] || `req-${Date.now()}`;
