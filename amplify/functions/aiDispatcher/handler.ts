@@ -162,22 +162,6 @@ export const handler = async (event: any) => {
                 );
                 break;
 
-            case "generateVideo":
-                logger.info('Generate video request', {
-                    requestId,
-                    provider: providerName,
-                    promptTextLength: event.arguments.promptText?.length || 0,
-                    promptText: event.arguments.promptText,
-                });
-                // Call the new generateVideo method.
-                result = await providerInstance.generateVideo(
-                    event.arguments.promptImage,
-                    event.arguments.promptText,
-                    event.arguments.duration,  // may be undefined, which is fine if the provider sets a default
-                    event.arguments.ratio      // may be undefined if not provided
-                );
-                break;
-
             default:
                 logger.error(`Unsupported operation: ${operation}`, { requestId });
                 throw new Error(`Unsupported operation: ${operation}`);
