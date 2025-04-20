@@ -15,44 +15,53 @@ export const handler = async (event: any) => {
     const requestId = event.request?.headers?.['x-amzn-requestid'] || `req-${Date.now()}`;
     const startTime = Date.now();
 
-    // ── Handle our new getVideoStatus query ──
-    if (event.info?.fieldName === "getVideoStatus") {
-        const { taskId, provider = "runway" } = event.arguments;
-        logger.info("getVideoStatus called", { taskId });
+    // ─── fire‑and‑forget generateVideo ───
+    if (event.info?.fieldName === "generateVideo") {
+        const { promptImage, promptText, duration, ratio, provider = "runway" } = event.arguments;
         if (provider !== "runway") {
-            throw new Error(`getVideoStatus only supported for runway`);
+            throw new Error(`generateVideo only supported for runway, got ${provider}`);
         }
 
-        // Fetch the Runway task status via REST (no extra deps)
-        const result = await new Promise<{ status: string; output: string }>((resolve, reject) => {
+        // kick off a Runway image‑to‑video task and return its ID immediately
+        const taskId: string = await new Promise((resolve, reject) => {
+            const body = JSON.stringify({
+                model: "gen4_turbo",
+                promptImage,
+                promptText,
+                duration,
+                ratio,
+            });
+
             const req = https.request({
                 hostname: "api.runwayml.com",
-                path: `/v1/tasks/${taskId}`,
-                method: "GET",
+                path: "/v1/image_to_video",
+                method: "POST",
                 headers: {
-                    Authorization: `Bearer ${process.env.RUNWAY_API_TOKEN}`,
+                    "Authorization": `Bearer ${process.env.RUNWAY_API_TOKEN}`,
                     "X-Runway-Version": "2024-11-06",
+                    "Content-Type": "application/json",
+                    "Content-Length": Buffer.byteLength(body),
                 },
             }, (res) => {
-                let body = "";
-                res.on("data", (chunk) => { body += chunk; });
+                let data = "";
+                res.on("data", (chunk) => (data += chunk));
                 res.on("end", () => {
                     try {
-                        const json = JSON.parse(body);
-                        const output = Array.isArray(json.output)
-                            ? json.output[0]
-                            : json.output;
-                        resolve({ status: json.status, output });
+                        const json = JSON.parse(data);
+                        resolve(json.id);
                     } catch (err) {
                         reject(err);
                     }
                 });
             });
+
             req.on("error", reject);
+            req.write(body);
             req.end();
         });
 
-        return result;
+        // returns in ≪1 s, AppSync stays happy
+        return taskId;
     }
 
     // Basic request logging
