@@ -29,24 +29,43 @@ export class RunwayProvider implements IAIProvider {
         ratio?: string
     ): Promise<string> {
         const token = process.env.RUNWAY_API_TOKEN;
-        if (!token) {
-            throw new Error("Missing RUNWAY_API_TOKEN environment variable");
-        }
+        if (!token) throw new Error("Missing RUNWAY_API_TOKEN");
         const client = new RunwayML({ apiKey: token });
 
-        // If promptImage is an HTTP(S) URL, fetch and convert to base64 data URI
-        let imageInput = promptImage;
+        // —— Your Gemini‑style snippet adapted here —— //
+
+        // 1. Prepare a base64 payload
+        let imageBase64: string;
+        let mimeType = 'image/png';
+
         if (/^https?:\/\//i.test(promptImage)) {
+            // URL case: fetch bytes, derive MIME, base64‑encode
             const resp = await axios.get<ArrayBuffer>(promptImage, { responseType: 'arraybuffer' });
-            const contentType = resp.headers['content-type'] || 'image/png';
-            const b64 = Buffer.from(resp.data).toString('base64');
-            imageInput = `data:${contentType};base64,${b64}`;
+            const ext = (promptImage.split('.').pop() || '').toLowerCase();
+            mimeType = resp.headers['content-type']?.startsWith('image/')
+                ? resp.headers['content-type']
+                : ext === 'jpg' || ext === 'jpeg'
+                    ? 'image/jpeg'
+                    : 'image/png';
+            imageBase64 = Buffer.from(resp.data).toString('base64');
+        } else {
+            // Data URI or plain base64
+            const match = promptImage.match(/^data:(image\/\w+);base64,(.*)$/);
+            if (match) {
+                mimeType = match[1];
+                imageBase64 = match[2];
+            } else {
+                // Treat as raw base64
+                imageBase64 = promptImage;
+            }
         }
 
-        // Narrow duration to 5 or 10
-        const durationParam = duration === 5 ? 5 : duration === 10 ? 10 : undefined;
+        const dataUri = `data:${mimeType};base64,${imageBase64}`;
 
-        // Validate ratio against the SDK’s allowed list
+        // —— End of snippet —— //
+
+        // Narrow duration & ratio exactly like before
+        const durationParam = duration === 5 ? 5 : duration === 10 ? 10 : undefined;
         const allowedRatios = [
             "1280:720", "720:1280", "1104:832", "832:1104",
             "960:960", "1584:672", "1280:768", "768:1280"
@@ -55,35 +74,41 @@ export class RunwayProvider implements IAIProvider {
             ? (ratio as typeof allowedRatios[number])
             : undefined;
 
-        // Kick off the task
+        // Kick off the Runway task
         const videoTask = await client.imageToVideo.create({
             model: "gen4_turbo",
-            promptImage: imageInput,
+            promptImage: dataUri,
             promptText,
             duration: durationParam,
             ratio: ratioParam,
         });
 
-        // Poll until it finishes
+        // Poll until done
         let task;
         do {
-            // wait 10s
-            await new Promise(resolve => setTimeout(resolve, 10000));
+            await new Promise(r => setTimeout(r, 10000));
             task = await client.tasks.retrieve(videoTask.id);
         } while (!["SUCCEEDED", "FAILED"].includes(task.status));
 
         if (task.status === "FAILED") {
-            throw new Error(`Runway video generation failed: ${task.failure || 'Unknown error'}`);
+            throw new Error(`Runway video failed: ${task.failure || 'Unknown error'}`);
         }
 
-        // Return the first output URL
-        if (typeof task.output === "string") {
-            return task.output;
-        } else if (Array.isArray(task.output) && task.output.length > 0) {
-            return task.output[0];
+        const out = task.output;
+
+        // 1) If it’s a single URL, just return it
+        if (typeof out === "string") {
+            return out;
         }
 
+        // 2) If it’s an array with at least one URL, return the first
+        if (Array.isArray(out) && out.length > 0) {
+            return out[0];
+        }
+
+        // 3) Otherwise blow up with a clear error
         throw new Error("Unexpected output format from Runway video generation");
+
     }
 
     // The following methods are not supported by the Runway provider
