@@ -1,5 +1,5 @@
-// amplify/functions/providers/runwayProvider.ts
 import RunwayML from '@runwayml/sdk';
+import axios from 'axios';
 import { IAIProvider, AIOperation, ProviderMetadata, ModelMetadata } from './IAIProvider';
 
 export class RunwayProvider implements IAIProvider {
@@ -32,44 +32,51 @@ export class RunwayProvider implements IAIProvider {
         if (!token) {
             throw new Error("Missing RUNWAY_API_TOKEN environment variable");
         }
-
-        // Instantiate the Runway client with your API token
         const client = new RunwayML({ apiKey: token });
 
-        const durationParam =
-            duration === 5 ? 5 :
-                duration === 10 ? 10 :
-                    undefined;
+        // If promptImage is an HTTP(S) URL, fetch and convert to base64 data URI
+        let imageInput = promptImage;
+        if (/^https?:\/\//i.test(promptImage)) {
+            const resp = await axios.get<ArrayBuffer>(promptImage, { responseType: 'arraybuffer' });
+            const contentType = resp.headers['content-type'] || 'image/png';
+            const b64 = Buffer.from(resp.data).toString('base64');
+            imageInput = `data:${contentType};base64,${b64}`;
+        }
 
+        // Narrow duration to 5 or 10
+        const durationParam = duration === 5 ? 5 : duration === 10 ? 10 : undefined;
+
+        // Validate ratio against the SDK’s allowed list
         const allowedRatios = [
             "1280:720", "720:1280", "1104:832", "832:1104",
             "960:960", "1584:672", "1280:768", "768:1280"
         ] as const;
-
         const ratioParam = allowedRatios.includes(ratio as any)
             ? (ratio as typeof allowedRatios[number])
             : undefined;
-        // Kick off the video generation task. You can supply duration and ratio if provided.
+
+        // Kick off the task
         const videoTask = await client.imageToVideo.create({
             model: "gen4_turbo",
-            promptImage,
+            promptImage: imageInput,
             promptText,
             duration: durationParam,
             ratio: ratioParam,
         });
 
-        // Poll for the task status every 10 seconds until it's either succeeded or failed.
-        let task: any;
+        // Poll until it finishes
+        let task;
         do {
+            // wait 10s
             await new Promise(resolve => setTimeout(resolve, 10000));
             task = await client.tasks.retrieve(videoTask.id);
         } while (!["SUCCEEDED", "FAILED"].includes(task.status));
 
         if (task.status === "FAILED") {
-            throw new Error(`Runway video generation failed: ${task.failure || "Unknown error"}`);
+            throw new Error(`Runway video generation failed: ${task.failure || 'Unknown error'}`);
         }
 
-        // Return the generated video URL.
+        // Return the first output URL
         if (typeof task.output === "string") {
             return task.output;
         } else if (Array.isArray(task.output) && task.output.length > 0) {
