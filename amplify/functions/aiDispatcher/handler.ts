@@ -10,18 +10,14 @@ const logger = new Logger({
 });
 
 export const handler = async (event: any) => {
-    console.log("📡 AppSync invoked:", {
-        infoField: event.info?.fieldName,
-        parentType: event.info?.parentTypeName,
-        argumentKeys: Object.keys(event.arguments ?? {}),
-    });
+    console.log("AppSync invoke:", Object.keys(event.arguments), "operation=", event.arguments.operation);
     // Extract user information
     const userIdentity = event.identity || {};
     const requestId = event.request?.headers?.['x-amzn-requestid'] || `req-${Date.now()}`;
     const startTime = Date.now();
 
     // ─── fire‑and‑forget generateVideo ───
-    if (event.info?.fieldName === "generateVideo") {
+    if (event.arguments.operation === "generateVideo") {
         const { promptImage, promptText, duration, ratio, provider = "runway" } = event.arguments;
         if (provider !== "runway") {
             throw new Error(`generateVideo only supported for runway, got ${provider}`);
