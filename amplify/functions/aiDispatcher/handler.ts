@@ -23,36 +23,44 @@ export const handler = async (event: any) => {
             throw new Error(`generateVideo only supported for runway, got ${provider}`);
         }
 
-        // kick off a Runway image‑to‑video task and return its ID immediately
-        const taskId: string = await new Promise((resolve, reject) => {
-            const body = JSON.stringify({
-                model: "gen4_turbo",
-                promptImage,
-                promptText,
-                duration,
-                ratio,
-            });
+        console.log("🎬 generateVideo → kicking off Runway task…");
 
+        const taskId: string = await new Promise((resolve, reject) => {
+            const body = JSON.stringify({ model: "gen4_turbo", promptImage, promptText, duration, ratio });
             const req = https.request({
                 hostname: "api.runwayml.com",
                 path: "/v1/image_to_video",
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${process.env.RUNWAY_API_TOKEN}`,
+                    Authorization: `Bearer ${process.env.RUNWAY_API_TOKEN}`,
                     "X-Runway-Version": "2024-11-06",
                     "Content-Type": "application/json",
                     "Content-Length": Buffer.byteLength(body),
                 },
             }, (res) => {
                 let data = "";
-                res.on("data", (chunk) => (data += chunk));
+                res.on("data", (c) => (data += c));
                 res.on("end", () => {
-                    try {
-                        const json = JSON.parse(data);
-                        resolve(json.id);
-                    } catch (err) {
-                        reject(err);
+                    console.log("✨ generateVideo response:", { statusCode: res.statusCode, body: data });
+
+                    // 1) Check HTTP code
+                    if (res.statusCode !== 200) {
+                        return reject(new Error(`Runway error ${res.statusCode}: ${data}`));
                     }
+
+                    // 2) Parse & validate
+                    let json: any;
+                    try {
+                        json = JSON.parse(data);
+                    } catch (err) {
+                        return reject(err);
+                    }
+
+                    if (!json.id) {
+                        return reject(new Error(`No task ID in Runway response: ${data}`));
+                    }
+
+                    resolve(json.id);
                 });
             });
 
@@ -61,7 +69,7 @@ export const handler = async (event: any) => {
             req.end();
         });
 
-        // returns in ≪1 s, AppSync stays happy
+        console.log("✅ generateVideo returned taskId:", taskId);
         return taskId;
     }
 
