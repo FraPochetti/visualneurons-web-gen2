@@ -35,6 +35,7 @@ export const handler = async (event: any) => {
                     Authorization: `Bearer ${process.env.RUNWAY_API_TOKEN}`,
                     "Content-Type": "application/json",
                     "Content-Length": Buffer.byteLength(body),
+                    "X-Runway-Version": "2024-11-06"
                 },
             }, (res) => {
                 let data = "";
