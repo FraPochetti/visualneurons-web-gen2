@@ -21,19 +21,25 @@ class ProjectExporter:
         for dir_name in self.include_dirs:
             target_dir = self.root_dir / dir_name
             if target_dir.exists():
-                paths.extend(target_dir.rglob("*"))
+                for p in target_dir.rglob("*"):
+                    # Exclude node_modules directory and its contents
+                    if 'node_modules' in p.parts:
+                        continue
+                    # Exclude package.json and package-lock.json files
+                    if p.name in ("package.json", "package-lock.json"):
+                        continue
+                    paths.append(p)
         return sorted(paths)
     
     def get_file_contents(self):
-        return [(p, p.read_text(errors='ignore')) 
-                for p in self.get_included_paths() 
+        return [(p, p.read_text(errors='ignore'))
+                for p in self.get_included_paths()
                 if p.is_file()]
     
     def export(self):
         files = self.get_file_contents()
         
-        output = [
-        ]
+        output = []
         
         for file_path, content in files:
             rel_path = file_path.relative_to(self.root_dir)
