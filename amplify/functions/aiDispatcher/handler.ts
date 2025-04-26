@@ -1,7 +1,7 @@
 // amplify/functions/aiDispatcher/handler.ts
 import { Logger } from "@aws-lambda-powertools/logger";
 import { AIOperation } from '../providers/IAIProvider';
-import https from "https";
+import RunwayML from '@runwayml/sdk';
 
 // Initialize the logger
 const logger = new Logger({
@@ -22,51 +22,15 @@ export const handler = async (event: any) => {
         if (provider !== "runway") {
             throw new Error(`generateVideo only supported for runway, got ${provider}`);
         }
-
+        const client = new RunwayML({ apiKey: process.env.RUNWAY_API_TOKEN });
         console.log("🎬 generateVideo → kicking off Runway task…");
 
-        const taskId: string = await new Promise((resolve, reject) => {
-            const body = JSON.stringify({ model: "gen4_turbo", promptImage, promptText, duration, ratio });
-            const req = https.request({
-                hostname: "api.runwayml.com",
-                path: "/v1/image_to_video",
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${process.env.RUNWAY_API_TOKEN}`,
-                    "Content-Type": "application/json",
-                    "Content-Length": Buffer.byteLength(body),
-                    "X-Runway-Version": "2024-11-06"
-                },
-            }, (res) => {
-                let data = "";
-                res.on("data", (c) => (data += c));
-                res.on("end", () => {
-                    console.log("✨ generateVideo response:", { statusCode: res.statusCode, body: data });
-
-                    // 1) Check HTTP code
-                    if (res.statusCode !== 200) {
-                        return reject(new Error(`Runway error ${res.statusCode}: ${data}`));
-                    }
-
-                    // 2) Parse & validate
-                    let json: any;
-                    try {
-                        json = JSON.parse(data);
-                    } catch (err) {
-                        return reject(err);
-                    }
-
-                    if (!json.id) {
-                        return reject(new Error(`No task ID in Runway response: ${data}`));
-                    }
-
-                    resolve(json.id);
-                });
-            });
-
-            req.on("error", reject);
-            req.write(body);
-            req.end();
+        const taskId = await client.imageToVideo.create({
+            model: "gen4_turbo",
+            promptImage,
+            promptText,
+            duration,
+            ratio,
         });
 
         console.log("✅ generateVideo returned taskId:", taskId);

@@ -6,6 +6,7 @@ python_utils/images
 
 # dependencies
 /node_modules
+/amplify/functions/*/node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
