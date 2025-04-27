@@ -12,4 +12,7 @@ export const aiDispatcher = defineFunction({
         LOG_LEVEL: "DEBUG"
     },
     timeoutSeconds: 120,
+    layers: {
+        runwayNodeSdk: "arn:aws:lambda:eu-central-1:257446244580:layer:runway-node-sdk-layer:1"
+    },
 });
