@@ -2,6 +2,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import logger from '@/utils/logger';
+import poll from '@/utils/poll';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 
@@ -63,31 +64,25 @@ export default function VideoGenerator({ initialPromptImage }: VideoGeneratorPro
             logger.info(`[VideoGenerator] received taskId=${taskId}`);
 
             // 2️⃣ Poll status every 3s until the task moves out of PENDING/RUNNING
-            let statusResp!: { status: string; output: string };
-
-            do {
-                logger.debug(`[VideoGenerator] polling status for taskId=${taskId}`);
-                // wait 3 seconds between polls
-                // eslint-disable-next-line no-await-in-loop
-                await new Promise((r) => setTimeout(r, 3000));
-
-                const pollRes = await client.queries.getVideoStatus({
-                    taskId,
-                    provider: 'runway',
-                });
-                if (pollRes.errors?.length) {
-                    throw new Error(pollRes.errors[0].message);
-                }
-                if (!pollRes.data) {
-                    throw new Error('Empty response from getVideoStatus');
-                }
-                statusResp = pollRes.data as { status: string; output: string };
-                logger.debug(
-                    `[VideoGenerator] status for ${taskId}: ${statusResp.status}`
-                );
-            } while (
-                statusResp.status === 'PENDING' ||
-                statusResp.status === 'RUNNING'
+            const statusResp = await poll(
+                async () => {
+                    logger.debug(`[VideoGenerator] polling status for taskId=${taskId}`);
+                    const pollRes = await client.queries.getVideoStatus({
+                        taskId,
+                        provider: 'runway',
+                    });
+                    if (pollRes.errors?.length) {
+                        throw new Error(pollRes.errors[0].message);
+                    }
+                    if (!pollRes.data) {
+                        throw new Error('Empty response from getVideoStatus');
+                    }
+                    const data = pollRes.data as { status: string; output: string };
+                    logger.debug(`[VideoGenerator] status for ${taskId}: ${data.status}`);
+                    return data;
+                },
+                3000,
+                (resp) => resp.status !== 'PENDING' && resp.status !== 'RUNNING'
             );
 
             // 3️⃣ Check final status

@@ -1,6 +1,7 @@
 import RunwayML from '@runwayml/sdk';
 import axios from 'axios';
 import { IAIProvider, AIOperation, ProviderMetadata, ModelMetadata } from './IAIProvider';
+import poll from '../../../utils/poll';
 
 export class RunwayProvider implements IAIProvider {
     getProviderInfo(): ProviderMetadata {
@@ -84,11 +85,11 @@ export class RunwayProvider implements IAIProvider {
         });
 
         // Poll until done
-        let task;
-        do {
-            await new Promise(r => setTimeout(r, 10000));
-            task = await client.tasks.retrieve(videoTask.id);
-        } while (!["SUCCEEDED", "FAILED"].includes(task.status));
+        const task = await poll(
+            () => client.tasks.retrieve(videoTask.id),
+            10000,
+            (t) => ["SUCCEEDED", "FAILED"].includes(t.status)
+        );
 
         if (task.status === "FAILED") {
             throw new Error(`Runway video failed: ${task.failure || 'Unknown error'}`);
