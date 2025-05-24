@@ -2,6 +2,7 @@
 import { IAIProvider } from "./IAIProvider";
 import Replicate from "replicate";
 import { AIOperation, ModelMetadata, ProviderMetadata } from "./IAIProvider";
+import poll from "../../../utils/poll";
 
 const GENERATE_IMAGE_MODEL = "black-forest-labs/flux-1.1-pro-ultra";
 const UPSCALE_IMAGE_VERSION = "dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e";
@@ -46,19 +47,12 @@ export class ReplicateProvider implements IAIProvider {
         });
 
         // Poll for the result
-        let completed = null;
-        for (let i = 0; i < 15; i++) {
-            const latest = await replicate.predictions.get(prediction.id);
-            if (latest.status !== "starting" && latest.status !== "processing") {
-                completed = latest;
-                break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 2000));
-        }
+        const completed = await poll(
+            () => replicate.predictions.get(prediction.id),
+            2000,
+            (latest) => latest.status !== "starting" && latest.status !== "processing"
+        );
 
-        if (!completed) {
-            throw new Error("Prediction timed out");
-        }
         if (completed.status === "failed") {
             throw new Error(`Prediction failed: ${completed.error}`);
         }
@@ -80,19 +74,11 @@ export class ReplicateProvider implements IAIProvider {
             input: { image: imageUrl },
         });
 
-        let completed = null;
-        for (let i = 0; i < 15; i++) {
-            const latest = await replicate.predictions.get(prediction.id);
-            if (latest.status !== "starting" && latest.status !== "processing") {
-                completed = latest;
-                break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 2000));
-        }
-
-        if (!completed) {
-            throw new Error("Upscale prediction timed out");
-        }
+        const completed = await poll(
+            () => replicate.predictions.get(prediction.id),
+            2000,
+            (latest) => latest.status !== "starting" && latest.status !== "processing"
+        );
         if (completed.status === "failed") {
             throw new Error(`Upscale failed: ${completed.error}`);
         }
