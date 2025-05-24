@@ -1,6 +1,7 @@
 // amplify/functions/aiDispatcher/handler.ts
 import { Logger } from "@aws-lambda-powertools/logger";
 import { AIOperation } from '../providers/IAIProvider';
+import { OPERATION_MAP } from '../providers/operationMap';
 import RunwayML from '@runwayml/sdk';
 
 // Initialize the logger
@@ -48,6 +49,11 @@ export const handler = async (event: any) => {
 
     const operation = event.arguments.operation;
     const providerName = event.arguments.provider || "replicate";
+
+    if (!OPERATION_MAP[providerName] ||
+        !OPERATION_MAP[providerName].includes(operation as AIOperation)) {
+        throw new Error(`Operation ${operation} not supported for provider ${providerName}`);
+    }
 
     try {
         logger.debug('Creating provider instance', { provider: providerName });
