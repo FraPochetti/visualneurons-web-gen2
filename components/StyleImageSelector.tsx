@@ -1,6 +1,7 @@
 import { list, getUrl } from 'aws-amplify/storage';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { useState, useEffect } from 'react';
+import logger from '@/utils/logger';
 import styles from "./StyleImageSelector.module.css";
 
 interface StyleImageSelectorProps {
@@ -38,7 +39,7 @@ export default function StyleImageSelector({ onSelect }: StyleImageSelectorProps
                 fetchedPhotos.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime());
                 setPhotos(fetchedPhotos);
             } catch (error) {
-                console.error("Error listing photos:", error);
+                logger.error("Error listing photos:", error);
             }
         };
 

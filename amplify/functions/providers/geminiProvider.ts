@@ -2,6 +2,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { IAIProvider, AIOperation, ProviderMetadata, ModelMetadata } from './IAIProvider';
 import axios from 'axios';
+import logger from '../../utils/logger';
 
 export class GeminiProvider implements IAIProvider {
     getProviderInfo(): ProviderMetadata {
@@ -44,12 +45,18 @@ export class GeminiProvider implements IAIProvider {
             });
             if (!response.candidates || response.candidates.length === 0) {
                 // Log the raw response for debugging purposes
-                console.error("No candidates returned from Gemini. Full response:", JSON.stringify(response));
+                logger.error(
+                    "No candidates returned from Gemini. Full response:",
+                    JSON.stringify(response)
+                );
                 throw new Error("No candidates returned from Gemini");
             }
             const candidate = response.candidates[0];
             if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0) {
-                console.error("No content parts in candidate. Full candidate:", JSON.stringify(candidate));
+                logger.error(
+                    "No content parts in candidate. Full candidate:",
+                    JSON.stringify(candidate)
+                );
                 throw new Error("No content parts found in Gemini candidate");
             }
             for (const part of candidate.content.parts) {
@@ -59,7 +66,7 @@ export class GeminiProvider implements IAIProvider {
             }
             throw new Error("No image data received from Gemini");
         } catch (error: any) {
-            console.error("Gemini generation failed. Error details:", error);
+            logger.error("Gemini generation failed. Error details:", error);
             throw new Error(`Gemini generation failed: ${error.message}`);
         }
     }
@@ -72,20 +79,29 @@ export class GeminiProvider implements IAIProvider {
 
             // If the input is a URL, fetch and convert to base64
             if (imageInput.startsWith('http')) {
-                console.log("INSIDE HTTP: Image inpu starts with first 100 chars:", imageInput.substring(0, 100));
+                logger.debug(
+                    "INSIDE HTTP: Image inpu starts with first 100 chars:",
+                    imageInput.substring(0, 100)
+                );
                 const response = await axios.get(imageInput, { responseType: 'arraybuffer' });
                 const buffer = Buffer.from(response.data);
                 imageBase64 = buffer.toString('base64');
             } else {
                 // Check for and strip Data URI prefix
-                console.log("INSIDE BASE64: Image input starts with first 100 chars:", imageInput.substring(0, 100));
+                logger.debug(
+                    "INSIDE BASE64: Image input starts with first 100 chars:",
+                    imageInput.substring(0, 100)
+                );
                 const match = imageInput.match(/^data:(image\/\w+);base64,(.*)$/);
                 if (match && match[1] && match[2]) {
                     mimeType = match[1]; // Get actual mime type
                     imageBase64 = match[2]; // Get raw Base64 data
                 } else {
                     // Assume it might be raw base64 already or handle error
-                    console.log("Image input does not match Data URI format. Using as is with first 100 chars:", imageInput.substring(0, 100));
+                    logger.debug(
+                        "Image input does not match Data URI format. Using as is with first 100 chars:",
+                        imageInput.substring(0, 100)
+                    );
                     imageBase64 = imageInput;
                     // Consider logging a warning here if format is unexpected
                 }
@@ -110,12 +126,18 @@ export class GeminiProvider implements IAIProvider {
             });
 
             if (!response.candidates || response.candidates.length === 0) {
-                console.error("No candidates returned from Gemini in inpaint. Full response:", JSON.stringify(response));
+                logger.error(
+                    "No candidates returned from Gemini in inpaint. Full response:",
+                    JSON.stringify(response)
+                );
                 throw new Error("No candidates returned from Gemini");
             }
             const candidate = response.candidates[0];
             if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0) {
-                console.error("No content parts found in Gemini candidate for inpainting. Full candidate:", JSON.stringify(candidate));
+                logger.error(
+                    "No content parts found in Gemini candidate for inpainting. Full candidate:",
+                    JSON.stringify(candidate)
+                );
                 throw new Error("No content parts found in Gemini candidate for inpainting");
             }
             for (const part of candidate.content.parts) {
@@ -125,7 +147,7 @@ export class GeminiProvider implements IAIProvider {
             }
             throw new Error("No image data received from Gemini during inpainting");
         } catch (error: any) {
-            console.error("Gemini inpainting failed. Error details:", error);
+            logger.error("Gemini inpainting failed. Error details:", error);
             throw new Error(`Gemini inpainting failed: ${error.message}`);
         }
     }

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { list, getUrl } from 'aws-amplify/storage';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import logger from '@/utils/logger';
 
 interface UserPhotosProps {
     onSelect: (url: string) => void;
@@ -24,7 +25,7 @@ export default function UserPhotos({ onSelect }: UserPhotosProps) {
                 );
                 setPhotos(photoData);
             } catch (error) {
-                console.error("Error loading photos:", error);
+                logger.error("Error loading photos:", error);
             }
         };
         loadPhotos();
