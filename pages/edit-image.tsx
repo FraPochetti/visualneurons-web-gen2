@@ -6,7 +6,8 @@ import CustomCompareSlider from "@/components/CustomCompareSlider";
 import ProviderSelector from "@/components/ProviderSelector";
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import { saveImageRecord } from "@/utils/saveImageRecord";
-import OperationSelector, { PROVIDER_OPERATIONS } from '@/components/OperationSelector';
+import OperationSelector from '@/components/OperationSelector';
+import { OPERATION_MAP } from '@/amplify/functions/providers/operationMap';
 import { AIOperation } from "@/amplify/functions/providers/IAIProvider";
 import { useImageOperation } from '@/components/ImageOperations/useImageOperation';
 import styles from "./EditImage.module.css";
@@ -61,7 +62,7 @@ export default function EditImagePage() {
     const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newProvider = e.target.value;
         setProvider(newProvider);
-        const supportedOps = PROVIDER_OPERATIONS[newProvider] || [];
+        const supportedOps = OPERATION_MAP[newProvider] || [];
         if (supportedOps.length > 0 && !supportedOps.includes(operation)) {
             setOperation(supportedOps[0]);
         }

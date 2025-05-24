@@ -1,4 +1,5 @@
 import { AIOperation } from '@/amplify/functions/providers/IAIProvider';
+import { OPERATION_MAP } from '@/amplify/functions/providers/operationMap';
 import styles from "./OperationSelector.module.css";
 
 interface OperationSelectorProps {
@@ -7,16 +8,10 @@ interface OperationSelectorProps {
     provider: string;
 }
 
-// Map of supported operations by provider
-export const PROVIDER_OPERATIONS: Record<string, AIOperation[]> = {
-    replicate: ['upscaleImage'],
-    stability: ['upscaleImage', 'outpaint'],
-    gemini: ['inpaint']
-};
 
 export default function OperationSelector({ value, onChange, provider }: OperationSelectorProps) {
     // Get operations supported by the current provider
-    const supportedOperations = PROVIDER_OPERATIONS[provider] || ['upscaleImage'];
+    const supportedOperations = OPERATION_MAP[provider] || ['upscaleImage'];
 
     // Map operations to user-friendly labels
     const operationLabels: Record<string, string> = {
