@@ -1,6 +1,7 @@
 import { AIOperation, IAIProvider, ModelMetadata, ProviderMetadata } from "./IAIProvider";
 import axios from "axios";
 import FormData from "form-data";
+import logger from '../../utils/logger';
 
 // Helper function to call the resize Lambda via its Function URL stored in LAMBDA_RESIZE_URL secret
 async function callResizeLambda(base64Image: string): Promise<string> {
@@ -90,7 +91,7 @@ export class StabilityProvider implements IAIProvider {
 
             throw new Error('No image data in response: ' + JSON.stringify(response.data));
         } catch (error: any) {
-            console.error('Stability API error:', error.response?.data || error.message);
+            logger.error('Stability API error:', error.response?.data || error.message);
             throw new Error(`Stability image generation failed: ${error.message}`);
         }
     }
@@ -172,7 +173,7 @@ export class StabilityProvider implements IAIProvider {
 
             throw new Error('No image data in response');
         } catch (error: any) {
-            console.error('Stability Outpaint error:', error.response?.data || error.message);
+            logger.error('Stability Outpaint error:', error.response?.data || error.message);
             throw new Error(`Stability Outpaint failed: ${error.message}`);
         }
     }
