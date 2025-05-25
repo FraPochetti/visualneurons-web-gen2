@@ -3,7 +3,6 @@ import Layout from "@/components/Layout";
 import ImageGenerator from "@/components/ImageOperations/ImageGenerator";
 import ProviderSelector from "@/components/ProviderSelector";
 import { useState } from "react";
-import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
 import { ModelMetadata, ProviderMetadata } from '@/amplify/functions/providers/IAIProvider';
 import ModelCredits from "@/components/ModelCredits";
@@ -19,7 +18,6 @@ export default function GenerateImagePage() {
     const [saveFileName, setSaveFileName] = useState("generated-image.jpg");
     // Expose the provider state at the page level
     const [provider, setProvider] = useState("replicate");
-    const client = generateClient<Schema>();
     const [generatedResult, setGeneratedResult] = useState<GeneratedResult | null>(null);
 
     const handleImageGenerated = (result: GeneratedResult) => {
