@@ -1,8 +1,7 @@
 import { useRouter } from "next/router";
 import { Layout } from "@/components/layout";
 import { useState, useEffect } from "react";
-import ModelCredits from "@/components/ModelCredits";
-import CustomCompareSlider from "@/components/CustomCompareSlider";
+import { CustomCompareSlider, VerticalCompare, ModelCredits } from "@/src/components/ui";
 import ProviderSelector from "@/components/ProviderSelector";
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import { saveImageRecord } from "@/utils/saveImageRecord";
@@ -10,7 +9,6 @@ import OperationSelector, { PROVIDER_OPERATIONS } from '@/components/OperationSe
 import { AIOperation } from "@/amplify/functions/providers/IAIProvider";
 import { useImageOperation } from '@/components/ImageOperations/useImageOperation';
 import styles from "./EditImage.module.css";
-import VerticalCompare from "@/components/VerticalCompare";
 
 export default function EditImagePage() {
     const router = useRouter();

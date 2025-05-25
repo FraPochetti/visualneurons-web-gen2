@@ -13,9 +13,9 @@ This allows the app to work with components in both locations during migration.
 ### From `/components/` to `/src/components/`
 
 #### UI Components
-- [ ] `CustomCompareSlider.tsx` + `.module.css`
-- [ ] `VerticalCompare.tsx` + `.module.css`
-- [ ] `ModelCredits.tsx` + `.module.css`
+- [x] `CustomCompareSlider.tsx` + `.module.css` → `/src/components/ui/` ✅ **COMPLETED**
+- [x] `VerticalCompare.tsx` + `.module.css` → `/src/components/ui/` ✅ **COMPLETED**
+- [x] `ModelCredits.tsx` + `.module.css` → `/src/components/ui/` ✅ **COMPLETED**
 - [ ] `VideoGenerator.tsx`
 
 #### Form Components  
@@ -25,7 +25,7 @@ This allows the app to work with components in both locations during migration.
 
 #### Layout Components
 - [x] `Layout.tsx` + `.module.css` → `/src/components/layout/` ✅ **COMPLETED**
-- [ ] `UserPhotos.tsx`
+- [x] `UserPhotos.tsx` → `/src/components/ui/` ✅ **COMPLETED**
 
 #### Hooks (from `/components/ImageOperations/`)
 - [ ] `useImageOperation.tsx` → `/src/hooks/`

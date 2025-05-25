@@ -3,7 +3,7 @@ import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { Layout } from '@/components/layout';
 import ProviderSelector from '@/components/ProviderSelector';
-import ModelCredits from '@/components/ModelCredits';
+import { ModelCredits } from '@/src/components/ui';
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import StyleImageSelector from '@/components/StyleImageSelector';
 import { saveImageRecord } from '@/utils/saveImageRecord';

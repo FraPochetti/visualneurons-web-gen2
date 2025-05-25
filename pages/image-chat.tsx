@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Layout } from "@/components/layout";
-import UserPhotos from "@/components/UserPhotos";
+import { UserPhotos } from "@/src/components/ui";
 import { uploadImage } from "@/utils/uploadImage";
 import { saveImageRecord } from "@/utils/saveImageRecord";
 import { generateClient } from 'aws-amplify/data';

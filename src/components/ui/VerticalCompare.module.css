@@ -1,0 +1,47 @@
+.verticalContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.section {
+    width: 100%;
+    text-align: center;
+}
+
+.label {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.image:hover {
+    transform: scale(1.02);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .verticalContainer {
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+
+    .label {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+}

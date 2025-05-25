@@ -5,7 +5,7 @@ import ProviderSelector from "@/components/ProviderSelector";
 import { useState } from "react";
 import type { Schema } from "@/amplify/data/resource";
 import { ModelMetadata, ProviderMetadata } from '@/amplify/functions/providers/IAIProvider';
-import ModelCredits from "@/components/ModelCredits";
+import { ModelCredits } from "@/src/components/ui";
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import { saveImageRecord } from "@/utils/saveImageRecord";
 interface GeneratedResult {
