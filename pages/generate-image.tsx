@@ -1,5 +1,5 @@
 // pages/generate-image.tsx
-import Layout from "@/components/Layout";
+import { Layout } from "@/components/layout";
 import ImageGenerator from "@/components/ImageOperations/ImageGenerator";
 import ProviderSelector from "@/components/ProviderSelector";
 import { useState } from "react";

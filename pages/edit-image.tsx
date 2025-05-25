@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import Layout from "@/components/Layout";
+import { Layout } from "@/components/layout";
 import { useState, useEffect } from "react";
 import ModelCredits from "@/components/ModelCredits";
 import CustomCompareSlider from "@/components/CustomCompareSlider";

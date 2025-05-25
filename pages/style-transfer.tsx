@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
-import Layout from '@/components/Layout';
+import { Layout } from '@/components/layout';
 import ProviderSelector from '@/components/ProviderSelector';
 import ModelCredits from '@/components/ModelCredits';
 import { createProvider } from '@/amplify/functions/providers/providerFactory';

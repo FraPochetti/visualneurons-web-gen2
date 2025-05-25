@@ -4,7 +4,7 @@ import { uploadData, list, getUrl } from "aws-amplify/storage";
 import { fetchAuthSession, fetchUserAttributes } from "aws-amplify/auth";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
-import Layout from "@/components/Layout";
+import { Layout } from "@/components/layout";
 
 const client = generateClient<Schema>();
 

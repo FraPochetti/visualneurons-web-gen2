@@ -7,6 +7,7 @@ interface NavigationProps {
 
 export function Navigation({ className = "nav" }: NavigationProps) {
     const navItems = [
+        { href: ROUTES.DASHBOARD, label: "Dashboard" },
         { href: ROUTES.UPLOAD, label: "Upload Photo" },
         { href: ROUTES.GENERATE_IMAGE, label: "Generate Image" },
         { href: ROUTES.STYLE_TRANSFER, label: "Style Transfer" },

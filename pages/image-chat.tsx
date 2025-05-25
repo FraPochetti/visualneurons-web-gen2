@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Layout from "@/components/Layout";
+import { Layout } from "@/components/layout";
 import UserPhotos from "@/components/UserPhotos";
 import { uploadImage } from "@/utils/uploadImage";
 import { saveImageRecord } from "@/utils/saveImageRecord";

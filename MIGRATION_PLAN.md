@@ -24,7 +24,7 @@ This allows the app to work with components in both locations during migration.
 - [ ] `StyleImageSelector.tsx` + `.module.css`
 
 #### Layout Components
-- [ ] `Layout.tsx` + `.module.css` → `/src/components/layout/`
+- [x] `Layout.tsx` + `.module.css` → `/src/components/layout/` ✅ **COMPLETED**
 - [ ] `UserPhotos.tsx`
 
 #### Hooks (from `/components/ImageOperations/`)

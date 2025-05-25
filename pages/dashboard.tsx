@@ -2,7 +2,7 @@
 import React from "react";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useUserPhotos } from "@/src/hooks/useUserPhotos";
-import { Navigation } from "@/src/components/layout/Navigation";
+import { Navigation } from "@/components/layout";
 import { PhotoGrid } from "@/src/components/ui/PhotoGrid";
 import { ErrorBoundary } from "@/src/components/ui/ErrorBoundary";
 import styles from "./Dashboard.module.css";
