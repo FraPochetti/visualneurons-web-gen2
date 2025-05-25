@@ -12,7 +12,7 @@ interface UseUserPhotosReturn {
     visibleCount: number;
     hasMore: boolean;
     loadMore: () => void;
-    deletePhoto: (path: string) => Promise<void>;
+    deletePhoto: (photoPath: string) => Promise<void>;
     refreshPhotos: () => Promise<void>;
 }
 
@@ -37,10 +37,10 @@ export function useUserPhotos(): UseUserPhotosReturn {
         }
     }, []);
 
-    const deletePhoto = useCallback(async (path: string) => {
+    const deletePhoto = useCallback(async (photoPath: string) => {
         try {
-            await photoService.deletePhoto(path);
-            setPhotos(prev => prev.filter(photo => photo.path !== path));
+            await photoService.deletePhoto(photoPath);
+            setPhotos(prev => prev.filter(photo => photo.path !== photoPath));
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Failed to delete photo";
             setError(errorMessage);

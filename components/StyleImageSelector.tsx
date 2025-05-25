@@ -16,6 +16,7 @@ interface PhotoItem {
 export default function StyleImageSelector({ onSelect }: StyleImageSelectorProps) {
     const [photos, setPhotos] = useState<PhotoItem[]>([]);
     const [selected, setSelected] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchPhotos = async () => {
@@ -37,8 +38,9 @@ export default function StyleImageSelector({ onSelect }: StyleImageSelectorProps
 
                 fetchedPhotos.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime());
                 setPhotos(fetchedPhotos);
-            } catch (error) {
-                console.error("Error listing photos:", error);
+                setError(null);
+            } catch (err: any) {
+                setError("Error loading photos: " + err.message);
             }
         };
 
@@ -52,6 +54,11 @@ export default function StyleImageSelector({ onSelect }: StyleImageSelectorProps
 
     return (
         <div className={styles.container}>
+            {error && (
+                <div style={{ padding: "1rem", backgroundColor: "#fee", border: "1px solid #fcc", borderRadius: "4px", marginBottom: "1rem" }}>
+                    <strong>Error:</strong> {error}
+                </div>
+            )}
             {photos.map((photo) => (
                 <div
                     key={photo.path}

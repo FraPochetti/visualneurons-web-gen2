@@ -18,14 +18,14 @@ interface ImageGeneratorProps {
 
 export default function ImageGenerator({ provider, onSuccess }: ImageGeneratorProps) {
     const [prompt, setPrompt] = useState('');
-    const [result, setResult] = useState<string | null>(null);
+    const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const client = generateClient<Schema>();
 
     const handleGenerate = async () => {
         setError('');
-        setResult(null);
+        setGeneratedImageUrl(null);
         setLoading(true);
         const identityId = (await fetchAuthSession()).identityId!;
         const attributes = await fetchUserAttributes();
@@ -45,9 +45,8 @@ export default function ImageGenerator({ provider, onSuccess }: ImageGeneratorPr
             if (output.errors && output.errors.length > 0) {
                 const message = output.errors[0].message;
                 setError(message);
-                alert("Error: " + message);
             } else {
-                setResult(output.data);
+                setGeneratedImageUrl(output.data);
                 if (onSuccess && typeof output.data === 'string') {
                     onSuccess({ imageUrl: output.data, modelInfo, providerInfo });
                 }
@@ -77,7 +76,6 @@ export default function ImageGenerator({ provider, onSuccess }: ImageGeneratorPr
                     model: modelInfo.modelName,
                 }),
             });
-            console.error(err);
             setError(err.message || "An error occurred");
         } finally {
             setLoading(false);
@@ -106,11 +104,11 @@ export default function ImageGenerator({ provider, onSuccess }: ImageGeneratorPr
 
             {error && <div className={styles.errorMessage}>Error: {error}</div>}
 
-            {result && (
+            {generatedImageUrl && (
                 <div className={styles.resultContainer}>
                     <h2>Generated Image:</h2>
                     <img
-                        src={result}
+                        src={generatedImageUrl}
                         alt="Generated"
                         className={styles.resultImage}
                     />

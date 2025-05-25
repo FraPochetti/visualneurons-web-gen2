@@ -3,7 +3,7 @@ import styles from "./ProviderSelector.module.css";
 
 interface ProviderSelectorProps {
     value: string;
-    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
     excludeProviders?: string[];
 }
 

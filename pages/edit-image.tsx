@@ -18,6 +18,7 @@ export default function EditImagePage() {
     const [operation, setOperation] = useState<AIOperation>("upscaleImage");
     const [processedUrl, setProcessedUrl] = useState<string | null>(null);
     const [saveFileName, setSaveFileName] = useState(`${operation}-image.jpg`);
+    const [saveError, setSaveError] = useState<string | null>(null);
     const { url, originalPath } = router.query;
     const urlString = Array.isArray(url) ? url[0] : url;
     const originalPathString = Array.isArray(originalPath) ? originalPath[0] : originalPath;
@@ -42,6 +43,7 @@ export default function EditImagePage() {
         const providerInfo = providerInstance.getProviderInfo();
 
         try {
+            setSaveError(null);
             await saveImageRecord({
                 imageUrl: processedUrl,
                 fileName: saveFileName,
@@ -53,8 +55,7 @@ export default function EditImagePage() {
                 providerService: providerInfo.serviceProvider,
             });
         } catch (err: any) {
-            console.error("Error saving file:", err);
-            alert("Error saving file: " + err.message);
+            setSaveError("Error saving file: " + err.message);
         }
     };
 
@@ -150,6 +151,7 @@ export default function EditImagePage() {
                     </>
                 )}
 
+                {saveError && <p style={{ color: "red", marginTop: "10px" }}>{saveError}</p>}
                 {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
             </div>
         </Layout>

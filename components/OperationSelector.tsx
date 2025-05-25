@@ -3,7 +3,7 @@ import styles from "./OperationSelector.module.css";
 
 interface OperationSelectorProps {
     value: AIOperation;
-    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
     provider: string;
 }
 

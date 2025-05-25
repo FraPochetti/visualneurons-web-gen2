@@ -3,7 +3,6 @@ import Layout from "@/components/Layout";
 import ImageGenerator from "@/components/ImageOperations/ImageGenerator";
 import ProviderSelector from "@/components/ProviderSelector";
 import { useState } from "react";
-import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
 import { ModelMetadata, ProviderMetadata } from '@/amplify/functions/providers/IAIProvider';
 import ModelCredits from "@/components/ModelCredits";
@@ -19,11 +18,12 @@ export default function GenerateImagePage() {
     const [saveFileName, setSaveFileName] = useState("generated-image.jpg");
     // Expose the provider state at the page level
     const [provider, setProvider] = useState("replicate");
-    const client = generateClient<Schema>();
     const [generatedResult, setGeneratedResult] = useState<GeneratedResult | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const handleImageGenerated = (result: GeneratedResult) => {
         setGeneratedResult(result);
+        setError(null);
     };
 
     const handleSave = async () => {
@@ -37,9 +37,10 @@ export default function GenerateImagePage() {
                 modelName: modelInfo.modelName,
                 providerService: providerInfo.serviceProvider,
             });
+            setError(null);
         } catch (err: any) {
-            console.error("Error saving file:", err);
-            alert("Error saving file: " + err.message);
+            const errorMessage = "Error saving file: " + err.message;
+            setError(errorMessage);
         }
     };
 
@@ -49,6 +50,12 @@ export default function GenerateImagePage() {
                 <h1>Generate Image with AI</h1>
                 <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)} />
                 <ImageGenerator provider={provider} onSuccess={handleImageGenerated} />
+
+                {error && (
+                    <div style={{ marginTop: "1rem", padding: "1rem", backgroundColor: "#fee", border: "1px solid #fcc", borderRadius: "4px" }}>
+                        <strong>Error:</strong> {error}
+                    </div>
+                )}
 
                 {generatedResult && (
                     <div style={{ marginTop: "1rem" }}>

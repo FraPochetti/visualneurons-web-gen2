@@ -7,8 +7,6 @@ import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import styles from "./ImageChat.module.css";
 
-const client = generateClient<Schema>();
-
 type Message = {
     id: string;
     type: 'original' | 'user' | 'ai';
@@ -17,25 +15,26 @@ type Message = {
 };
 
 export default function ImageChatPage() {
-    const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const [uploadingImage, setUploadingImage] = useState(false);
+    const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputText, setInputText] = useState('');
     const [processing, setProcessing] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const client = generateClient<Schema>();
 
-    // 1) Called when user picks a brand-new image (upload or from gallery).
-    //    Resets chat and sets the original image.
     const startNewChat = (imageUrl: string) => {
+        setSelectedImage(imageUrl);
+        setOriginalImage(imageUrl);
         setMessages([
             {
-                id: `original-${Date.now()}`,
+                id: 'original',
                 type: 'original',
-                text: 'Original Image',
+                text: 'Original image:',
                 image: imageUrl,
             },
         ]);
-        setOriginalImage(imageUrl);
         setSelectedImage(imageUrl);
     };
 
@@ -43,12 +42,13 @@ export default function ImageChatPage() {
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files || event.target.files.length === 0) return;
         setUploadingImage(true);
+        setError(null);
         try {
             const file = event.target.files[0];
             const url = await uploadImage(file);
             startNewChat(url);
-        } catch (error) {
-            console.error("Error uploading image:", error);
+        } catch (err: any) {
+            setError("Error uploading image: " + err.message);
         } finally {
             setUploadingImage(false);
         }
@@ -72,6 +72,7 @@ export default function ImageChatPage() {
         setMessages((prev) => [userMessage, ...prev]);
         setInputText('');
         setProcessing(true);
+        setError(null);
 
         try {
             // Call your AI inpainting function
@@ -96,15 +97,14 @@ export default function ImageChatPage() {
             } else {
                 throw new Error("Invalid response from Gemini");
             }
-        } catch (error) {
-            console.error("Error processing image:", error);
+        } catch (err: any) {
             const errorMessage: Message = {
                 id: `error-${Date.now()}`,
                 type: 'ai',
-                text: `Sorry, I couldn't process that request: ${error instanceof Error ? error.message : 'Unknown error'
-                    }`,
+                text: `Sorry, I couldn't process that request: ${err instanceof Error ? err.message : 'Unknown error'}`,
             };
             setMessages((prev) => [errorMessage, ...prev]);
+            setError("Error processing image: " + err.message);
         } finally {
             setProcessing(false);
         }
@@ -113,6 +113,7 @@ export default function ImageChatPage() {
     // 5) Save the currently displayed image to your backend
     const handleSave = async (imageUrl: string) => {
         try {
+            setError(null);
             await saveImageRecord({
                 imageUrl,
                 fileName: `gemini-edit-${Date.now()}.png`,
@@ -121,9 +122,8 @@ export default function ImageChatPage() {
                 providerService: "gemini",
                 modelName: "gemini-2.0-flash-exp-image-generation",
             });
-            alert("File saved successfully.");
-        } catch (error) {
-            console.error("Error saving edited image:", error);
+        } catch (err: any) {
+            setError("Error saving edited image: " + err.message);
         }
     };
 
@@ -131,6 +131,12 @@ export default function ImageChatPage() {
         <Layout>
             <div className={styles.container}>
                 <h1>Image Chat</h1>
+
+                {error && (
+                    <div style={{ margin: "1rem", padding: "1rem", backgroundColor: "#fee", border: "1px solid #fcc", borderRadius: "4px" }}>
+                        <strong>Error:</strong> {error}
+                    </div>
+                )}
 
                 {!selectedImage ? (
                     <div>

@@ -5,7 +5,7 @@ import { ROUTES } from "@/src/constants";
 
 interface PhotoGridProps {
     photos: Photo[];
-    onDelete: (path: string) => void;
+    onDelete: (photoPath: string) => void;
     className?: string;
 }
 
@@ -35,7 +35,7 @@ PhotoGrid.displayName = "PhotoGrid";
 
 interface PhotoGridItemProps {
     photo: Photo;
-    onDelete: (path: string) => void;
+    onDelete: (photoPath: string) => void;
 }
 
 const PhotoGridItem = memo<PhotoGridItemProps>(({ photo, onDelete }) => {

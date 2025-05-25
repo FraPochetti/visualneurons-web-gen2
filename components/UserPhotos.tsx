@@ -9,6 +9,7 @@ interface UserPhotosProps {
 
 export default function UserPhotos({ onSelect }: UserPhotosProps) {
     const [photos, setPhotos] = useState<{ url: string; path: string }[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const loadPhotos = async () => {
@@ -23,8 +24,9 @@ export default function UserPhotos({ onSelect }: UserPhotosProps) {
                     })
                 );
                 setPhotos(photoData);
-            } catch (error) {
-                console.error("Error loading photos:", error);
+                setError(null);
+            } catch (err: any) {
+                setError("Error loading photos: " + err.message);
             }
         };
         loadPhotos();
@@ -32,6 +34,11 @@ export default function UserPhotos({ onSelect }: UserPhotosProps) {
 
     return (
         <div className="grid-container">
+            {error && (
+                <div style={{ padding: "1rem", backgroundColor: "#fee", border: "1px solid #fcc", borderRadius: "4px", marginBottom: "1rem" }}>
+                    <strong>Error:</strong> {error}
+                </div>
+            )}
             {photos.map((photo, idx) => (
                 <div
                     key={idx}

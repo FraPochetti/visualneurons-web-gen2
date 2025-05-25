@@ -13,6 +13,7 @@ export default function PhotoUpload() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
   const [fileName, setFileName] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUploadedPhotos();
@@ -31,6 +32,7 @@ export default function PhotoUpload() {
     const attributes = await fetchUserAttributes();
     if (!selectedFile) return;
     try {
+      setError(null);
       const session = await fetchAuthSession();
       const identityId = session.identityId!;
       const path = `photos/${identityId}/${selectedFile.name}`;
@@ -46,8 +48,8 @@ export default function PhotoUpload() {
         originalImagePath: path,
         source: "uploaded",
       });
-    } catch (error) {
-      console.error("Upload failed:", error);
+    } catch (err: any) {
+      setError("Upload failed: " + err.message);
     }
   };
 
@@ -73,8 +75,8 @@ export default function PhotoUpload() {
       const randomSix = urls.slice(0, 6);
 
       setUploadedPhotos(randomSix);
-    } catch (error) {
-      console.error("Error listing photos:", error);
+    } catch (err: any) {
+      setError("Error listing photos: " + err.message);
     }
   };
 
@@ -82,6 +84,13 @@ export default function PhotoUpload() {
   return (
     <Layout>
       <h1 className="container">Upload a Photo</h1>
+
+      {error && (
+        <div style={{ margin: "1rem", padding: "1rem", backgroundColor: "#fee", border: "1px solid #fcc", borderRadius: "4px" }}>
+          <strong>Error:</strong> {error}
+        </div>
+      )}
+
       <div className="file-input-wrapper">
         <label className="file-input-label">
           Choose File

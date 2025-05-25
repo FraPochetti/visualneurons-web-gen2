@@ -8,7 +8,7 @@ interface UseOutpainterParams {
     imageUrl: string;
     originalPath: string;
     provider: string;
-    onSuccess: (outpaintedUrl: string) => void;
+    onSuccess: (result: string) => void;
 }
 
 export function useOutpainter({
@@ -31,7 +31,6 @@ export function useOutpainter({
             const modelInfo = providerInstance.getModelInfo('outpaint');
             const providerInfo = providerInstance.getProviderInfo();
 
-            console.log("Outpainting image:", imageUrl);
             const result = await client.mutations.outpaintImage({
                 imageUrl: imageUrl,
                 provider: provider,
@@ -40,7 +39,6 @@ export function useOutpainter({
 
             if (result.errors && result.errors.length > 0) {
                 setError(result.errors[0].message);
-                alert("Error: " + result.errors[0].message);
             } else if (result.data) {
                 onSuccess(result.data);
             } else {
@@ -81,7 +79,6 @@ export function useOutpainter({
                 }),
             });
 
-            console.error("Outpaint error:", err);
             setError(err.message || "An error occurred during outpainting.");
         } finally {
             setLoading(false);

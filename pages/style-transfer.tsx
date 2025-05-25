@@ -17,6 +17,7 @@ export default function StyleTransferPage() {
     const [result, setResult] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [saveFileName, setSaveFileName] = useState('style-transfer-image.jpg');
+    const [error, setError] = useState<string | null>(null);
     const client = generateClient<Schema>();
 
     const handleSelectImage = (url: string) => {
@@ -25,10 +26,11 @@ export default function StyleTransferPage() {
 
     const handleStyleTransfer = async () => {
         if (!styleImageUrl) {
-            alert('Please select a style image first!');
+            setError('Please select a style image first!');
             return;
         }
         setLoading(true);
+        setError(null);
         try {
             const output = await client.mutations.styleTransfer({
                 prompt,
@@ -37,7 +39,7 @@ export default function StyleTransferPage() {
                 operation: 'styleTransfer',
             });
             if (output.errors && output.errors.length > 0) {
-                alert('Error: ' + output.errors[0].message);
+                setError('Error: ' + output.errors[0].message);
             } else {
                 setResult(output.data);
 
@@ -62,8 +64,7 @@ export default function StyleTransferPage() {
                 });
             }
         } catch (err: any) {
-            console.error(err);
-            alert('An error occurred while transferring style.');
+            setError('An error occurred while transferring style: ' + err.message);
 
             const session = await fetchAuthSession();
             const attributes = await fetchUserAttributes();
@@ -94,6 +95,7 @@ export default function StyleTransferPage() {
         const modelInfo = providerInstance.getModelInfo('styleTransfer');
         const providerInfo = providerInstance.getProviderInfo();
         try {
+            setError(null);
             await saveImageRecord({
                 imageUrl: result,
                 fileName: saveFileName,
@@ -103,8 +105,7 @@ export default function StyleTransferPage() {
                 providerService: providerInfo.serviceProvider,
             });
         } catch (err: any) {
-            console.error('Error saving file:', err);
-            alert('Error saving file: ' + err.message);
+            setError('Error saving file: ' + err.message);
         }
     };
 
@@ -139,6 +140,12 @@ export default function StyleTransferPage() {
                     {loading ? <span className="spinner" /> : "Transfer Style"}
                 </button>
             </div>
+
+            {error && (
+                <div style={{ margin: "1rem", padding: "1rem", backgroundColor: "#fee", border: "1px solid #fcc", borderRadius: "4px" }}>
+                    <strong>Error:</strong> {error}
+                </div>
+            )}
 
             {result && (
                 <>

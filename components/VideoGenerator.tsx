@@ -43,7 +43,6 @@ export default function VideoGenerator({ initialPromptImage }: VideoGeneratorPro
 
         try {
             // 1️⃣ Kick off video generation and get back the taskId immediately
-            console.log('[VideoGenerator] starting generateVideo mutation');
             const genRes = await client.mutations.generateVideo({
                 promptImage,
                 promptText,
@@ -59,13 +58,11 @@ export default function VideoGenerator({ initialPromptImage }: VideoGeneratorPro
                 throw new Error("No taskId returned from generateVideo");
             }
             const taskId: string = genRes.data;
-            console.log(`[VideoGenerator] received taskId=${taskId}`);
 
             // 2️⃣ Poll status every 3s until the task moves out of PENDING/RUNNING
             let statusResp!: { status: string; output: string };
 
             do {
-                console.log(`[VideoGenerator] polling status for taskId=${taskId}`);
                 // wait 3 seconds between polls
                 // eslint-disable-next-line no-await-in-loop
                 await new Promise((r) => setTimeout(r, 3000));
@@ -81,9 +78,6 @@ export default function VideoGenerator({ initialPromptImage }: VideoGeneratorPro
                     throw new Error('Empty response from getVideoStatus');
                 }
                 statusResp = pollRes.data as { status: string; output: string };
-                console.log(
-                    `[VideoGenerator] status for ${taskId}: ${statusResp.status}`
-                );
             } while (
                 statusResp.status === 'PENDING' ||
                 statusResp.status === 'RUNNING'
@@ -91,19 +85,11 @@ export default function VideoGenerator({ initialPromptImage }: VideoGeneratorPro
 
             // 3️⃣ Check final status
             if (statusResp.status === 'SUCCEEDED') {
-                console.log(
-                    `[VideoGenerator] task ${taskId} SUCCEEDED, output URL=`,
-                    statusResp.output
-                );
                 setVideoUrl(statusResp.output);
             } else {
-                console.warn(
-                    `[VideoGenerator] task ${taskId} ended with status=${statusResp.status}`
-                );
                 setError(`Video generation ${statusResp.status.toLowerCase()}`);
             }
         } catch (err: any) {
-            console.error('[VideoGenerator] error during generate/poll', err);
             setError(err.message || 'Video generation failed');
         } finally {
             setLoading(false);

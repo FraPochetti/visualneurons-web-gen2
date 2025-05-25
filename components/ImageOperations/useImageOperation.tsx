@@ -32,8 +32,8 @@ export function useImageOperation({
                 await upscaler.upscale();
             } else if (operation === 'generateImage') {
                 const providerInstance = createProvider(provider);
-                const result = await providerInstance.generateImage("Default prompt", false);
-                onSuccess(result);
+                const generatedImageUrl = await providerInstance.generateImage("Default prompt", false);
+                onSuccess(generatedImageUrl);
             } else if (operation === 'outpaint') {
                 await outpainter.outpaint();
             } else {
@@ -44,7 +44,7 @@ export function useImageOperation({
         } finally {
             setLoading(false);
         }
-    }, [operation, provider, imageUrl, originalPath, onSuccess, upscaler.upscale, outpainter.outpaint]);
+    }, [operation, provider, imageUrl, originalPath, onSuccess, upscaler, outpainter]);
 
     return {
         execute,

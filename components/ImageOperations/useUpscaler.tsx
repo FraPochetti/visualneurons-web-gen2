@@ -8,7 +8,7 @@ interface UseUpscalerParams {
     imageUrl: string;
     originalPath: string;
     provider: string;
-    onSuccess: (upscaledUrl: string) => void;
+    onSuccess: (result: string) => void;
 }
 
 export function useUpscaler({
@@ -31,7 +31,6 @@ export function useUpscaler({
             const modelInfo = providerInstance.getModelInfo('upscaleImage');
             const providerInfo = providerInstance.getProviderInfo();
 
-            console.log("Upscaling image:", imageUrl);
             const result = await client.mutations.upscaleImage({
                 imageUrl: imageUrl,
                 provider: provider,
@@ -41,7 +40,6 @@ export function useUpscaler({
             if (result.errors && result.errors.length > 0) {
                 const message = result.errors[0].message;
                 setError(message);
-                alert("Error: " + message);
             } else if (result.data && typeof result.data === 'string') {
                 onSuccess(result.data);
             } else {
@@ -81,7 +79,6 @@ export function useUpscaler({
                     version: modelInfo.modelVersion,
                 }),
             });
-            console.error("Upscale error:", err);
             setError(err.message || "An error occurred during upscaling.");
         } finally {
             setLoading(false);

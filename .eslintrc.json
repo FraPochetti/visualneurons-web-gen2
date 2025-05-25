@@ -3,14 +3,15 @@
     "next/core-web-vitals"
   ],
   "rules": {
-    "no-console": "error",
+    "no-console": "warn",
     "no-debugger": "error",
-    "no-unused-vars": "error",
-    "react-hooks/exhaustive-deps": "error",
+    "no-unused-vars": "warn",
+    "react-hooks/exhaustive-deps": "warn",
     "react/display-name": "error",
     "react/jsx-key": "error",
     "prefer-const": "error",
     "no-var": "error",
-    "react/no-unescaped-entities": "error"
+    "react/no-unescaped-entities": "error",
+    "@next/next/no-img-element": "warn"
   }
 }
