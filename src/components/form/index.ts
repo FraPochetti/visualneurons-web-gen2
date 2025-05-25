@@ -1,1 +1,2 @@
-export { ProviderSelector } from './ProviderSelector'; 
+export { ProviderSelector } from './ProviderSelector';
+export { OperationSelector, PROVIDER_OPERATIONS } from './OperationSelector'; 

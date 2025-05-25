@@ -5,7 +5,7 @@ import { CustomCompareSlider, VerticalCompare, ModelCredits } from "@/src/compon
 import { ProviderSelector } from "@/src/components/form";
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import { saveImageRecord } from "@/utils/saveImageRecord";
-import OperationSelector, { PROVIDER_OPERATIONS } from '@/components/OperationSelector';
+import { OperationSelector, PROVIDER_OPERATIONS } from '@/src/components/form';
 import { AIOperation } from "@/amplify/functions/providers/IAIProvider";
 import { useImageOperation } from '@/components/ImageOperations/useImageOperation';
 import styles from "./EditImage.module.css";
@@ -103,7 +103,7 @@ export default function EditImagePage() {
                         <div style={{ marginBottom: "15px" }}>
                             <OperationSelector
                                 value={operation}
-                                onChange={(e) => setOperation(e.target.value as AIOperation)}
+                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setOperation(e.target.value as AIOperation)}
                                 provider={provider}
                             />
                         </div>
