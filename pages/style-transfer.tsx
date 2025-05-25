@@ -5,7 +5,7 @@ import { Layout } from '@/components/layout';
 import { ProviderSelector } from '@/src/components/form';
 import { ModelCredits } from '@/src/components/ui';
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
-import StyleImageSelector from '@/components/StyleImageSelector';
+import { StyleImageSelector } from '@/src/components/form';
 import { saveImageRecord } from '@/utils/saveImageRecord';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
 import styles from "./StyleTransfer.module.css"; // Import the module
