@@ -16,7 +16,8 @@ This allows the app to work with components in both locations during migration.
 - [x] `CustomCompareSlider.tsx` + `.module.css` → `/src/components/ui/` ✅ **COMPLETED**
 - [x] `VerticalCompare.tsx` + `.module.css` → `/src/components/ui/` ✅ **COMPLETED**
 - [x] `ModelCredits.tsx` + `.module.css` → `/src/components/ui/` ✅ **COMPLETED**
-- [ ] `VideoGenerator.tsx`
+- [x] `ImageGenerator.tsx` + `.module.css` → `/src/components/ui/` ✅ **COMPLETED**
+- [ ] `VideoGenerator.tsx` (Not found - possibly already removed)
 
 #### Form Components  
 - [x] `OperationSelector.tsx` + `.module.css` → `/src/components/form/` ✅ **COMPLETED**
@@ -28,12 +29,12 @@ This allows the app to work with components in both locations during migration.
 - [x] `UserPhotos.tsx` → `/src/components/ui/` ✅ **COMPLETED**
 
 #### Hooks (from `/components/ImageOperations/`)
-- [ ] `useImageOperation.tsx` → `/src/hooks/`
-- [ ] `useUpscaler.tsx` → `/src/hooks/`
-- [ ] `useOutpainter.tsx` → `/src/hooks/`
+- [x] `useImageOperation.tsx` → `/src/hooks/` ✅ **COMPLETED**
+- [x] `useUpscaler.tsx` → `/src/hooks/` ✅ **COMPLETED**
+- [x] `useOutpainter.tsx` → `/src/hooks/` ✅ **COMPLETED**
 
 #### Other Components
-- [ ] `ImageOperations/ImageGenerator.tsx` + `.module.css`
+- [x] `ImageOperations/ImageGenerator.tsx` + `.module.css` → `/src/components/ui/` ✅ **COMPLETED**
 
 ## Migration Steps for Each Component
 

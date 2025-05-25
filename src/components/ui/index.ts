@@ -4,4 +4,5 @@ export { LoadingSpinner } from './LoadingSpinner';
 export { ModelCredits } from './ModelCredits';
 export { PhotoGrid } from './PhotoGrid';
 export { UserPhotos } from './UserPhotos';
-export { VerticalCompare } from './VerticalCompare'; 
+export { VerticalCompare } from './VerticalCompare';
+export { ImageGenerator } from './ImageGenerator'; 

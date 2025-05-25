@@ -24,7 +24,6 @@
         "./src/*"
       ],
       "@/components/*": [
-        "./components/*",
         "./src/components/*"
       ],
       "@/src/components/*": [

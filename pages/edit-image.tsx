@@ -7,7 +7,7 @@ import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import { saveImageRecord } from "@/utils/saveImageRecord";
 import { OperationSelector, PROVIDER_OPERATIONS } from '@/src/components/form';
 import { AIOperation } from "@/amplify/functions/providers/IAIProvider";
-import { useImageOperation } from '@/components/ImageOperations/useImageOperation';
+import { useImageOperation } from '@/src/hooks';
 import styles from "./EditImage.module.css";
 
 export default function EditImagePage() {

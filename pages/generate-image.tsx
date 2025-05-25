@@ -1,6 +1,6 @@
 // pages/generate-image.tsx
 import { Layout } from "@/components/layout";
-import ImageGenerator from "@/components/ImageOperations/ImageGenerator";
+import { ImageGenerator } from "@/src/components/ui";
 import { ProviderSelector } from "@/src/components/form";
 import { useState } from "react";
 import type { Schema } from "@/amplify/data/resource";
