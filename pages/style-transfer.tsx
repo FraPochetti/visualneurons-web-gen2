@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { Layout } from '@/components/layout';
-import ProviderSelector from '@/components/ProviderSelector';
+import { ProviderSelector } from '@/src/components/form';
 import { ModelCredits } from '@/src/components/ui';
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import StyleImageSelector from '@/components/StyleImageSelector';
@@ -115,7 +115,7 @@ export default function StyleTransferPage() {
     return (
         <Layout>
             <h1>Style Transfer</h1>
-            <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)} />
+            <ProviderSelector value={provider} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProvider(e.target.value)} />
 
             {/* Instead of inline margin, use the container class */}
             <div className={styles.container}>

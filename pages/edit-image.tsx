@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { Layout } from "@/components/layout";
 import { useState, useEffect } from "react";
 import { CustomCompareSlider, VerticalCompare, ModelCredits } from "@/src/components/ui";
-import ProviderSelector from "@/components/ProviderSelector";
+import { ProviderSelector } from "@/src/components/form";
 import { createProvider } from '@/amplify/functions/providers/providerFactory';
 import { saveImageRecord } from "@/utils/saveImageRecord";
 import OperationSelector, { PROVIDER_OPERATIONS } from '@/components/OperationSelector';

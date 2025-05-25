@@ -1,7 +1,7 @@
 // pages/generate-image.tsx
 import { Layout } from "@/components/layout";
 import ImageGenerator from "@/components/ImageOperations/ImageGenerator";
-import ProviderSelector from "@/components/ProviderSelector";
+import { ProviderSelector } from "@/src/components/form";
 import { useState } from "react";
 import type { Schema } from "@/amplify/data/resource";
 import { ModelMetadata, ProviderMetadata } from '@/amplify/functions/providers/IAIProvider';
@@ -48,7 +48,7 @@ export default function GenerateImagePage() {
         <Layout>
             <div style={{ padding: 20 }}>
                 <h1>Generate Image with AI</h1>
-                <ProviderSelector value={provider} onChange={(e) => setProvider(e.target.value)} />
+                <ProviderSelector value={provider} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProvider(e.target.value)} />
                 <ImageGenerator provider={provider} onSuccess={handleImageGenerated} />
 
                 {error && (
