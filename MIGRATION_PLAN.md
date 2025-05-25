@@ -20,7 +20,7 @@ This allows the app to work with components in both locations during migration.
 
 #### Form Components  
 - [ ] `OperationSelector.tsx` + `.module.css`
-- [ ] `ProviderSelector.tsx` + `.module.css`
+- [x] `ProviderSelector.tsx` + `.module.css` → `/src/components/form/` ✅ **COMPLETED**
 - [ ] `StyleImageSelector.tsx` + `.module.css`
 
 #### Layout Components
@@ -51,10 +51,10 @@ This allows the app to work with components in both locations during migration.
    - `UserPhotos.tsx`
    
 2. **Medium Priority** (Used by specific features):
-   - `CustomCompareSlider.tsx`
-   - `VerticalCompare.tsx`
-   - `ModelCredits.tsx`
-   - `ProviderSelector.tsx`
+   - `CustomCompareSlider.tsx` ✅
+   - `VerticalCompare.tsx` ✅
+   - `ModelCredits.tsx` ✅
+   - `ProviderSelector.tsx` ✅
    - `OperationSelector.tsx`
    
 3. **Low Priority** (Can be done last):
