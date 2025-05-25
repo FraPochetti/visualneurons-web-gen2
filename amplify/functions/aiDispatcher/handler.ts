@@ -1,7 +1,6 @@
 // amplify/functions/aiDispatcher/handler.ts
 import { Logger } from "@aws-lambda-powertools/logger";
 import { AIOperation } from '../providers/IAIProvider';
-import RunwayML from '@runwayml/sdk';
 
 // Initialize the logger
 const logger = new Logger({
@@ -15,27 +14,6 @@ export const handler = async (event: any) => {
     const userIdentity = event.identity || {};
     const requestId = event.request?.headers?.['x-amzn-requestid'] || `req-${Date.now()}`;
     const startTime = Date.now();
-
-    // ─── fire‑and‑forget generateVideo ───
-    if (event.arguments.operation === "generateVideo") {
-        const { promptImage, promptText, duration, ratio, provider = "runway" } = event.arguments;
-        if (provider !== "runway") {
-            throw new Error(`generateVideo only supported for runway, got ${provider}`);
-        }
-        const client = new RunwayML({ apiKey: process.env.RUNWAY_API_TOKEN });
-        console.log("🎬 generateVideo → kicking off Runway task…");
-
-        const taskId = await client.imageToVideo.create({
-            model: "gen4_turbo",
-            promptImage,
-            promptText,
-            duration,
-            ratio,
-        });
-
-        console.log("✅ generateVideo returned taskId:", taskId);
-        return taskId;
-    }
 
     // Basic request logging
     logger.info('Function invoked', {

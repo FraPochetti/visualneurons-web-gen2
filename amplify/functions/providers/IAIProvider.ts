@@ -5,12 +5,11 @@ export type AIOperation =
     | 'inpaint'
     | 'outpaint'
     | 'recolor'
-    | 'styleTransfer'
-    | 'generateVideo';
+    | 'styleTransfer';
 
 // For provider-level metadata (no model required)
 export interface ProviderMetadata {
-    serviceProvider: "replicate" | "stability" | "gemini" | "user" | "runway";
+    serviceProvider: "replicate" | "stability" | "gemini" | "user";
     apiEndpoint?: string;
 }
 
@@ -31,5 +30,4 @@ export interface IAIProvider {
     styleTransfer(prompt: string, styleImageUrl: string): Promise<string>;
     outPaint(imageUrl: string): Promise<string>;
     inpaint(prompt: string, imageBase64: string): Promise<string>;
-    generateVideo(promptImage: string, promptText: string, duration?: number, ratio?: string): Promise<string>;
 }

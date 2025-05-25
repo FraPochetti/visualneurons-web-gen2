@@ -130,8 +130,6 @@ export class GeminiProvider implements IAIProvider {
         }
     }
 
-
-
     // For now, we do not implement other methods (upscaleImage, styleTransfer, outPaint)
     async upscaleImage(imageUrl: string): Promise<string> {
         throw new Error("Operation not supported by GeminiProvider");
@@ -140,14 +138,6 @@ export class GeminiProvider implements IAIProvider {
         throw new Error("Operation not supported by GeminiProvider");
     }
     async outPaint(imageUrl: string): Promise<string> {
-        throw new Error("Operation not supported by GeminiProvider");
-    }
-    async generateVideo(
-        promptImage: string,
-        promptText: string,
-        duration?: number,
-        ratio?: string
-    ): Promise<string> {
         throw new Error("Operation not supported by GeminiProvider");
     }
 }

@@ -51,18 +51,6 @@ const schema = a.schema({
     .returns(a.string())
     .handler(a.handler.function(aiDispatcher)),
 
-  generateVideo: a.mutation()
-    .arguments({
-      promptImage: a.string().required(),
-      promptText: a.string().required(),
-      duration: a.integer(), // Optional: duration in seconds (e.g., 10)
-      ratio: a.string(),     // Optional: video resolution (e.g., "1280:720")
-      provider: a.string(),
-      operation: a.string().required(),
-    })
-    .returns(a.string())
-    .handler(a.handler.function(aiDispatcher)),
-
   ImageRecord: a.model({
     identityId: a.string().required(),
     userSub: a.string(),
@@ -71,7 +59,7 @@ const schema = a.schema({
     editedImagePath: a.string(),
     model: a.string(),
     action: a.string(),
-    provider: a.enum(["replicate", "stability", "gemini", "runway", "user"]),
+    provider: a.enum(["replicate", "stability", "gemini", "user"]),
     source: a.enum(["uploaded", "generated", "edited"]),
   }),
 
@@ -80,17 +68,9 @@ const schema = a.schema({
     userSub: a.string(),
     userEmail: a.string(),
     level: a.enum(["INFO", "WARNING", "ERROR", "DEBUG"]),
-    provider: a.enum(["replicate", "stability", "gemini", "runway", "user"]),
+    provider: a.enum(["replicate", "stability", "gemini", "user"]),
     details: a.json(),
   }),
-
-  getVideoStatus: a.query()
-    .arguments({
-      taskId: a.string().required(),
-      provider: a.string(),            // optional, defaults to "runway"
-    })
-    .returns(a.json())                // returns { status: string, output: string }
-    .handler(a.handler.function(aiDispatcher)),
 }).authorization(allow => [allow.authenticated()]);
 
 export type Schema = ClientSchema<typeof schema>;

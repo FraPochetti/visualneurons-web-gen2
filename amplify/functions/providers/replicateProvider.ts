@@ -114,16 +114,6 @@ export class ReplicateProvider implements IAIProvider {
     }
 
     async inpaint(prompt: string, imageBase64: string): Promise<string> {
-        throw new Error("Inpainting is not supported by the Replicate provider.");
+        throw new Error("Inpaint is not supported by Replicate provider");
     }
-
-    async generateVideo(
-        promptImage: string,
-        promptText: string,
-        duration?: number,
-        ratio?: string
-    ): Promise<string> {
-        throw new Error("generateVideo is not supported by Replicate provider");
-    }
-
 }
