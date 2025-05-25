@@ -21,7 +21,7 @@ This allows the app to work with components in both locations during migration.
 #### Form Components  
 - [x] `OperationSelector.tsx` + `.module.css` → `/src/components/form/` ✅ **COMPLETED**
 - [x] `ProviderSelector.tsx` + `.module.css` → `/src/components/form/` ✅ **COMPLETED**
-- [ ] `StyleImageSelector.tsx` + `.module.css`
+- [x] `StyleImageSelector.tsx` + `.module.css` → `/src/components/form/` ✅ **COMPLETED**
 
 #### Layout Components
 - [x] `Layout.tsx` + `.module.css` → `/src/components/layout/` ✅ **COMPLETED**
