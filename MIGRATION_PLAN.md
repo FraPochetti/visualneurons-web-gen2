@@ -19,7 +19,7 @@ This allows the app to work with components in both locations during migration.
 - [ ] `VideoGenerator.tsx`
 
 #### Form Components  
-- [ ] `OperationSelector.tsx` + `.module.css`
+- [x] `OperationSelector.tsx` + `.module.css` → `/src/components/form/` ✅ **COMPLETED**
 - [x] `ProviderSelector.tsx` + `.module.css` → `/src/components/form/` ✅ **COMPLETED**
 - [ ] `StyleImageSelector.tsx` + `.module.css`
 
