@@ -58,7 +58,6 @@ backend.addOutput({
 // Create DynamoDB table for rate limiting
 const rateLimitStack = backend.createStack("rate-limit-stack");
 const rateLimitTable = new Table(rateLimitStack, 'RateLimitTable', {
-  tableName: 'ai-operation-rate-limits',
   partitionKey: { name: 'userId', type: AttributeType.STRING },
   sortKey: { name: 'windowStart', type: AttributeType.NUMBER },
   billingMode: BillingMode.PAY_PER_REQUEST,
