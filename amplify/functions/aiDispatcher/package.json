@@ -1,0 +1,10 @@
+{
+    "name": "ai-dispatcher",
+    "version": "1.0.0",
+    "type": "module",
+    "dependencies": {
+        "@aws-lambda-powertools/logger": "^2.20.0",
+        "@aws-sdk/client-dynamodb": "^3.821.0",
+        "@aws-sdk/lib-dynamodb": "^3.821.0"
+    }
+}

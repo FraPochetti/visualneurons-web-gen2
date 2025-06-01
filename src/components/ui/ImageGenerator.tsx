@@ -109,7 +109,18 @@ export const ImageGenerator = memo<ImageGeneratorProps>(({
 
             logger.info('Image generated successfully', { provider });
         } catch (err: any) {
-            const errorMessage = err.message || "An error occurred while generating the image";
+            let errorMessage = err.message || "An error occurred while generating the image";
+
+            // Handle rate limit errors specially
+            if (errorMessage.includes('RATE_LIMIT_EXCEEDED')) {
+                errorMessage = errorMessage.replace('RATE_LIMIT_EXCEEDED: ', '');
+                logger.warn('Rate limit exceeded during image generation', {
+                    provider,
+                    prompt: prompt.substring(0, 50),
+                    userId: 'current_user'
+                });
+            }
+
             setError(errorMessage);
             logger.error('Image generation failed', { error: err, provider });
 

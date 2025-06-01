@@ -2,6 +2,13 @@ import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 import { aiDispatcher } from '../functions/aiDispatcher/resource';
 
 const schema = a.schema({
+  // Custom types for rate limiting
+  RateLimitError: a.customType({
+    message: a.string().required(),
+    retryAfter: a.integer().required(),
+    type: a.string().required(),
+  }),
+
   generateImage: a.mutation()
     .arguments({
       prompt: a.string().required(),

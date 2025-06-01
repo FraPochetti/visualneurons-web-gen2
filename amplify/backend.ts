@@ -8,6 +8,7 @@ import { Stack } from "aws-cdk-lib/core";
 import { aiDispatcher } from './functions/aiDispatcher/resource';
 import { resizeImage } from './functions/resizeImage/resource';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { Table, AttributeType, BillingMode } from 'aws-cdk-lib/aws-dynamodb';
 
 const backend = defineBackend({
   auth,
@@ -53,3 +54,19 @@ backend.addOutput({
     }
   },
 });
+
+// Create DynamoDB table for rate limiting
+const rateLimitStack = backend.createStack("rate-limit-stack");
+const rateLimitTable = new Table(rateLimitStack, 'RateLimitTable', {
+  tableName: 'ai-operation-rate-limits',
+  partitionKey: { name: 'userId', type: AttributeType.STRING },
+  sortKey: { name: 'windowStart', type: AttributeType.NUMBER },
+  billingMode: BillingMode.PAY_PER_REQUEST,
+  timeToLiveAttribute: 'ttl',
+});
+
+// Grant the AI dispatcher Lambda access to the rate limit table
+rateLimitTable.grantReadWriteData(backend.aiDispatcher.resources.lambda);
+
+// Add the rate limit table name as an environment variable
+backend.aiDispatcher.addEnvironment('RATE_LIMIT_TABLE_NAME', rateLimitTable.tableName);

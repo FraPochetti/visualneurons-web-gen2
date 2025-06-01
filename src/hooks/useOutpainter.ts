@@ -97,7 +97,18 @@ export function useOutpainter({
             logger.info('Image outpainted successfully', { provider });
             onSuccess(result.data);
         } catch (err: any) {
-            const errorMessage = err.message || "An error occurred during outpainting";
+            let errorMessage = err.message || "An error occurred during outpainting";
+
+            // Handle rate limit errors specially
+            if (errorMessage.includes('RATE_LIMIT_EXCEEDED')) {
+                errorMessage = errorMessage.replace('RATE_LIMIT_EXCEEDED: ', '');
+                logger.warn('Rate limit exceeded during outpaint', {
+                    provider,
+                    originalPath,
+                    userId: 'current_user'
+                });
+            }
+
             setError(errorMessage);
             logger.error('Outpaint failed', { error: err, provider });
 

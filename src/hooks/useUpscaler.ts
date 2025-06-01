@@ -98,7 +98,18 @@ export function useUpscaler({
             logger.info('Image upscaled successfully', { provider });
             onSuccess(result.data);
         } catch (err: any) {
-            const errorMessage = err.message || "An error occurred during upscaling";
+            let errorMessage = err.message || "An error occurred during upscaling";
+
+            // Handle rate limit errors specially
+            if (errorMessage.includes('RATE_LIMIT_EXCEEDED')) {
+                errorMessage = errorMessage.replace('RATE_LIMIT_EXCEEDED: ', '');
+                logger.warn('Rate limit exceeded during upscale', {
+                    provider,
+                    originalPath,
+                    userId: 'current_user'
+                });
+            }
+
             setError(errorMessage);
             logger.error('Upscale failed', { error: err, provider });
 

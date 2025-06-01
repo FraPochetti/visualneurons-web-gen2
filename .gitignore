@@ -3,6 +3,7 @@
 *.ipynb
 *.env
 python_utils/images
+.cursor/
 
 # dependencies
 /node_modules

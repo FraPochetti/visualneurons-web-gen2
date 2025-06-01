@@ -1,6 +1,7 @@
 // amplify/functions/aiDispatcher/handler.ts
 import { Logger } from "@aws-lambda-powertools/logger";
 import { AIOperation } from '../providers/IAIProvider';
+import { checkRateLimit, isRateLimitError } from './rateLimit';
 
 // Initialize the logger
 const logger = new Logger({
@@ -12,6 +13,7 @@ export const handler = async (event: any) => {
     console.log("AppSync invoke:", Object.keys(event.arguments), "operation=", event.arguments.operation);
     // Extract user information
     const userIdentity = event.identity || {};
+    const userId = userIdentity.claims?.['sub'] || 'anonymous';
     const requestId = event.request?.headers?.['x-amzn-requestid'] || `req-${Date.now()}`;
     const startTime = Date.now();
 
@@ -21,13 +23,17 @@ export const handler = async (event: any) => {
         operation: event.arguments.operation,
         provider: event.arguments.provider || 'replicate',
         eventType: event.info?.fieldName,
-        userSub: userIdentity.claims?.['sub'] || 'anonymous',
+        userSub: userId,
     });
 
     const operation = event.arguments.operation;
     const providerName = event.arguments.provider || "replicate";
 
     try {
+        // Check rate limit first
+        logger.debug('Checking rate limit', { userId, operation });
+        await checkRateLimit(userId, operation);
+
         logger.debug('Creating provider instance', { provider: providerName });
         const { createProvider } = await import('../providers/providerFactory');
         const providerInstance = createProvider(providerName);
@@ -130,6 +136,22 @@ export const handler = async (event: any) => {
         return result;
     } catch (error: any) {
         const executionTime = Date.now() - startTime;
+
+        // Handle rate limit errors specially
+        if (isRateLimitError(error)) {
+            logger.warn('Rate limit exceeded for user', {
+                requestId,
+                userId,
+                operation,
+                provider: providerName,
+                executionTimeMs: executionTime,
+                retryAfter: error.retryAfter
+            });
+
+            // Return a structured error response for rate limiting
+            throw new Error(`RATE_LIMIT_EXCEEDED: ${error.message}`);
+        }
+
         logger.error('Error in aiDispatcher', {
             requestId,
             errorMessage: error.message,

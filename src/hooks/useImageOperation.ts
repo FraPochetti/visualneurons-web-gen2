@@ -96,7 +96,18 @@ export function useImageOperation({
                     logger.error('Unsupported operation', { operation });
             }
         } catch (err: any) {
-            const errorMessage = err.message || 'An error occurred during the operation';
+            let errorMessage = err.message || 'An error occurred during the operation';
+
+            // Handle rate limit errors specially
+            if (errorMessage.includes('RATE_LIMIT_EXCEEDED')) {
+                errorMessage = errorMessage.replace('RATE_LIMIT_EXCEEDED: ', '');
+                logger.warn('Rate limit exceeded in image operation', {
+                    operation,
+                    provider,
+                    userId: 'current_user'
+                });
+            }
+
             setError(errorMessage);
             onError?.(err);
             logger.error('Image operation failed', { error: err, operation, provider });
