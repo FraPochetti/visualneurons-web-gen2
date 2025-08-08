@@ -3,7 +3,6 @@ import { Layout } from "@/components/layout";
 import { ImageGenerator } from "@/src/components/ui";
 import { ProviderSelector } from "@/src/components/form";
 import { useState } from "react";
-import type { Schema } from "@/amplify/data/resource";
 import { ModelMetadata, ProviderMetadata } from '@/amplify/functions/providers/IAIProvider';
 import { ModelCredits } from "@/src/components/ui";
 import { createProvider } from '@/amplify/functions/providers/providerFactory';

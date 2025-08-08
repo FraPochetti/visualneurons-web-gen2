@@ -233,6 +233,7 @@ export const ImageGenerator = memo<ImageGeneratorProps>(({
                 <div className={styles.resultContainer}>
                     <h2 className={styles.resultTitle}>Generated Image</h2>
                     <div className={styles.imageWrapper}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             src={generatedImageUrl}
                             alt={`AI generated image from prompt: ${prompt.substring(0, 100)}`}

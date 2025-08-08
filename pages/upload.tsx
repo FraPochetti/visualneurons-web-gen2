@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 // pages/upload.tsx
 import { useState, useEffect } from "react";
 import { uploadData, list, getUrl } from "aws-amplify/storage";
