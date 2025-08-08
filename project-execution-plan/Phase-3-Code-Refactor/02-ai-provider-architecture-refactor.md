@@ -465,3 +465,19 @@ describe('Provider Architecture', () => {
 - <5 minutes to add new provider
 - All providers tested with same test suite
 - Frontend can discover capabilities dynamically 
+
+---
+
+## Additional Actions from Repo Audit
+
+### Split metadata from execution for frontend safety
+- [ ] Create `src/modelCatalog/` with static metadata used by UI (name, displayName, docs URL)
+- [ ] Replace frontend imports of `amplify/functions/providers/*` with `modelCatalog`
+- [ ] Keep all provider execution server-side via AppSync only
+
+### Shared error handling and telemetry
+- [ ] Add `BaseAIProvider` with normalized error mapping and retry helper
+- [ ] Emit Powertools metrics for success/error by provider/operation
+
+### Capability matrix as single source of truth
+- [ ] Generate both frontend capability list (for selectors) and server guard rails from the same config

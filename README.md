@@ -1,20 +1,31 @@
-# Visual Neurons - AI Image Editor
+# Visual Neurons - AI Media Creation Platform
 
-A modern web application for AI-powered image editing and generation, built with Next.js, TypeScript, and AWS Amplify Gen 2.
+A comprehensive web platform for AI-powered image and video creation, editing, and management. Built with Next.js, TypeScript, and AWS Amplify Gen 2.
 
-## 🚀 Features
+## 🚀 Vision
+
+Empowering users with zero technical knowledge to create and edit professional media content using cutting-edge AI technology.
+
+## 🎯 Current Features
 
 - **User Authentication**: Secure sign-up and login via AWS Cognito
-- **Image Management**: Upload, store, and manage your images
-- **AI-Powered Operations**:
-  - Image generation from text prompts
-  - Image upscaling for enhanced resolution
-  - Outpainting to expand image boundaries
+- **Image Operations**:
+  - AI-powered generation from text prompts
+  - Smart upscaling and enhancement
+  - Outpainting to expand boundaries
   - Style transfer between images
-  - Interactive chat about images
-- **Multiple AI Providers**: Support for Replicate, Stability AI, and more
-- **Real-time Comparisons**: Before/after sliders for edited images
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
+  - Object removal and background editing
+- **Multiple AI Providers**: Replicate, Stability AI, Google Gemini
+- **Visual Comparisons**: Interactive before/after views
+- **Responsive Design**: Seamless desktop and mobile experience
+
+## 🔮 Coming Soon
+
+- **Video Support**: Upload, generate, and edit videos with AI
+- **Natural Language Editing**: "Make the sunset more dramatic"
+- **Advanced Workflows**: Multi-step editing pipelines
+- **Collaboration**: Team workspaces and sharing
+- **API Access**: Build on top of our platform
 
 ## 🛠️ Tech Stack
 
@@ -75,13 +86,20 @@ visualneurons-web-gen2/
    npx ampx sandbox
    ```
 
-4. **Configure environment variables**
-   Create a `.env.local` file with your API keys:
-   ```env
-   REPLICATE_API_KEY=your_replicate_key
-   STABILITY_API_KEY=your_stability_key
-   # Add other provider keys as needed
-   ```
+4. **Configure secrets in Amplify Console**
+   All API keys must be configured as secrets in the Amplify Console:
+   
+   a. Deploy your app first: `npx ampx pipeline-deploy --branch main --app-id YOUR_APP_ID`
+   b. Go to AWS Amplify Console for your app
+   c. Navigate to Hosting > Environment variables
+   d. Add the following secrets with EXACT names (the code uses `_TOKEN` not `_KEY`):
+      - `REPLICATE_API_TOKEN` - Your Replicate API token
+      - `STABILITY_API_TOKEN` - Your Stability AI API token
+      - `GCP_API_TOKEN` - Your Google AI API key (for Gemini)
+   
+   **Important**: 
+   - Never store API keys locally. Amplify Gen2 uses AWS Systems Manager for secure secret storage
+   - Use the EXACT environment variable names shown above - the code expects these specific names
 
 5. **Run the development server**
    ```bash

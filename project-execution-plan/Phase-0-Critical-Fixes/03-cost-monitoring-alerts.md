@@ -1,12 +1,15 @@
 # Task: Set Up Cost Monitoring Alerts
 
-## Priority: 🔴 CRITICAL
-**Estimated Time:** 2 hours
-**Dependencies:** AWS Account access, CloudWatch permissions
+## Priority: 🔴 CRITICAL - PRIORITY 2  
+**Estimated Time:** 4 hours (revised - need real API cost tracking)
+**Dependencies:** Error handling (Task 02) must be completed first
 **Owner:** [Assign]
+**Status:** ⏳ **BLOCKED** - Waiting for error handling completion
 
-## Problem Statement
-We have no visibility into AI API costs. We could accumulate thousands of dollars in charges before noticing. Need immediate alerting when costs spike.
+## Problem Statement  
+We have no visibility into ACTUAL AI API costs - currently using rough estimates. We could accumulate thousands of dollars in charges before noticing. Need real-time cost tracking and immediate alerting when costs spike.
+
+## CRITICAL CHANGE: Track Real API Costs, Not Estimates
 
 ## Acceptance Criteria
 - [ ] CloudWatch dashboard showing AI operation costs

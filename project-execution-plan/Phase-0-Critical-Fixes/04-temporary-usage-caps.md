@@ -15,6 +15,11 @@ Even with rate limiting, users could still generate significant costs (10 ops/ho
 - [ ] Reset at midnight UTC
 - [ ] Visible usage counter in UI
 
+## Additional Notes from Repo Audit
+- Global 10 ops/hour rate limit is implemented; daily caps are not
+- Add per-operation caps configurable via env to reduce costly operations first
+- Emit CloudWatch metric `UsageCapHit` by operation for visibility
+
 ## Technical Implementation
 
 ### 1. Extend Rate Limit Table for Daily Caps

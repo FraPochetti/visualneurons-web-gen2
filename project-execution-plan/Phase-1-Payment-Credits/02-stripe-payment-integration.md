@@ -438,3 +438,8 @@ export default function PaymentSuccess() {
 3. Create admin refund interface
 4. Add invoice generation
 5. Implement usage-based billing alerts 
+
+## Additional Pre-Reqs from Repo Audit
+- [ ] Ensure no frontend code imports server provider classes (clean separation before handling payments)
+- [ ] Secure `resizeImage` Function URL with token/signature to avoid abuse during paid flows
+- [ ] Establish typed GraphQL error unions; map `INSUFFICIENT_CREDITS` distinctly

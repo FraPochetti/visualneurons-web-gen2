@@ -1,9 +1,10 @@
 # Task: Add Basic Error Handling for AI Operations
 
-## Priority: 🔴 CRITICAL
-**Estimated Time:** 3 hours
-**Dependencies:** None
+## Priority: 🔴 CRITICAL - PRIORITY 1
+**Estimated Time:** 6 hours (revised - more complex than initially estimated)
+**Dependencies:** None - Must be completed FIRST in Phase 0
 **Owner:** [Assign]
+**Status:** ⏳ **MUST START IMMEDIATELY** - Blocking all other Phase 0 work
 
 ## Problem Statement
 When AI API calls fail (timeout, rate limit, invalid input), the application crashes or shows cryptic error messages to users. This creates a poor user experience and makes debugging difficult.
@@ -221,3 +222,26 @@ export const OperationError: React.FC<OperationErrorProps> = ({
 - Consider adding error analytics (Sentry) in Phase 5
 - May need provider-specific error handling refinements
 - Document common errors in user FAQ 
+
+---
+
+# Enhancement: Typed GraphQL Errors and UI Adapters (added by repo audit)
+
+## Why
+- AppSync currently returns plain strings for mutations; we cannot distinguish error types reliably on the client.
+- Frontend has ad-hoc string parsing for rate limit errors. We need a typed contract.
+
+## Plan
+- Add unions to AppSync schema: `Result | RateLimitError | ValidationError | ProviderError`
+- Map Lambda exceptions into these unions in `aiDispatcher` and return structured error payloads
+- Create `src/lib/errorAdapter.ts` to convert unions to friendly UI strings and to attach `requestId`
+- Update `useUpscaler`, `useOutpainter`, `ImageGenerator` to use the adapter
+
+## Deliverables
+- Schema updated with unions and error types
+- Handler maps known errors to types; includes `requestId`, `provider`, `operation`
+- UI shows friendly messages without leaking internals
+
+## Acceptance Criteria
+- No raw error strings from Lambda reach UI
+- Rate limit and provider errors are distinguished by code on client

@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run lint",
+    "dev:sandbox": "npx ampx sandbox & npm run dev",
+    "use:prod": "cp -f amplify_outputs.prod.json amplify_outputs.json"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.5.5",

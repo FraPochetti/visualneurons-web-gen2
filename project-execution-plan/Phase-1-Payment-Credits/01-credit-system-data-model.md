@@ -1,9 +1,12 @@
 # Task: Design and Implement Credit System Data Model
 
-## Priority: 🟡 HIGH
-**Estimated Time:** 6 hours
-**Dependencies:** AWS Amplify Data knowledge
+## Priority: 🟡 HIGH  
+**Estimated Time:** 8 hours (revised - includes user migration)
+**Dependencies:** Phase 1 (Clean Architecture) must be 100% complete
 **Owner:** [Assign]
+**Status:** ⏳ **BLOCKED** - Cannot start until clean architecture established
+
+## CRITICAL ADDITION: User Migration Strategy Required
 
 ## Problem Statement
 Need a robust data model to track user credits, transactions, usage, and pricing. This is the foundation for the entire billing system.

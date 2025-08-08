@@ -16,6 +16,12 @@ Currently, users can make unlimited API calls to expensive AI models (Replicate,
 - [x] Rate limit stored in DynamoDB with TTL
 - [x] Admin override capability for testing
 
+## Current Implementation (verified in repo)
+- DynamoDB table provisioned in `amplify/backend.ts` with TTL and PAY_PER_REQUEST
+- Lambda `checkRateLimit` in `amplify/functions/aiDispatcher/rateLimit.ts` with 10 ops/hour
+- Admin override list present (needs to be env-configurable)
+- Handler maps rate-limit to `RATE_LIMIT_EXCEEDED` string (UI strips it)
+
 ## ✅ IMPLEMENTATION COMPLETED & DEPLOYED
 
 ### 🚀 **DEPLOYMENT SUCCESS** 
@@ -197,6 +203,12 @@ const ADMIN_OVERRIDE_USER_IDS = ['admin', 'test-user'];  // ← Add admin user I
 - Consider IP-based limiting for anonymous users
 - May need to adjust limits based on actual usage patterns
 - Document this clearly for users to avoid confusion
+
+## Immediate Next Steps (added by repo audit)
+- [ ] Replace hardcoded ADMIN override list with env/secret
+- [ ] Add CloudWatch metric `RateLimitHit` with dimension `operation`
+- [ ] Consider per-operation caps (e.g., tighter on upscale)
+- [ ] Integrate with typed GraphQL error unions (see Task 02)
 
 ## Next Steps
 1. 🔧 **IMMEDIATE:** Fix AWS SDK dependency issue in Lambda function
