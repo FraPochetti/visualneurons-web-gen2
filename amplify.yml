@@ -1,4 +1,26 @@
 version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm install 20 || true
+        - nvm use 20 || true
+        - node -v
+        - npm -v
+        - npm install --no-audit --no-fund
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .next/cache/**
+      - node_modules/**
+      - .npm/**
+version: 1
 backend:
   phases:
     build:
