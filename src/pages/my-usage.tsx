@@ -23,37 +23,48 @@ export default function MyUsage() {
     const [providerFilter, setProviderFilter] = useState('all');
     const [operationFilter, setOperationFilter] = useState('all');
     const [sinceDays, setSinceDays] = useState(30);
+    const [nextToken, setNextToken] = useState<string | null>(null);
+    const pageSize = 50;
 
     useEffect(() => {
-        (async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const since = new Date(Date.now() - sinceDays * 24 * 3600 * 1000);
-                const identityId = (await fetchAuthSession()).identityId;
-                if (!identityId) {
-                    setRows([]);
-                } else {
-                    // Fetch OperationLog entries for this user; sort by createdAt desc
-                    const resp = await client.models.OperationLog.list({
-                        filter: {
-                            identityId: { eq: identityId },
-                        },
-                        // client-side sort after fetch for now
-                    });
-                    const items = (resp.data ?? []) as unknown as OperationLog[];
-                    const filtered = items
-                        .filter((r) => new Date(r.createdAt) >= since)
-                        .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-                    setRows(filtered);
-                }
-            } catch (e: any) {
-                setError(e.message || 'Failed to load usage');
-            } finally {
-                setLoading(false);
+        void loadPage(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sinceDays, providerFilter, operationFilter]);
+
+    const loadPage = async (reset = false) => {
+        try {
+            setLoading(true);
+            setError(null);
+            const identityId = (await fetchAuthSession()).identityId;
+            if (!identityId) {
+                setRows([]);
+                setNextToken(null);
+                return;
             }
-        })();
-    }, [sinceDays]);
+            const sinceIso = new Date(Date.now() - sinceDays * 24 * 3600 * 1000).toISOString();
+            const filter: any = {
+                identityId: { eq: identityId },
+                createdAt: { ge: sinceIso },
+            };
+            if (providerFilter !== 'all') filter.provider = { eq: providerFilter };
+            if (operationFilter !== 'all') filter.operation = { eq: operationFilter };
+            const resp: any = await client.models.OperationLog.list({
+                filter,
+                limit: pageSize,
+                nextToken: reset ? undefined : nextToken ?? undefined,
+            });
+            const items = (resp.data ?? []) as unknown as OperationLog[];
+            const merged = reset ? items : [...rows, ...items];
+            // Sort desc by createdAt
+            merged.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+            setRows(merged);
+            setNextToken(resp.nextToken ?? null);
+        } catch (e: any) {
+            setError(e.message || 'Failed to load usage');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const filtered = useMemo(() => {
         return rows.filter(r => (
@@ -156,6 +167,11 @@ export default function MyUsage() {
                         ))}
                     </tbody>
                 </table>
+            )}
+            {!loading && nextToken && (
+                <div style={{ marginTop: 16 }}>
+                    <button className="button" onClick={() => loadPage(false)}>Load More</button>
+                </div>
             )}
 
             {totals.daily.length > 0 && (
