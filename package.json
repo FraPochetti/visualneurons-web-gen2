@@ -22,6 +22,7 @@
     "axios": "^1.8.3",
     "form-data": "^4.0.2",
     "json-schema-to-ts": "^3.1.1",
+    "next": "15.3.0",
     "react": "^18",
     "react-dom": "^18",
     "replicate": "^1.0.1",
@@ -40,8 +41,8 @@
     "constructs": "^10.4.2",
     "esbuild": "^0.25.0",
     "eslint": "^8",
+    "eslint": "^8",
     "eslint-config-next": "^15.3.0",
-    "next": "^15.3.0",
     "tsx": "^4.7.2",
     "typescript": "^5.4.5"
   }
