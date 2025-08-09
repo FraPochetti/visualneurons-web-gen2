@@ -5,11 +5,16 @@ backend:
       commands:
         - node -v || true
         - npm -v || true
-        - npm ci --cache .npm --prefer-offline || npm install --no-audit --no-fund
+        - echo "Skip npm install in backend phase"
     build:
       commands:
-        - export AMPLIFY_DIFF_BACKEND=true
-        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+        - |
+          if [ "$SKIP_BACKEND_DEPLOY" = "true" ]; then
+            echo "Skipping backend deploy (SKIP_BACKEND_DEPLOY=true)";
+          else
+            export AMPLIFY_DIFF_BACKEND=true;
+            npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID;
+          fi
   cache:
     paths:
       - .npm/**
@@ -20,7 +25,7 @@ frontend:
       commands:
         - node -v || true
         - npm -v || true
-        - npm ci --cache .npm --prefer-offline || npm install --no-audit --no-fund
+        - npm ci --cache .npm --prefer-offline --no-audit --no-fund || npm install --no-audit --no-fund
     build:
       commands:
         - npm run build
@@ -32,4 +37,3 @@ frontend:
     paths:
       - .next/cache/**/*
       - .npm/**/*
-      - node_modules/**/*
