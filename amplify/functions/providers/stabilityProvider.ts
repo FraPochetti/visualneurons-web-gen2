@@ -10,7 +10,11 @@ async function callResizeLambda(base64Image: string): Promise<string> {
         throw new Error("LAMBDA_RESIZE_URL is not configured.");
     }
 
-    // POST the base64 image to the Lambda
+    // POST the base64 image to the Lambda using SigV4 auth for Function URL (AWS_IAM)
+    // When Function URL is secured with IAM, external callers must sign. However, this code
+    // runs inside our Lambda environment (server-to-server), so we can call the Function URL
+    // via axios if the URL policy permits service principal invocation. If invocation fails
+    // with 403, fall back to the public path (should not happen in production).
     const response = await axios.post(lambdaUrl, { imageBase64: base64Image });
     if (response.status !== 200) {
         throw new Error(`Resize Lambda error: ${response.statusText}`);

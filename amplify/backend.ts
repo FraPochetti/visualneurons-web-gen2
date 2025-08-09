@@ -9,6 +9,7 @@ import { aiDispatcher } from './functions/aiDispatcher/resource';
 import { resizeImage } from './functions/resizeImage/resource';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Table, AttributeType, BillingMode } from 'aws-cdk-lib/aws-dynamodb';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 const backend = defineBackend({
   auth,
@@ -19,9 +20,16 @@ const backend = defineBackend({
 });
 
 const resizeLambda = backend.resizeImage.resources.lambda;
+// Secure the resize function URL with AWS_IAM so only authorized callers can invoke it
 const functionUrl = resizeLambda.addFunctionUrl({
-  authType: lambda.FunctionUrlAuthType.NONE,
+  authType: lambda.FunctionUrlAuthType.AWS_IAM,
 });
+
+// Allow aiDispatcher to invoke the secured Function URL
+backend.aiDispatcher.resources.lambda.addToRolePolicy(new iam.PolicyStatement({
+  actions: ['lambda:InvokeFunctionUrl'],
+  resources: [resizeLambda.functionArn],
+}));
 
 const analyticsStack = backend.createStack("analytics-stack");
 
@@ -69,3 +77,9 @@ rateLimitTable.grantReadWriteData(backend.aiDispatcher.resources.lambda);
 
 // Add the rate limit table name as an environment variable
 backend.aiDispatcher.addEnvironment('RATE_LIMIT_TABLE_NAME', rateLimitTable.tableName);
+
+// Grant aiDispatcher permission to publish custom CloudWatch metrics for cost tracking
+backend.aiDispatcher.resources.lambda.addToRolePolicy(new iam.PolicyStatement({
+  actions: ['cloudwatch:PutMetricData'],
+  resources: ['*'],
+}));
