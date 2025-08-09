@@ -133,7 +133,11 @@ export const handler = async (event: any) => {
             executionTimeMs: executionTime
         });
 
-        return result;
+        // Return typed success response
+        return {
+            success: true,
+            data: result,
+        };
     } catch (error: any) {
         const executionTime = Date.now() - startTime;
 
@@ -149,7 +153,17 @@ export const handler = async (event: any) => {
             });
 
             // Return a structured error response for rate limiting
-            throw new Error(`RATE_LIMIT_EXCEEDED: ${error.message}`);
+            return {
+                success: false,
+                error: {
+                    code: 'RATE_LIMIT',
+                    message: error.message.replace('RATE_LIMIT_EXCEEDED: ', ''),
+                    retryAfter: error.retryAfter,
+                    provider: providerName,
+                    operation,
+                    requestId,
+                }
+            };
         }
 
         logger.error('Error in aiDispatcher', {
@@ -160,6 +174,37 @@ export const handler = async (event: any) => {
             provider: providerName,
             executionTimeMs: executionTime,
         });
-        throw error;
+        // Map generic errors to a structured response
+        const message: string = error?.message || 'Unknown error';
+        const lower = message.toLowerCase();
+        const status = error?.response?.status as number | undefined;
+        let code: 'TIMEOUT' | 'INVALID_INPUT' | 'PROVIDER_ERROR' | 'NETWORK_ERROR' | 'UNKNOWN' = 'UNKNOWN';
+        if (lower.includes('timeout') || lower.includes('timed out')) {
+            code = 'TIMEOUT';
+        } else if (
+            // Treat auth/config issues as provider errors, not user input
+            lower.includes('api key') || lower.includes('apikey') || status === 401 || status === 403
+        ) {
+            code = 'PROVIDER_ERROR';
+        } else if (
+            status === 400 && (lower.includes('prompt') || lower.includes('input') || lower.includes('parameter'))
+        ) {
+            code = 'INVALID_INPUT';
+        } else if (error?.code === 'ECONNRESET' || error?.code === 'ENETUNREACH') {
+            code = 'NETWORK_ERROR';
+        } else {
+            code = 'PROVIDER_ERROR';
+        }
+
+        return {
+            success: false,
+            error: {
+                code,
+                message,
+                provider: providerName,
+                operation,
+                requestId,
+            }
+        };
     }
 };

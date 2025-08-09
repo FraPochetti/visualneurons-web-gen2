@@ -2,17 +2,19 @@ import React, { memo, useCallback, useState } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
-import { createProvider } from '@/amplify/functions/providers/providerFactory';
-import { ModelMetadata, ProviderMetadata } from '@/amplify/functions/providers/IAIProvider';
+// Client-safe model catalog instead of server-only provider imports
+import { getModelInfo, getProviderInfo } from '@/src/modelCatalog';
 import { logger } from '@/src/lib/logger';
+import { toFriendlyError } from '@/src/lib/errorAdapter';
 import styles from './ImageGenerator.module.css';
+import { OperationError } from '@/src/components/ui/OperationError';
 
 interface ImageGeneratorProps {
     provider: string;
     onSuccess?: (result: {
         imageUrl: string;
-        modelInfo: ModelMetadata;
-        providerInfo: ProviderMetadata;
+        modelInfo: any;
+        providerInfo: any;
     }) => void;
     className?: string;
     placeholder?: string;
@@ -31,6 +33,7 @@ export const ImageGenerator = memo<ImageGeneratorProps>(({
     const [prompt, setPrompt] = useState('');
     const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [errorDetails, setErrorDetails] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const client = generateClient<Schema>();
 
@@ -61,9 +64,8 @@ export const ImageGenerator = memo<ImageGeneratorProps>(({
                 throw new Error('User not authenticated');
             }
 
-            const providerInstance = createProvider(provider);
-            const modelInfo = providerInstance.getModelInfo('generateImage');
-            const providerInfo = providerInstance.getProviderInfo();
+            const modelInfo = getModelInfo(provider as any, 'generateImage');
+            const providerInfo = getProviderInfo(provider as any);
 
             logger.info('Generating image', { provider, prompt: prompt.substring(0, 50) });
 
@@ -75,19 +77,29 @@ export const ImageGenerator = memo<ImageGeneratorProps>(({
             });
 
             if (output.errors && output.errors.length > 0) {
-                const message = output.errors[0].message;
-                throw new Error(message);
+                throw new Error(output.errors[0].message);
             }
 
-            if (!output.data || typeof output.data !== 'string') {
+            const payload = output.data as unknown as { success: boolean; data?: string; error?: { code: string; message: string; retryAfter?: number; requestId?: string } };
+            if (!payload || typeof payload !== 'object') {
                 throw new Error('Invalid response from image generation');
             }
 
-            setGeneratedImageUrl(output.data);
+            if (!payload.success) {
+                const fe = toFriendlyError(payload.error || { message: 'Image generation failed' });
+                setErrorDetails(payload.error?.message || null);
+                throw new Error(fe.userMessage);
+            }
+
+            if (!payload.data || typeof payload.data !== 'string') {
+                throw new Error('Invalid response from image generation');
+            }
+
+            setGeneratedImageUrl(payload.data);
 
             if (onSuccess) {
                 onSuccess({
-                    imageUrl: output.data,
+                    imageUrl: payload.data,
                     modelInfo,
                     providerInfo
                 });
@@ -109,17 +121,7 @@ export const ImageGenerator = memo<ImageGeneratorProps>(({
 
             logger.info('Image generated successfully', { provider });
         } catch (err: any) {
-            let errorMessage = err.message || "An error occurred while generating the image";
-
-            // Handle rate limit errors specially
-            if (errorMessage.includes('RATE_LIMIT_EXCEEDED')) {
-                errorMessage = errorMessage.replace('RATE_LIMIT_EXCEEDED: ', '');
-                logger.warn('Rate limit exceeded during image generation', {
-                    provider,
-                    prompt: prompt.substring(0, 50),
-                    userId: 'current_user'
-                });
-            }
+            const errorMessage = err.message || "An error occurred while generating the image";
 
             setError(errorMessage);
             logger.error('Image generation failed', { error: err, provider });
@@ -129,8 +131,7 @@ export const ImageGenerator = memo<ImageGeneratorProps>(({
                 const session = await fetchAuthSession();
                 const attributes = await fetchUserAttributes();
                 const identityId = session.identityId;
-                const providerInstance = createProvider(provider);
-                const modelInfo = providerInstance.getModelInfo('generateImage');
+                const modelInfo = getModelInfo(provider as any, 'generateImage');
 
                 if (identityId) {
                     await client.models.LogEntry.create({
@@ -138,7 +139,7 @@ export const ImageGenerator = memo<ImageGeneratorProps>(({
                         userSub: attributes.sub,
                         userEmail: attributes.email,
                         level: "ERROR",
-                        provider: providerInstance.getProviderInfo().serviceProvider,
+                        provider: getProviderInfo(provider as any).serviceProvider,
                         details: JSON.stringify({
                             error: err.message,
                             stack: err.stack,
@@ -219,14 +220,7 @@ export const ImageGenerator = memo<ImageGeneratorProps>(({
             </div>
 
             {error && (
-                <div
-                    id="prompt-error"
-                    className={styles.errorMessage}
-                    role="alert"
-                    aria-live="assertive"
-                >
-                    <strong>Error:</strong> {error}
-                </div>
+                <OperationError message={error} details={errorDetails || undefined} />
             )}
 
             {generatedImageUrl && (

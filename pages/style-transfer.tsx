@@ -5,7 +5,7 @@ import type { Schema } from '@/amplify/data/resource';
 import { Layout } from '@/components/layout';
 import { ProviderSelector } from '@/src/components/form';
 import { ModelCredits } from '@/src/components/ui';
-import { createProvider } from '@/amplify/functions/providers/providerFactory';
+import { getModelInfo, getProviderInfo } from '@/src/modelCatalog';
 import { StyleImageSelector } from '@/src/components/form';
 import { saveImageRecord } from '@/utils/saveImageRecord';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
@@ -42,14 +42,26 @@ export default function StyleTransferPage() {
             if (output.errors && output.errors.length > 0) {
                 setError('Error: ' + output.errors[0].message);
             } else {
-                setResult(output.data);
+                const payload = output.data as unknown as { success: boolean; data?: string; error?: { message: string } };
+                if (!payload || typeof payload !== 'object') {
+                    throw new Error('Invalid response from style transfer');
+                }
+                if (!payload.success) {
+                    // Lazy import to avoid heavy shared code on pages bundle size
+                    const { toFriendlyError } = await import('@/src/lib/errorAdapter');
+                    const fe = toFriendlyError(payload.error || { message: 'Style transfer failed' });
+                    throw new Error(fe.userMessage);
+                }
+                if (!payload.data || typeof payload.data !== 'string') {
+                    throw new Error('Invalid response from style transfer');
+                }
+                setResult(payload.data);
 
                 const session = await fetchAuthSession();
                 const attributes = await fetchUserAttributes();
                 const identityId = session.identityId!;
-                const providerInstance = createProvider(provider);
-                const providerInfo = providerInstance.getProviderInfo();
-                const modelInfo = providerInstance.getModelInfo('styleTransfer');
+                const providerInfo = getProviderInfo(provider as any);
+                const modelInfo = getModelInfo(provider as any, 'styleTransfer');
                 await client.models.LogEntry.create({
                     identityId,
                     userSub: attributes.sub,
@@ -60,7 +72,7 @@ export default function StyleTransferPage() {
                         prompt,
                         styleImageUrl,
                         model: modelInfo.modelName,
-                        output: output.data,
+                        output: payload.data,
                     }),
                 });
             }
@@ -70,9 +82,8 @@ export default function StyleTransferPage() {
             const session = await fetchAuthSession();
             const attributes = await fetchUserAttributes();
             const identityId = session.identityId!;
-            const providerInstance = createProvider(provider);
-            const providerInfo = providerInstance.getProviderInfo();
-            const modelInfo = providerInstance.getModelInfo('styleTransfer');
+            const providerInfo = getProviderInfo(provider as any);
+            const modelInfo = getModelInfo(provider as any, 'styleTransfer');
             await client.models.LogEntry.create({
                 identityId,
                 userSub: attributes.sub,
@@ -92,9 +103,8 @@ export default function StyleTransferPage() {
 
     const handleSave = async () => {
         if (!result) return;
-        const providerInstance = createProvider(provider);
-        const modelInfo = providerInstance.getModelInfo('styleTransfer');
-        const providerInfo = providerInstance.getProviderInfo();
+        const modelInfo = getModelInfo(provider as any, 'styleTransfer');
+        const providerInfo = getProviderInfo(provider as any);
         try {
             setError(null);
             await saveImageRecord({
@@ -110,8 +120,7 @@ export default function StyleTransferPage() {
         }
     };
 
-    const providerInstance = createProvider(provider);
-    const modelInfo = providerInstance.getModelInfo('styleTransfer');
+    const modelInfo = getModelInfo(provider as any, 'styleTransfer');
 
     return (
         <Layout>

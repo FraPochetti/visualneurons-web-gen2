@@ -1,9 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
-import { createProvider } from '@/amplify/functions/providers/providerFactory';
+import { generateClient } from 'aws-amplify/data';
+import type { Schema } from '@/amplify/data/resource';
+import { getModelInfo, getProviderInfo } from '@/src/modelCatalog';
 import type { AIOperation } from '@/amplify/functions/providers/IAIProvider';
 import { useUpscaler } from './useUpscaler';
 import { useOutpainter } from './useOutpainter';
 import { logger } from '@/src/lib/logger';
+import { toFriendlyError } from '@/src/lib/errorAdapter';
 
 interface UseImageOperationParams {
     operation: AIOperation;
@@ -31,6 +34,7 @@ export function useImageOperation({
 }: UseImageOperationParams): UseImageOperationReturn {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const client = generateClient<Schema>();
 
     const upscaler = useUpscaler({
         imageUrl,
@@ -82,12 +86,32 @@ export function useImageOperation({
                     await outpainter.outpaint();
                     break;
 
-                case 'generateImage':
-                    // For generateImage, we use the provider directly
-                    const providerInstance = createProvider(provider);
-                    const generatedImageUrl = await providerInstance.generateImage("Default prompt", false);
-                    onSuccess(generatedImageUrl);
+                case 'generateImage': {
+                    const result = await client.mutations.generateImage({
+                        prompt: 'Default prompt',
+                        prompt_upsampling: false,
+                        provider,
+                        operation: 'generateImage',
+                    });
+
+                    if (result.errors && result.errors.length > 0) {
+                        throw new Error(result.errors[0].message);
+                    }
+
+                    const payload = result.data as unknown as { success: boolean; data?: string; error?: { message: string } };
+                    if (!payload || typeof payload !== 'object') {
+                        throw new Error('Invalid response from image generation');
+                    }
+                    if (!payload.success) {
+                        const fe = toFriendlyError(payload.error || { message: 'Image generation failed' });
+                        throw new Error(fe.userMessage);
+                    }
+                    if (!payload.data || typeof payload.data !== 'string') {
+                        throw new Error('Invalid response from image generation');
+                    }
+                    onSuccess(payload.data);
                     break;
+                }
 
                 default:
                     const err = new Error(`Unsupported operation: ${operation}`);
@@ -96,17 +120,9 @@ export function useImageOperation({
                     logger.error('Unsupported operation', { operation });
             }
         } catch (err: any) {
-            let errorMessage = err.message || 'An error occurred during the operation';
+            const errorMessage = err.message || 'An error occurred during the operation';
 
-            // Handle rate limit errors specially
-            if (errorMessage.includes('RATE_LIMIT_EXCEEDED')) {
-                errorMessage = errorMessage.replace('RATE_LIMIT_EXCEEDED: ', '');
-                logger.warn('Rate limit exceeded in image operation', {
-                    operation,
-                    provider,
-                    userId: 'current_user'
-                });
-            }
+            // Rate limit errors now returned as structured GraphQL payloads
 
             setError(errorMessage);
             onError?.(err);

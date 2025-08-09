@@ -84,19 +84,22 @@ export default function ImageChatPage() {
                 operation: "inpaint",
             });
 
-            if (typeof output.data === 'string') {
+            const payload = output.data as unknown as { success: boolean; data?: string; error?: { code?: string; message: string } };
+            if (payload && typeof payload === 'object' && payload.success && typeof payload.data === 'string') {
                 const aiMessage: Message = {
                     id: `ai-${Date.now()}`,
                     type: 'ai',
                     text: "Here's your edited image:",
-                    image: output.data,
+                    image: payload.data,
                 };
                 // Insert AI message at top
                 setMessages((prev) => [aiMessage, ...prev]);
                 // Update the big display to the new edited image
-                setSelectedImage(output.data);
+                setSelectedImage(payload.data);
             } else {
-                throw new Error("Invalid response from Gemini");
+                const { toFriendlyError } = await import('@/src/lib/errorAdapter');
+                const fe = toFriendlyError(payload?.error || { message: 'Inpaint failed' });
+                throw new Error(fe.userMessage);
             }
         } catch (err: any) {
             const errorMessage: Message = {

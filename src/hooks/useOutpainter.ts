@@ -2,8 +2,9 @@ import { useState, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
-import { createProvider } from '@/amplify/functions/providers/providerFactory';
+import { getModelInfo, getProviderInfo } from '@/src/modelCatalog';
 import { logger } from '@/src/lib/logger';
+import { toFriendlyError } from '@/src/lib/errorAdapter';
 
 interface UseOutpainterParams {
     imageUrl: string;
@@ -29,6 +30,7 @@ export function useOutpainter({
 }: UseOutpainterParams): UseOutpainterReturn {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [errorDetails, setErrorDetails] = useState<string | null>(null);
     const client = generateClient<Schema>();
 
     const reset = useCallback(() => {
@@ -56,9 +58,8 @@ export function useOutpainter({
                 throw new Error('User not authenticated');
             }
 
-            const providerInstance = createProvider(provider);
-            const modelInfo = providerInstance.getModelInfo('outpaint');
-            const providerInfo = providerInstance.getProviderInfo();
+            const modelInfo = getModelInfo(provider as any, 'outpaint');
+            const providerInfo = getProviderInfo(provider as any);
 
             logger.info('Starting image outpaint', {
                 provider,
@@ -76,8 +77,19 @@ export function useOutpainter({
                 throw new Error(result.errors[0].message);
             }
 
-            if (!result.data || typeof result.data !== 'string') {
-                throw new Error("Invalid response from outpaint operation");
+            const payload = result.data as unknown as { success: boolean; data?: string; error?: { code: string; message: string; retryAfter?: number; requestId?: string } };
+            if (!payload || typeof payload !== 'object') {
+                throw new Error('Invalid response from outpaint operation');
+            }
+
+            if (!payload.success) {
+                const fe = toFriendlyError(payload.error || { message: 'Outpaint failed' });
+                setErrorDetails(payload.error?.message || null);
+                throw new Error(fe.userMessage);
+            }
+
+            if (!payload.data || typeof payload.data !== 'string') {
+                throw new Error('Invalid response from outpaint operation');
             }
 
             // Log successful operation
@@ -88,28 +100,19 @@ export function useOutpainter({
                 level: "INFO",
                 provider: providerInfo.serviceProvider,
                 details: JSON.stringify({
-                    output: result.data,
+                    output: payload.data,
                     model: modelInfo.modelName,
                     originalImagePath: originalPath,
                 }),
             });
 
             logger.info('Image outpainted successfully', { provider });
-            onSuccess(result.data);
+            onSuccess(payload.data);
         } catch (err: any) {
-            let errorMessage = err.message || "An error occurred during outpainting";
-
-            // Handle rate limit errors specially
-            if (errorMessage.includes('RATE_LIMIT_EXCEEDED')) {
-                errorMessage = errorMessage.replace('RATE_LIMIT_EXCEEDED: ', '');
-                logger.warn('Rate limit exceeded during outpaint', {
-                    provider,
-                    originalPath,
-                    userId: 'current_user'
-                });
-            }
+            const errorMessage = err.message || "An error occurred during outpainting";
 
             setError(errorMessage);
+            setErrorDetails((prev) => prev);
             logger.error('Outpaint failed', { error: err, provider });
 
             if (onError) {
@@ -123,9 +126,8 @@ export function useOutpainter({
                 const identityId = session.identityId;
 
                 if (identityId) {
-                    const providerInstance = createProvider(provider);
-                    const modelInfo = providerInstance.getModelInfo('outpaint');
-                    const providerInfo = providerInstance.getProviderInfo();
+                    const modelInfo = getModelInfo(provider as any, 'outpaint');
+                    const providerInfo = getProviderInfo(provider as any);
 
                     await client.models.LogEntry.create({
                         identityId,
