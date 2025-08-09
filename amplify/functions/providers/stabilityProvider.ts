@@ -1,5 +1,6 @@
 import { AIOperation, IAIProvider, ModelMetadata, ProviderMetadata } from "./IAIProvider";
 import axios from "axios";
+import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 import FormData from "form-data";
 
 // Helper function to call the resize Lambda via its Function URL stored in LAMBDA_RESIZE_URL secret
@@ -10,17 +11,33 @@ async function callResizeLambda(base64Image: string): Promise<string> {
         throw new Error("LAMBDA_RESIZE_URL is not configured.");
     }
 
-    // POST the base64 image to the Lambda using SigV4 auth for Function URL (AWS_IAM)
-    // When Function URL is secured with IAM, external callers must sign. However, this code
-    // runs inside our Lambda environment (server-to-server), so we can call the Function URL
-    // via axios if the URL policy permits service principal invocation. If invocation fails
-    // with 403, fall back to the public path (should not happen in production).
-    const response = await axios.post(lambdaUrl, { imageBase64: base64Image });
-    if (response.status !== 200) {
-        throw new Error(`Resize Lambda error: ${response.statusText}`);
+    try {
+        // Preferred: direct Lambda invoke (bypasses Function URL auth and networking issues)
+        const functionName = process.env.RESIZE_FUNCTION_NAME;
+        if (functionName) {
+            const lc = new LambdaClient({});
+            const invoke = await lc.send(new InvokeCommand({
+                FunctionName: functionName,
+                Payload: Buffer.from(JSON.stringify({ body: JSON.stringify({ imageBase64: base64Image }) })),
+            }));
+            const raw = invoke.Payload ? Buffer.from(invoke.Payload).toString('utf-8') : '{}';
+            const parsed = JSON.parse(raw);
+            if (parsed.statusCode === 200) {
+                const body = JSON.parse(parsed.body || '{}');
+                return body.imageBase64 as string;
+            }
+            throw new Error(`Resize Lambda invoke error: ${parsed.body || parsed.statusCode}`);
+        }
+
+        // Fallback: Function URL (must be IAM-signed; axios will fail with 403 if anonymous)
+        const response = await axios.post(lambdaUrl, { imageBase64: base64Image });
+        if (response.status !== 200) {
+            throw new Error(`Resize Lambda URL error: ${response.statusText}`);
+        }
+        return response.data.imageBase64;
+    } catch (e: any) {
+        throw new Error(`Resize call failed: ${e.message}`);
     }
-    // Expecting the response to contain { imageBase64: "<resized_base64>" }
-    return response.data.imageBase64;
 }
 
 export class StabilityProvider implements IAIProvider {

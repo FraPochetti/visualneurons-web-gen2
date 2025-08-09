@@ -31,6 +31,12 @@ backend.aiDispatcher.resources.lambda.addToRolePolicy(new iam.PolicyStatement({
   resources: [resizeLambda.functionArn],
 }));
 
+// Also allow direct Lambda invocation as a fallback (preferred path)
+backend.aiDispatcher.resources.lambda.addToRolePolicy(new iam.PolicyStatement({
+  actions: ['lambda:InvokeFunction'],
+  resources: [resizeLambda.functionArn],
+}));
+
 const analyticsStack = backend.createStack("analytics-stack");
 
 // create a Pinpoint app
@@ -77,6 +83,9 @@ rateLimitTable.grantReadWriteData(backend.aiDispatcher.resources.lambda);
 
 // Add the rate limit table name as an environment variable
 backend.aiDispatcher.addEnvironment('RATE_LIMIT_TABLE_NAME', rateLimitTable.tableName);
+
+// Pass the resize function name for direct Invoke from aiDispatcher
+backend.aiDispatcher.addEnvironment('RESIZE_FUNCTION_NAME', resizeLambda.functionName);
 
 // Grant aiDispatcher permission to publish custom CloudWatch metrics for cost tracking
 backend.aiDispatcher.resources.lambda.addToRolePolicy(new iam.PolicyStatement({
