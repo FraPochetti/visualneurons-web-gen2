@@ -20,8 +20,8 @@
 ### Phase 0: Critical Stability Foundation (Week 1-2) 🔴 URGENT
 **Goal:** Complete application stability before ANY new features
 - [x] **Emergency rate limiting** ✅ **COMPLETED** - 10 operations/hour limit active
-- [ ] **PRIORITY 1: Comprehensive error handling** - All AI operations, user-friendly messages
-- [ ] **PRIORITY 1b: GraphQL error normalization** - Return typed errors/unions from AppSync (e.g., `RateLimitError`), map to friendly UI messages
+- [~] **PRIORITY 1: Comprehensive error handling** — Core delivered (typed GraphQL responses, UI error adapter with details toggle, friendly messages in hooks/pages).
+- [x] **PRIORITY 1b: GraphQL error normalization** — Implemented via `OperationResponse` structure returned by all AI mutations.
 - [ ] **PRIORITY 2: Real cost monitoring** - Track actual API costs, not estimates
 - [ ] **PRIORITY 2b: Secure media processing endpoints** - Protect `resizeImage` Function URL with signed requests or token; add throttling
 - [ ] **PRIORITY 3: AI provider architecture refactor** - Eliminate code duplication
@@ -32,7 +32,7 @@
 ### Phase 1: Clean Architecture Foundation (Week 3-4)
 **Goal:** Establish FAANG-level code patterns before building payment system
 - [ ] Extract all business logic from pages to custom hooks
-- [ ] Split provider metadata from execution code - create a client-safe `modelCatalog` and remove frontend imports of server provider classes
+- [x] Split provider metadata from execution code - created client-safe `src/modelCatalog` and removed frontend imports of server provider classes
 - [ ] Implement proper service layer abstractions  
 - [ ] Add comprehensive TypeScript types and interfaces
 - [ ] Create error boundaries and proper error handling patterns
@@ -81,7 +81,7 @@
 ## 📈 REVISED Progress Tracking
 
 ### Completion Status
-- Phase 0: 20% ✅⬜⬜⬜⬜ (Rate limiting done, 4 critical tasks remaining)
+- Phase 0: 35% ✅✅⬜⬜⬜ (Rate limiting done; error handling core delivered; remaining: retry util, cost monitoring, provider refactor, usage caps, monitoring, secure resize)
 - Phase 1: 0% ⬜⬜⬜⬜⬜ (Cannot start until Phase 0 complete)
 - Phase 2: 0% ⬜⬜⬜⬜⬜ (Cannot start until Phase 1 complete)
 - Phase 3: 0% ⬜⬜⬜⬜⬜
@@ -134,4 +134,4 @@
 - **TOTAL: 14 weeks** with built-in buffers for unexpected issues
 
 ---
-Last Updated: **January 2025** - Plan adjusted to reflect current repository state (rate limiting implemented; provider imports in frontend; public resize URL)
+Last Updated: **Aug 2025** - Phase 0 Task 02 core delivered; client-safe model catalog added; hosting build green.

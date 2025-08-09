@@ -4,7 +4,7 @@
 **Estimated Time:** 6 hours (revised - more complex than initially estimated)
 **Dependencies:** None - Must be completed FIRST in Phase 0
 **Owner:** [Assign]
-**Status:** ⏳ **MUST START IMMEDIATELY** - Blocking all other Phase 0 work
+**Status:** ✅ **CORE COMPLETE** (Remaining: small retry utility + docs)
 
 ## Problem Statement
 When AI API calls fail (timeout, rate limit, invalid input), the application crashes or shows cryptic error messages to users. This creates a poor user experience and makes debugging difficult.
@@ -238,10 +238,36 @@ export const OperationError: React.FC<OperationErrorProps> = ({
 - Update `useUpscaler`, `useOutpainter`, `ImageGenerator` to use the adapter
 
 ## Deliverables
-- Schema updated with unions and error types
-- Handler maps known errors to types; includes `requestId`, `provider`, `operation`
-- UI shows friendly messages without leaking internals
+- Schema updated with typed operation result (OperationResponse)
+- Handler maps known errors to codes; includes `requestId`, `provider`, `operation`
+- UI shows friendly messages without leaking internals; details available via toggle
 
 ## Acceptance Criteria
-- No raw error strings from Lambda reach UI
-- Rate limit and provider errors are distinguished by code on client
+- No raw error strings from Lambda reach UI ✅
+- Rate limit and provider errors are distinguished by code on client ✅
+
+---
+
+## 2025-08-09 Progress Update
+
+What shipped (backend):
+- Introduced `OperationResponse` in `amplify/data/resource.ts` for all AI mutations (generate, upscale, outpaint, style transfer, inpaint).
+- `aiDispatcher` now returns structured responses with `success`, `data`, and `error { code, message, retryAfter, provider, operation, requestId }`.
+- Error classification improved: API key/unauthorized/deprecated errors are mapped to `PROVIDER_ERROR` (not `INVALID_INPUT`). Rate limits mapped to `RATE_LIMIT` with `retryAfter`.
+
+What shipped (frontend):
+- New `src/lib/errorAdapter.ts` (`toFriendlyError`) to convert backend codes/messages into user-friendly strings; Gemini image gen shows a clear deprecation/misconfig message.
+- New `src/components/ui/OperationError.tsx` with a "Show details" toggle.
+- Hooks/pages updated to consume typed responses and show friendly errors: `ImageGenerator`, `useUpscaler`, `useOutpainter`, `useImageOperation`, `pages/style-transfer`, `pages/image-chat`.
+- Removed all client imports of server providers; introduced client-safe `src/modelCatalog` for display metadata.
+
+Acceptance criteria status:
+- [x] All AI operations wrapped in try-catch blocks (client + Lambda entrypoint)
+- [x] User-friendly error messages for common failures
+- [x] Errors logged with context for debugging (`requestId`, `provider`, `operation`)
+- [ ] Retry mechanism for transient failures (Remaining: small `retryWithBackoff` util; current providers already poll for completion)
+- [x] Loading states prevent multiple submissions
+
+Next steps to finish Task 02:
+1) Add shared `retryWithBackoff` in `amplify/functions/utils/retry.ts` and use where applicable (non-polling calls).
+2) Short doc: developer note on error codes and UI adapter.

@@ -65,13 +65,17 @@
 
 ### **Phase 0: Critical Stability Foundation (Week 1-2)**
 - [x] Emergency rate limiting ✅ **COMPLETED**
-- [ ] **PRIORITY 1:** Comprehensive error handling
+- [~] **PRIORITY 1:** Comprehensive error handling — Core delivered (typed responses, UI adapter, friendly errors). Remaining: shared retry util + brief docs
 - [ ] **PRIORITY 2:** Real cost monitoring  
 - [ ] **PRIORITY 3:** AI provider architecture refactor *(moved from Phase 3)*
 - [ ] **PRIORITY 3b:** Migrate Google image ops to Vertex AI using Service Account (`imagegeneration@006`), keep API‑key path as temporary fallback
 - [ ] **PRIORITY 4:** Complete usage caps system
 - [ ] **PRIORITY 5:** Production monitoring setup
- - [ ] **PRIORITY 6:** Secure media processing Function URL (resize) with token/signature + throttling
+- [ ] **PRIORITY 6:** Secure media processing Function URL (resize) with token/signature + throttling
+
+#### Notes (2025-08-09)
+- Implemented client/server separation for provider metadata via `src/modelCatalog`; removed client imports of server providers.
+- Amplify sandbox and hosting builds stabilized (Next pinned to 15.3.0 in dependencies).
 
 ### **Phase 1: Clean Architecture Foundation (Week 3-4)** *(NEW)*
 - Extract business logic from pages to hooks
