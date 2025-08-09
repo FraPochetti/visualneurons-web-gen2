@@ -22,11 +22,13 @@
 - [x] **Emergency rate limiting** ✅ **COMPLETED** - 10 operations/hour limit active
 - [~] **PRIORITY 1: Comprehensive error handling** — Core delivered (typed GraphQL responses, UI error adapter with details toggle, friendly messages in hooks/pages).
 - [x] **PRIORITY 1b: GraphQL error normalization** — Implemented via `OperationResponse` structure returned by all AI mutations.
-- [ ] **PRIORITY 2: Real cost monitoring** - Track actual API costs, not estimates
-- [ ] **PRIORITY 2b: Secure media processing endpoints** - Protect `resizeImage` Function URL with signed requests or token; add throttling
+- [~] **PRIORITY 2: Real cost monitoring** - Cost metric emitted from backend; dashboard/alarms next
+- [~] **PRIORITY 2c: In-app usage ledger** — Added OperationLog model, pricing registry, My Usage page (filters, CSV, daily totals). Next: server-side pagination/aggregates.
+- [x] **PRIORITY 2b: Secure media processing endpoints** - `resizeImage` URL set to AWS_IAM; `aiDispatcher` invokes the function directly with IAM
 - [ ] **PRIORITY 3: AI provider architecture refactor** - Eliminate code duplication
 - [ ] **PRIORITY 3b: Google → Vertex AI migration** - Service account auth, `imagegeneration@006`, API‑key fallback during transition
-- [ ] **PRIORITY 4: Complete usage caps system** - Build on rate limiting foundation
+- [ ] ~~**PRIORITY 4: Complete usage caps system** - Build on rate limiting foundation~~
+- [x] Deferred: app is not public; will launch with payment/credits, making this redundant
 - [ ] **PRIORITY 5: Production monitoring setup** - CloudWatch dashboards, alerts
 
 ### Phase 1: Clean Architecture Foundation (Week 3-4)
@@ -81,7 +83,7 @@
 ## 📈 REVISED Progress Tracking
 
 ### Completion Status
-- Phase 0: 35% ✅✅⬜⬜⬜ (Rate limiting done; error handling core delivered; remaining: retry util, cost monitoring, provider refactor, usage caps, monitoring, secure resize)
+- Phase 0: 45% ✅✅✅⬜⬜ (Rate limiting done; error handling core delivered; cost metric + secure resize done; remaining: dashboard/alarms, retry util, provider refactor, monitoring)
 - Phase 1: 0% ⬜⬜⬜⬜⬜ (Cannot start until Phase 0 complete)
 - Phase 2: 0% ⬜⬜⬜⬜⬜ (Cannot start until Phase 1 complete)
 - Phase 3: 0% ⬜⬜⬜⬜⬜

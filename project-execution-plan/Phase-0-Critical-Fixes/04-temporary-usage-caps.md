@@ -1,4 +1,10 @@
-# Task: Create Temporary Usage Caps
+# Task: Create Temporary Usage Caps (Deferred)
+
+Status: Deferred
+
+Rationale: The app isn’t public and you’re the only developer user. We will launch with the credit/payment system, which supersedes temporary daily caps. Keeping this doc for future reference.
+
+---
 
 ## Priority: 🔴 CRITICAL  
 **Estimated Time:** 1 hour

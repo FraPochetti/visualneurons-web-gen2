@@ -18,4 +18,5 @@ export const ROUTES = {
     STYLE_TRANSFER: '/style-transfer',
     IMAGE_CHAT: '/image-chat',
     EDIT_IMAGE: '/edit-image',
+    MY_USAGE: '/my-usage',
 } as const; 

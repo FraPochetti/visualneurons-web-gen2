@@ -12,6 +12,7 @@ export function Navigation({ className = "nav" }: NavigationProps) {
         { href: ROUTES.GENERATE_IMAGE, label: "Generate Image" },
         { href: ROUTES.STYLE_TRANSFER, label: "Style Transfer" },
         { href: ROUTES.IMAGE_CHAT, label: "Image Chat" },
+        { href: ROUTES.MY_USAGE, label: "My Usage" },
     ];
 
     return (

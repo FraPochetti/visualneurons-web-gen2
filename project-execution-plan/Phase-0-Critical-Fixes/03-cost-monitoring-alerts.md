@@ -4,7 +4,7 @@
 **Estimated Time:** 4 hours (revised - need real API cost tracking)
 **Dependencies:** Error handling (Task 02) must be completed first
 **Owner:** [Assign]
-**Status:** ⏳ **BLOCKED** - Waiting for error handling completion
+**Status:** 🚧 **IN PROGRESS** — Metrics emitted; pricing registry + in-app ledger added; dashboard/alarms pending
 
 ## Problem Statement  
 We have no visibility into ACTUAL AI API costs - currently using rough estimates. We could accumulate thousands of dollars in charges before noticing. Need real-time cost tracking and immediate alerting when costs spike.
@@ -15,12 +15,12 @@ We have no visibility into ACTUAL AI API costs - currently using rough estimates
 - [ ] CloudWatch dashboard showing AI operation costs
 - [ ] Email alerts when hourly costs exceed $50
 - [ ] Daily cost summary reports
-- [ ] Per-provider cost breakdown
+- [x] Per-provider cost breakdown (via metric dimensions Provider/Operation/Success)
 - [ ] User activity tracking for cost attribution
 
 ## Technical Implementation
 
-### 1. Add Cost Tracking to Lambda
+### 1. Add Cost Tracking to Lambda (DONE)
 ```typescript
 // amplify/functions/aiDispatcher/costTracker.ts
 interface OperationCost {
@@ -51,64 +51,14 @@ const OPERATION_COSTS: Record<string, Record<string, number>> = {
   }
 };
 
-export async function trackOperationCost(
-  userId: string,
-  provider: string,
-  operation: string,
-  success: boolean
-): Promise<void> {
-  const cost = OPERATION_COSTS[provider]?.[operation] || 0.01; // Default cost
-  
-  // Send metric to CloudWatch
-  await cloudwatch.putMetricData({
-    Namespace: 'VisualNeurons/AI',
-    MetricData: [{
-      MetricName: 'OperationCost',
-      Value: cost,
-      Unit: 'None',
-      Timestamp: new Date(),
-      Dimensions: [
-        { Name: 'Provider', Value: provider },
-        { Name: 'Operation', Value: operation },
-        { Name: 'Success', Value: success.toString() }
-      ]
-    }]
-  }).promise();
-  
-  // Log for detailed analysis
-  logger.info('Operation cost tracked', {
-    userId,
-    provider,
-    operation,
-    cost,
-    success,
-    timestamp: new Date().toISOString()
-  });
-}
+// Implemented in amplify/functions/aiDispatcher/handler.ts
+// - Emits VisualNeurons/AI:OperationCost with dimensions Provider/Operation/Success
+// - IAM permission: cloudwatch:PutMetricData granted in amplify/backend.ts
+// - Pricing registry in pricing.ts used to compute per-call costUsd
 ```
 
-### 2. Update Lambda Handler
-```typescript
-// amplify/functions/aiDispatcher/handler.ts
-export const handler = async (event: any) => {
-  const userId = event.identity?.claims?.sub || 'anonymous';
-  const operation = event.arguments.operation;
-  const providerName = event.arguments.provider || "replicate";
-  let success = false;
-  
-  try {
-    // ... existing operation code ...
-    success = true;
-    return result;
-  } catch (error) {
-    // ... error handling ...
-    throw error;
-  } finally {
-    // Always track cost, even for failures
-    await trackOperationCost(userId, providerName, operation, success);
-  }
-};
-```
+### 2. Update Lambda Handler (DONE)
+Implemented metric emission in `finally {}` in `aiDispatcher` with structured result handling already in place.
 
 ### 3. Create CloudWatch Dashboard
 ```json
@@ -250,20 +200,21 @@ export const handler = async (event: any) => {
 ```
 
 ## Testing Plan
-1. Generate test operations with known costs
-2. Verify metrics appear in CloudWatch within 5 minutes
-3. Test alarm triggers by generating high-cost operations
-4. Confirm email alerts are received
-5. Validate daily report accuracy
+1. Generate test operations with known costs (DONE)
+2. Verify metrics appear in CloudWatch within 5 minutes (NEXT)
+3. Test alarm triggers by generating high-cost operations (PENDING)
+4. Confirm email alerts are received (PENDING)
+5. Validate daily report accuracy (PENDING)
 
 ## Immediate Actions Required
-1. **Update email addresses** in alerts and reports
-2. **Calibrate cost estimates** with actual API pricing
-3. **Set appropriate thresholds** based on budget
-4. **Enable CloudWatch Logs Insights** for deeper analysis
+1. Create dashboard JSON and apply via console or CDK stack
+2. Add alarms (hourly/daily) and subscribe team mailing list
+3. **Calibrate cost estimates** with actual provider pricing
+4. **Set appropriate thresholds** based on budget
+5. Enable CloudWatch Logs Insights queries for correlation
 
 ## Notes
-- Cost estimates are rough - update with actual provider pricing
+- Pricing registry introduced - calibrate with actual provider pricing (per model/operation)
 - Consider adding per-user cost tracking in Phase 1
 - May need to adjust alarm thresholds based on usage patterns
 - Remember to add cost data to user analytics in Phase 4 
