@@ -3,6 +3,7 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { AIOperation } from '../providers/IAIProvider';
 import { checkRateLimit, isRateLimitError } from './rateLimit';
 import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
+import { getOperationPriceUsd } from './pricing';
 
 // Initialize the logger
 const logger = new Logger({
@@ -137,9 +138,12 @@ export const handler = async (event: any) => {
 
         // Return typed success response
         success = true;
+        const costUsd = getOperationPriceUsd(providerName, operation, modelInfo.modelName);
+        // Client will record OperationLog using returned costUsd
         return {
             success: true,
             data: result,
+            costUsd,
         };
     } catch (error: any) {
         const executionTime = Date.now() - startTime;
@@ -199,6 +203,8 @@ export const handler = async (event: any) => {
             code = 'PROVIDER_ERROR';
         }
 
+        const costUsd = getOperationPriceUsd(providerName, operation, 'unknown');
+        // Client may record error entries if needed
         return {
             success: false,
             error: {
@@ -207,13 +213,14 @@ export const handler = async (event: any) => {
                 provider: providerName,
                 operation,
                 requestId,
-            }
+            },
+            costUsd,
         };
     }
     finally {
         try {
             const cw = new CloudWatchClient({});
-            const cost = estimateOperationCost(providerName, operation);
+            const cost = getOperationPriceUsd(providerName, operation, 'unknown');
             await cw.send(new PutMetricDataCommand({
                 Namespace: 'VisualNeurons/AI',
                 MetricData: [{
@@ -233,11 +240,4 @@ export const handler = async (event: any) => {
     }
 };
 
-function estimateOperationCost(provider: string, operation: string): number {
-    const costs: Record<string, Record<string, number>> = {
-        replicate: { generateImage: 0.0052, upscaleImage: 0.0104, styleTransfer: 0.0156, outpaint: 0.0208, inpaint: 0.0156 },
-        stability: { generateImage: 0.0020, upscaleImage: 0.0060, styleTransfer: 0.0080, outpaint: 0.0100, inpaint: 0.0080 },
-        gemini: { generateImage: 0.0025 },
-    };
-    return costs[provider]?.[operation] ?? 0.01;
-}
+// pricing now retrieved from pricing.ts

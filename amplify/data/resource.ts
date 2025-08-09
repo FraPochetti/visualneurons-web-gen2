@@ -23,6 +23,8 @@ const schema = a.schema({
       operation: a.string(),
       requestId: a.string(),
     }),
+    // When available, the backend-computed estimated cost (USD) for this call
+    costUsd: a.float(),
   }),
 
   // Custom types for rate limiting
@@ -100,6 +102,19 @@ const schema = a.schema({
     level: a.enum(["INFO", "WARNING", "ERROR", "DEBUG"]),
     provider: a.enum(["replicate", "stability", "gemini", "user"]),
     details: a.json(),
+  }),
+
+  // Per-call ledger entry for user-visible usage and costs
+  OperationLog: a.model({
+    identityId: a.string().required(),
+    userSub: a.string(),
+    provider: a.enum(["replicate", "stability", "gemini", "user"]),
+    operation: a.string().required(),
+    model: a.string().required(),
+    status: a.enum(["SUCCESS", "ERROR"]),
+    requestId: a.string(),
+    costUsd: a.float().required(),
+    createdAt: a.string().required(),
   }),
 }).authorization(allow => [allow.authenticated()]);
 
