@@ -189,13 +189,15 @@ All project planning, tasks, and implementation details are tracked in the `proj
 
 **Environment Variables Used by Code**:
 ```
-Code uses: REPLICATE_API_TOKEN, STABILITY_API_TOKEN, GCP_API_TOKEN, LAMBDA_RESIZE_URL
+Code uses: REPLICATE_API_TOKEN, STABILITY_API_TOKEN, GCP_API_TOKEN (legacy/fallback), GCP_SERVICE_ACCOUNT_JSON, LAMBDA_RESIZE_URL, GCP_VERTEX_LOCATION (optional)
 ```
 
 Required secrets for AI providers (configure in Amplify console with EXACT names):
 - `REPLICATE_API_TOKEN` - Replicate API authentication
 - `STABILITY_API_TOKEN` - Stability AI authentication  
-- `GCP_API_TOKEN` - Google AI authentication (Gemini)
+- `GCP_SERVICE_ACCOUNT_JSON` - Google Cloud service account JSON for Vertex AI (recommended path)
+- `GCP_API_TOKEN` - Legacy Gemini API key (temporary fallback during migration)
+- `GCP_VERTEX_LOCATION` - Optional Vertex AI region override (e.g. `us-central1`, `europe-west1`)
 - `LAMBDA_RESIZE_URL` - URL for the image resize Lambda function
 
 **How to set secrets**:
@@ -206,8 +208,15 @@ Required secrets for AI providers (configure in Amplify console with EXACT names
 5. Lambda functions access them at runtime via `secret()` function
 
 **Important**: 
-- Never commit API keys to the repository
-- Use the EXACT environment variable names shown above - the code expects `_TOKEN` not `_KEY`
-- The `GCP_API_TOKEN` is used for Google's Gemini AI, not a generic Google API key
+- Never commit secrets to the repository
+- Use the EXACT environment variable names shown above
+- We are migrating Google image generation to Vertex AI using a service account. `GCP_API_TOKEN` remains only as a short-term fallback and will be removed once migration is complete.
+
+### Google Vertex AI (Recommended Authentication Path)
+1. In GCP, create a Service Account with the `Vertex AI User` role.
+2. Create a JSON key and download it. Treat it like a password.
+3. In Amplify Console, create a secret named `GCP_SERVICE_ACCOUNT_JSON` and paste the entire JSON content.
+4. Optionally set `GCP_VERTEX_LOCATION` (default chosen by backend if not set).
+5. Do not store this JSON locally; manage exclusively via Amplify secrets.
 
 See: [Amplify Gen2 Secrets Documentation](https://docs.amplify.aws/react/build-a-backend/functions/environment-variables-and-secrets/#secrets)

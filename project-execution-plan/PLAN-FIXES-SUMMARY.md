@@ -68,6 +68,7 @@
 - [ ] **PRIORITY 1:** Comprehensive error handling
 - [ ] **PRIORITY 2:** Real cost monitoring  
 - [ ] **PRIORITY 3:** AI provider architecture refactor *(moved from Phase 3)*
+- [ ] **PRIORITY 3b:** Migrate Google image ops to Vertex AI using Service Account (`imagegeneration@006`), keep API‑key path as temporary fallback
 - [ ] **PRIORITY 4:** Complete usage caps system
 - [ ] **PRIORITY 5:** Production monitoring setup
  - [ ] **PRIORITY 6:** Secure media processing Function URL (resize) with token/signature + throttling

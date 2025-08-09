@@ -23,6 +23,7 @@ This refactor is **foundational** and must be completed before the credit system
 - [ ] Base provider class with shared functionality
 - [ ] Configuration-driven model selection
 - [ ] Provider-agnostic operation interface
+- [ ] Google provider supports dual transport: legacy Gemini API (temporary) and Vertex AI via service account; defaults to Vertex
 
 ## Current Problems Identified
 
@@ -160,7 +161,7 @@ export class ProviderService {
 1. **Create base classes and interfaces** (2 hours)
 2. **Migrate Replicate provider first** (2 hours)
 3. **Migrate Stability provider** (2 hours)  
-4. **Migrate Gemini provider** (1 hour)
+4. **Migrate Google provider** (2 hours): add Vertex AI client path with `imagegeneration@006`, normalize outputs
 5. **Update provider factory** (1 hour)
 6. **Test all providers work consistently** (30 minutes)
 

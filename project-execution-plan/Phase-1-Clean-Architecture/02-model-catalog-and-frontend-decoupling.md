@@ -47,3 +47,6 @@ export const modelCatalog = {
 ## Notes
 - Keep provider execution and secret usage strictly in Lambda
 - This is a prerequisite for payment flows and pricing displays
+- Reflect current Google strategy in catalog copy:
+  - Text/multimodal reasoning: Gemini 2.5 (Pro/Flash) via Gemini API (future work)
+  - Image generation/editing: Vertex AI Imagen `imagegeneration@006` via service account

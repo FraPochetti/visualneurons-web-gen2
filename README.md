@@ -92,10 +92,12 @@ visualneurons-web-gen2/
    a. Deploy your app first: `npx ampx pipeline-deploy --branch main --app-id YOUR_APP_ID`
    b. Go to AWS Amplify Console for your app
    c. Navigate to Hosting > Environment variables
-   d. Add the following secrets with EXACT names (the code uses `_TOKEN` not `_KEY`):
+   d. Add the following secrets with EXACT names:
       - `REPLICATE_API_TOKEN` - Your Replicate API token
       - `STABILITY_API_TOKEN` - Your Stability AI API token
-      - `GCP_API_TOKEN` - Your Google AI API key (for Gemini)
+      - `GCP_SERVICE_ACCOUNT_JSON` - Google Cloud service account JSON (Vertex AI recommended)
+      - `GCP_API_TOKEN` - Legacy Gemini API key (temporary fallback during migration)
+      - `GCP_VERTEX_LOCATION` - Optional Vertex AI region (e.g., `us-central1`)
    
    **Important**: 
    - Never store API keys locally. Amplify Gen2 uses AWS Systems Manager for secure secret storage
@@ -108,6 +110,88 @@ visualneurons-web-gen2/
 
 6. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
+
+## ⚙️ Amplify Gen2 Sandbox Development Workflow
+
+### What the Sandbox is
+- The Amplify Sandbox is an ephemeral AWS environment that provisions real backend resources (Cognito, AppSync, S3, Lambda, DynamoDB) for local development. It lets you validate backend changes without pushing or touching production.
+
+### Day-to-day workflow
+1. Optional reset to a clean sandbox:
+   - Stop current sandbox (Ctrl+C in its terminal)
+   - Delete resources:
+     ```bash
+     npx ampx sandbox delete
+     ```
+2. Start sandbox + local app:
+   ```bash
+   npm run dev:sandbox
+   ```
+   This provisions the sandbox and writes `amplify_outputs.json` pointing your app to the sandbox backend, then starts Next.js.
+3. Save the sandbox outputs once (so you can switch back later without restarting the sandbox):
+   ```bash
+   npm run save:sandbox
+   ```
+4. Implement and test changes locally against real AWS resources.
+5. Tear down when done to avoid costs:
+   ```bash
+   npx ampx sandbox delete
+   ```
+
+### Switching backends locally
+- Active config file: `amplify_outputs.json` (what the app reads)
+- Keep snapshots in repo root (gitignored):
+  - `amplify_outputs.sandbox.json` – saved sandbox outputs
+  - `amplify_outputs.prod.json` – production outputs
+
+Commands:
+```bash
+# Point app at sandbox
+npm run use:sandbox
+
+# Point app at production
+npm run use:prod
+
+# Start app after switching (either env)
+npm run dev
+```
+
+Note: When `npx ampx sandbox` runs, it may re-write `amplify_outputs.json` to sandbox values. If a sandbox is already running, prefer `npm run dev` over `dev:sandbox`.
+
+### Scripts reference (package.json)
+```json
+{
+  "typecheck": "tsc --noEmit",
+  "test": "npm run lint",
+  "dev:sandbox": "npx ampx sandbox & npm run dev",
+  "use:prod": "cp -f amplify_outputs.prod.json amplify_outputs.json",
+  "use:sandbox": "cp -f amplify_outputs.sandbox.json amplify_outputs.json",
+  "save:sandbox": "cp -f amplify_outputs.json amplify_outputs.sandbox.json"
+}
+```
+
+### Pre-push quality gate
+Local Git hook runs before push:
+```bash
+npm run typecheck && npm test
+```
+`npm test` currently runs linting. Add a real test runner when ready.
+
+### CI/CD notes
+- Repo contains `amplify.yml`; Amplify Hosting uses that file at build time (it takes precedence over the console UI).
+- Backend deploys optimized with differential builds (`AMPLIFY_DIFF_BACKEND=true`) to skip backend updates when unchanged.
+
+### Secrets
+Manage secrets in Amplify Console (Hosting → Environment variables). Required: `REPLICATE_API_TOKEN`, `STABILITY_API_TOKEN`, `GCP_API_TOKEN`, `LAMBDA_RESIZE_URL`.
+
+### Troubleshooting
+- Wrong backend? Overwrite `amplify_outputs.json` with `npm run use:sandbox` or `npm run use:prod`.
+- Sandbox drift? Restart it:
+  ```bash
+  Ctrl+C   # stop
+  npx ampx sandbox delete
+  npm run dev:sandbox
+  ```
 
 ## 📖 Usage
 

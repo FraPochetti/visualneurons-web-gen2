@@ -25,6 +25,7 @@
 - [ ] **PRIORITY 2: Real cost monitoring** - Track actual API costs, not estimates
 - [ ] **PRIORITY 2b: Secure media processing endpoints** - Protect `resizeImage` Function URL with signed requests or token; add throttling
 - [ ] **PRIORITY 3: AI provider architecture refactor** - Eliminate code duplication
+- [ ] **PRIORITY 3b: Google → Vertex AI migration** - Service account auth, `imagegeneration@006`, API‑key fallback during transition
 - [ ] **PRIORITY 4: Complete usage caps system** - Build on rate limiting foundation
 - [ ] **PRIORITY 5: Production monitoring setup** - CloudWatch dashboards, alerts
 
