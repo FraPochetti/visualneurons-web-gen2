@@ -92,3 +92,12 @@ backend.aiDispatcher.resources.lambda.addToRolePolicy(new iam.PolicyStatement({
   actions: ['cloudwatch:PutMetricData'],
   resources: ['*'],
 }));
+
+// Expose OperationLog table to aiDispatcher and grant write permissions so the function
+// can append per-call usage entries (success/error) for in-app usage ledger
+const operationLogTable = backend.data.resources.tables['OperationLog'];
+backend.aiDispatcher.addEnvironment('OPERATION_LOG_TABLE', operationLogTable.tableName);
+backend.aiDispatcher.resources.lambda.addToRolePolicy(new iam.PolicyStatement({
+  actions: ['dynamodb:PutItem'],
+  resources: [operationLogTable.tableArn],
+}));

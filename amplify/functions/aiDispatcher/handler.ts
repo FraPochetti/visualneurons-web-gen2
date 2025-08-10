@@ -4,6 +4,7 @@ import { AIOperation } from '../providers/IAIProvider';
 import { checkRateLimit, isRateLimitError } from './rateLimit';
 import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
 import { getOperationPriceUsd } from './pricing';
+import { writeOperationLog } from './operationLog';
 
 // Initialize the logger
 const logger = new Logger({
@@ -16,8 +17,10 @@ export const handler = async (event: any) => {
     // Extract user information
     const userIdentity = event.identity || {};
     const userId = userIdentity.claims?.['sub'] || 'anonymous';
+    const identityId = userIdentity?.identityId || userIdentity?.identityId ? userIdentity.identityId : undefined;
     const requestId = event.request?.headers?.['x-amzn-requestid'] || `req-${Date.now()}`;
     const startTime = Date.now();
+    let modelNameForLogging: string = 'unknown';
 
     // Basic request logging
     logger.info('Function invoked', {
@@ -51,6 +54,7 @@ export const handler = async (event: any) => {
 
         // Get model-specific metadata based on operation
         const modelInfo = providerInstance.getModelInfo(operation as AIOperation);
+        modelNameForLogging = modelInfo.modelName;
 
         let result;
         switch (operation) {
@@ -139,7 +143,24 @@ export const handler = async (event: any) => {
         // Return typed success response
         success = true;
         const costUsd = getOperationPriceUsd(providerName, operation, modelInfo.modelName);
-        // Client will record OperationLog using returned costUsd
+
+        // Write usage ledger entry on success (best-effort)
+        try {
+            await writeOperationLog({
+                identityId: identityId || userId,
+                userSub: userId,
+                provider: providerName,
+                operation,
+                model: modelInfo.modelName,
+                status: 'SUCCESS',
+                requestId,
+                costUsd,
+                createdAt: new Date().toISOString(),
+            });
+        } catch (logErr) {
+            logger.warn('Failed to write OperationLog (success)', { error: (logErr as Error).message, requestId });
+        }
+
         return {
             success: true,
             data: result,
@@ -158,6 +179,23 @@ export const handler = async (event: any) => {
                 executionTimeMs: executionTime,
                 retryAfter: error.retryAfter
             });
+
+            // Best-effort: write usage ledger entry for rate limit without cost
+            try {
+                await writeOperationLog({
+                    identityId: identityId || userId,
+                    userSub: userId,
+                    provider: providerName,
+                    operation,
+                    model: modelNameForLogging,
+                    status: 'ERROR',
+                    requestId,
+                    costUsd: 0,
+                    createdAt: new Date().toISOString(),
+                });
+            } catch (logErr) {
+                logger.warn('Failed to write OperationLog (rate limit)', { error: (logErr as Error).message, requestId });
+            }
 
             // Return a structured error response for rate limiting
             return {
@@ -204,7 +242,24 @@ export const handler = async (event: any) => {
         }
 
         const costUsd = getOperationPriceUsd(providerName, operation, 'unknown');
-        // Client may record error entries if needed
+
+        // Write usage ledger entry on error (best-effort)
+        try {
+            await writeOperationLog({
+                identityId: identityId || userId,
+                userSub: userId,
+                provider: providerName,
+                operation,
+                model: modelNameForLogging,
+                status: 'ERROR',
+                requestId,
+                costUsd,
+                createdAt: new Date().toISOString(),
+            });
+        } catch (logErr) {
+            logger.warn('Failed to write OperationLog (error)', { error: (logErr as Error).message, requestId });
+        }
+
         return {
             success: false,
             error: {
